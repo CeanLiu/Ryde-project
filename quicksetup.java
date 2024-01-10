@@ -18,6 +18,8 @@ public class quicksetup {
          adsflkasjdfklkasdlfj klasdjfkl asdjflk asdfjaldskfalksdfjf
          sdaflkjasdlkfj lkasdf
          ofofihwioaefhoiweafj
+         hi
+         hi
     }
 }
     
