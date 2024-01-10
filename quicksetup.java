@@ -23,6 +23,8 @@ public class quicksetup {
          asdlkfjlaksdjfkasdjflkasdjflkasjdf
          hello 
          hello
+         new line leo
+         2 line leo
     }
 }
     
