@@ -11,6 +11,12 @@ public class quicksetup {
         ;kfgj klhdfs
         jg lkadl;
         l fkgalds
+        asdfjaldskfalksdfj lkasdf
+         asd;fkjasd f
+         ;askdflasjdlf sadk;fj dlsfj;asdkfj ;alsdkfj asdlfj asdfadsfjkalsdfk lkasdffas
+         sdf
+         adsflkasjdfklkasdlfj klasdjfkl asdjflk asdfjaldskfalksdfjf
+         sdaflkjasdlkfj lkasdf
     }
 }
     
