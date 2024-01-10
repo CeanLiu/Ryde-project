@@ -4,27 +4,7 @@ public class quicksetup {
         hihih
         ihihihi
         System.out.println("you ded'");
-        jslkdfjalsdlaksjdfklasdjflk asdf
-        asdlkfjaksldfjkal sdf';
-        fg ajsd;fkgalds ;f
-        al's;g jkldfa
-        ;kfgj klhdfs
-        jg lkadl;
-        l fkgalds
-        asdfjaldskfalksdfj lkasdf
-         asd;fkjasd f
-         ;askdflasjdlf sadk;fj dlsfj;asdkfj ;alsdkfj asdlfj asdfadsfjkalsdfk lkasdffas
-         sdf
-         adsflkasjdfklkasdlfj klasdjfkl asdjflk asdfjaldskfalksdfjf
-         sdaflkjasdlkfj lkasdf
-         ofofihwioaefhoiweafj
-         hi
-         hi
-         asdlkfjlaksdjfkasdjflkasdjflkasjdf
-         hello 
-         hello
-         new line leo
-         2 line leo
+        jslkdfjalsdlaksjdfklasdjflk asdf;
     }
 }
     
