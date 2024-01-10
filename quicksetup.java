@@ -3,3 +3,4 @@ public class quicksetup {
         System.out.println("you ded'");
     }
 }
+    
