@@ -20,6 +20,9 @@ public class quicksetup {
          ofofihwioaefhoiweafj
          hi
          hi
+         asdlkfjlaksdjfkasdjflkasdjflkasjdf
+         hello 
+         hello
     }
 }
     
