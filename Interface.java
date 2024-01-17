@@ -22,7 +22,7 @@ public class Interface extends JFrame {
 
     public Interface() {
         setTitle("Ride Interface");
-        setSize(600, 400);
+        setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridBagLayout());
 

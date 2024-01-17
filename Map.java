@@ -4,8 +4,8 @@ public class Map {
 
     final char ROAD = 'R';
     final char STOPS = 'S';
-    final char 
-    Node<String> location;
+    // final char 
+    // Node<String> location;
 
 
     private static class Node<String>{

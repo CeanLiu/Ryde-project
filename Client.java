@@ -4,7 +4,7 @@ import java.net.*;
 
 public class Client {
     final String LOCAL_HOST = "127.0.0.1";
-    final int PORT = 6090;
+    final int PORT = 7777;
     
     Socket clientSocket;
     PrintWriter output;    

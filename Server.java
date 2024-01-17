@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 
 public class Server {
-    final int PORT = 6090;       
+    final int PORT = 7777;       
     
     ServerSocket serverSocket;
     Socket clientSocket;
