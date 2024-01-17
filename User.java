@@ -22,6 +22,7 @@ public class User extends Client{
 
     }
 
+    //Connection to server
     @Override
     public void start() throws Exception{
         super.start();

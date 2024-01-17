@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 
 public class Client {
-    final String LOCAL_HOST = "127.0.0.1";
+    final String LOCAL_HOST = "192.168.0.100";//"127.0.0.1";
     final int PORT = 7777;
     
     Socket clientSocket;

@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Driver {
+public class Driver extends Client{
     ArrayList<User> passengers;
     int capacity;
     int x;
@@ -14,11 +14,21 @@ public class Driver {
         this.capacity = capacity;
     }
 
-    public void move (Driver driver, Graphics g){
-        int x1 = driver.current[0];
-        int y1 = driver.current[1];
-        int x2 = driver.end[1];
-        int y2 = driver.end[2];
+    //Connection to server
+    @Override
+    public void start() throws Exception{
+        super.start();
+    }
+    @Override
+    public void stop() throws Exception{
+        super.stop();
+    }
+
+    public void move (Graphics g){
+        int x1 = current[0];
+        int y1 = current[1];
+        int x2 = end[1];
+        int y2 = end[2];
         
         int dx = Math.abs(x2 - x1);
         int dy = Math.abs(y2 - y1);
@@ -46,29 +56,5 @@ public class Driver {
             }
         }
     }
-    class DriverThread implements Runnable{
-
-        ArrayList<Driver> drivers;
-        Driver driver;
-        int threadID;
-
-        public DriverThread(ArrayList<Driver> drivers, ArrayList<User> passengers, int capacity, int driverID){
-            this.drivers = drivers;
-            this.threadID = driverID;
-            this.driver = new Driver(passengers,capacity);
-            drivers.add(driver);
-        }
-
-        @Override
-        public void run() {
-            // move the driver along the roads
-            for (Driver driver: drivers){
-                move(driver);
-            }
-
-            //pause thread execution for the duration of one video frame
-            try{Thread.sleep(15);} catch (Exception e){e.printStackTrace();}
-        }
-        
-    }
+    
 }
