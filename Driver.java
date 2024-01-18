@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Driver extends Client{
+public class Driver extends Client {
     ArrayList<User> passengers;
     int capacity;
     int x;
@@ -9,27 +9,28 @@ public class Driver extends Client{
     int[] end = new int[2];
     Map map;
 
-    public Driver (ArrayList<User> passengers, int capacity){
+    public Driver(ArrayList<User> passengers, int capacity) {
         this.passengers = passengers;
         this.capacity = capacity;
     }
 
-    //Connection to server
+    // Connection to server
     @Override
-    public void start() throws Exception{
+    public void start() throws Exception {
         super.start();
     }
+
     @Override
-    public void stop() throws Exception{
+    public void stop() throws Exception {
         super.stop();
     }
 
-    public void move (Graphics g){
+    public void move(Graphics g) {
         int x1 = current[0];
         int y1 = current[1];
         int x2 = end[1];
         int y2 = end[2];
-        
+
         int dx = Math.abs(x2 - x1);
         int dy = Math.abs(y2 - y1);
         int sx = (x1 < x2) ? 1 : -1;
@@ -56,5 +57,5 @@ public class Driver extends Client{
             }
         }
     }
-    
+
 }
