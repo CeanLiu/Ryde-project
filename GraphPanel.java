@@ -10,6 +10,7 @@ import java.awt.Point;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -18,11 +19,7 @@ import javax.swing.JComboBox;
 
 class GraphPanel extends JPanel {
     JFrame frame2;
-    BorderLayout panelLayout;
-    JPanel panels, choicePanel;
     GraphicsPanel displayPanel;
-    JTextArea info;
-    JButton selectBoxButton, selectTruckButton, loadAllButton, loadOneButton, rotateButton;
     SimpleGraph map;
     final int FRAME_WIDTH = 1200;
     final int FRAME_HEIGHT = 1200;
@@ -38,7 +35,8 @@ class GraphPanel extends JPanel {
         frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         displayPanel = new GraphicsPanel();
         displayPanel.setPreferredSize(new Dimension(1000, 1000));
-        frame2.add(displayPanel, BorderLayout.CENTER);
+
+        frame2.add(displayPanel);
         
         frame2.setVisible(true);
     }

@@ -7,7 +7,7 @@ public class Driver extends Client{
     int y;
     int[] current = new int[2];
     int[] end = new int[2];
-    Map map;
+    SimpleGraph graph;
 
     public Driver (ArrayList<User> passengers, int capacity){
         this.passengers = passengers;
@@ -24,6 +24,10 @@ public class Driver extends Client{
         super.stop();
     }
 
+    public void move (){
+        User passenger = passengers.get(0);
+        current = graph.coordinates.get(passenger.start);
+    }
     public void move (Graphics g){
         int x1 = current[0];
         int y1 = current[1];
