@@ -1,21 +1,15 @@
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
-import java.awt.event.MouseEvent;
 import java.awt.Point;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-
 
 class GraphPanel extends JPanel {
     JFrame frame2;
@@ -23,12 +17,12 @@ class GraphPanel extends JPanel {
     SimpleGraph map;
     final int FRAME_WIDTH = 1200;
     final int FRAME_HEIGHT = 1200;
-    
-    GraphPanel(SimpleGraph hi){
+
+    GraphPanel(SimpleGraph hi) {
         this.map = hi;
     }
 
-    public void runLoop(){
+    public void runLoop() {
         frame2 = new JFrame("Display System");
         frame2.setResizable(true);
         frame2.setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -36,16 +30,34 @@ class GraphPanel extends JPanel {
         displayPanel = new GraphicsPanel();
         displayPanel.setPreferredSize(new Dimension(1000, 1000));
 
-        frame2.add(displayPanel);
-        
+        // Add the mouse click listener to the panel
+        MouseClickListener mouseClickListener = new MouseClickListener(this);
+        displayPanel.addMouseListener(mouseClickListener);
+
+        frame2.add(displayPanel, BorderLayout.CENTER);
+
         frame2.setVisible(true);
     }
 
-public class GraphicsPanel extends JPanel{
-    @Override
-    public void paintComponent(Graphics g){
-      super.paintComponent(g);
-      map.draw(g);
-      }
-}
+    class GraphicsPanel extends JPanel {
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            map.draw(g);
+        }
+    }
+
+    class MouseClickListener extends MouseAdapter {
+        private GraphPanel graphPanel;
+
+        public MouseClickListener(GraphPanel graphPanel) {
+            this.graphPanel = graphPanel;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            Point clickPoint = e.getPoint();
+            System.out.println("Mouse Clicked at: (" + clickPoint.getX() + ", " + clickPoint.getY() + ")");
+        }
+    }
 }
