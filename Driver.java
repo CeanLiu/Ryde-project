@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.util.ArrayList;
 
 public class Driver extends Client {
@@ -5,8 +6,8 @@ public class Driver extends Client {
     int capacity;
     int x;
     int y;
-    int[] current = new int[2];
-    int[] end = new int[2];
+    Point current;
+    Point end;
     SimpleGraph graph;
 
     public Driver(ArrayList<User> passengers, int capacity) {
@@ -25,15 +26,23 @@ public class Driver extends Client {
         super.stop();
     }
 
-    public void move (){
+    public void move (SimpleGraph graph){
+        this.graph = graph;
         User passenger = passengers.get(0);
-        current = graph.coordinates.get(passenger.start);
+        current = this.graph.getCoordinates(passenger.start);
+        end = this.graph.getCoordinates(passenger.destination);
+
+        System.out.println("Start: "+current);
+        System.out.println("End: " +end);
+
+        moveSteps();
+
     }
-    public void move (Graphics g){
-        int x1 = current[0];
-        int y1 = current[1];
-        int x2 = end[1];
-        int y2 = end[2];
+    public void moveSteps (){//(Graphics g){
+        int x1 = (int)current.getX();
+        int y1 = (int)current.getY();
+        int x2 = (int)end.getX();
+        int y2 = (int)end.getY();
 
         int dx = Math.abs(x2 - x1);
         int dy = Math.abs(y2 - y1);
@@ -42,7 +51,8 @@ public class Driver extends Client {
         int err = dx - dy;
 
         while (true) {
-            g.fillRect(x1, y1, 1, 1);
+            // g.fillRect(x1, y1, 1, 1);
+            System.out.println("("+x1+","+y1+")");
 
             if (x1 == x2 && y1 == y2) {
                 break;

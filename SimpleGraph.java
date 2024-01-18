@@ -68,6 +68,13 @@ class SimpleGraph{
             }
           }
 //------------------------------------------------------------------------------
+    public Point getCoordinates(String location){
+        return coordinates.get(location);
+    }
+    public Map<String,Double> getConnections(String location){
+        return map.get(location);
+    }
+//------------------------------------------------------------------------------
     //Adds a vertex to the graph  
     public void addVertex(String location, int x, int y){   
         map.put(location, new HashMap<>());   
