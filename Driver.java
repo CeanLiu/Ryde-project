@@ -12,6 +12,9 @@ public class Driver extends Client {
 
     public Driver(ArrayList<User> passengers, int capacity) {
         this.passengers = passengers;
+        for (User passenger: passengers){
+            passenger.inRide = true;
+        }
         this.capacity = capacity;
     }
 
@@ -37,6 +40,8 @@ public class Driver extends Client {
 
         moveSteps();
 
+        System.out.println("Current location: " + current);
+
     }
     public void moveSteps (){//(Graphics g){
         int x1 = (int)current.getX();
@@ -52,7 +57,7 @@ public class Driver extends Client {
 
         while (true) {
             // g.fillRect(x1, y1, 1, 1);
-            System.out.println("("+x1+","+y1+")");
+            // System.out.println("("+x1+","+y1+")");
 
             if (x1 == x2 && y1 == y2) {
                 break;
@@ -63,11 +68,16 @@ public class Driver extends Client {
             if (e2 > -dy) {
                 err -= dy;
                 x1 += sx;
+                current.setLocation(x1,y1);
             }
 
             if (e2 < dx) {
                 err += dx;
                 y1 += sy;
+                current.setLocation(x1,y1);
+            }
+            for (User user: passengers){
+                user.move(current);
             }
         }
     }
