@@ -3,12 +3,14 @@ import java.io.*;
 import java.net.*;
 
 public class Client {
-    final String LOCAL_HOST = "127.0.0.1";//"192.168.0.100";
+    private long phoneNum;
+    final String LOCAL_HOST = "192.168.0.100";//"127.0.0.1";
     final int PORT = 7777;
     
     Socket clientSocket;
     PrintWriter output;    
     BufferedReader input;
+  
     
     public void start() throws Exception{ 
         //create a socket with the local IP address and attempt a connection
@@ -28,5 +30,9 @@ public class Client {
         input.close();
         output.close();
         clientSocket.close();
+    }
+
+    public void setPhoneNum(long phoneNum){
+        this.phoneNum = phoneNum;
     }
 }

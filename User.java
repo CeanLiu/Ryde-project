@@ -2,16 +2,13 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class User extends Client{
-    private int phoneNum; // acts as the user id
+    //private long phoneNum; // acts as the user id
     String start;
     String destination;
     Point location;
     boolean inRide;
 
-    public User(int phoneNum, String start, String destination){ // add a parameter for the map containing the coordinates, and then allocate the coords for start to x and y
-        this.phoneNum = phoneNum;
-        this.start = start;
-        this.destination = destination;
+    public User(){ // add a parameter for the map containing the coordinates, and then allocate the coords for start to x and y
         this.inRide = false;
     }
 

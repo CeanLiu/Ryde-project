@@ -1,11 +1,17 @@
 import java.util.Map;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -14,7 +20,8 @@ import java.io.IOException;
  * @author ICS4UE
  * @version Oct 2023
  */
-class SimpleGraph{   
+class SimpleGraph{  
+    BufferedImage mapImage; 
     private Map<String, Map<String,Double>> map;
     private Map<String, Point> coordinates;  
     //Constructor
@@ -22,6 +29,16 @@ class SimpleGraph{
         this.map = new HashMap<>();
         this.coordinates = new HashMap<>();
         loadMap("map.txt");
+        try {
+
+            // Load the image that will be shown in the panel
+            mapImage = ImageIO.read(new File("mapImage.png"));
+
+        } catch (IOException ex) {
+            System.out.println("No Image Found");
+        }
+        
+
     }
     private void loadMap(String file){
             final int LOCATION_NAME_INDEX = 0;
@@ -125,8 +142,13 @@ class SimpleGraph{
     
 //------------------------------------------------------------------------------   
 
-    public void draw(Graphics g){ 
-        final int DIAMETER = 30;  
+    public void draw(Graphics2D g){ 
+        final int DIAMETER = 30; 
+        g.setColor(Color.orange);
+        g.drawLine(0,0,0,1000) ;
+        g.drawLine(0,0,1000,0) ;
+        g.drawLine(0,0,1000,1000) ;
+
         g.setColor(Color.red);
         for (String currentVertex : coordinates.keySet()){
             Point point = coordinates.get(currentVertex);
