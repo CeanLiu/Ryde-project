@@ -88,6 +88,9 @@ class SimpleGraph{
     public Point getCoordinates(String location){
         return coordinates.get(location);
     }
+    public Map<String,Point> getAllCoords(){
+        return coordinates;
+    }
     public Map<String,Double> getConnections(String location){
         return map.get(location);
     }

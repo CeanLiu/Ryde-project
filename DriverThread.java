@@ -6,13 +6,15 @@ public class DriverThread implements Runnable{
         Driver driver;
         int threadID;
         SimpleGraph graph;
+        User passenger;
 
-        public DriverThread(SimpleGraph graph, ArrayList<Driver> drivers, ArrayList<User> passengers, int capacity, int driverID){
+        public DriverThread(SimpleGraph graph, ArrayList<Driver> drivers, User passenger, int capacity, int driverID){
             this.graph = graph;
             this.drivers = drivers;
             this.threadID = driverID;
-            this.driver = new Driver(passengers,capacity);
+            this.driver = new Driver("J",capacity,graph);
             drivers.add(driver);
+            this.passenger = passenger;
         }
 
         @Override
@@ -23,7 +25,8 @@ public class DriverThread implements Runnable{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            driver.move(graph);
+            driver.assignPassenger(passenger);
+            driver.move();
 
             // for (Driver driver: drivers){
             //     driver.move(g);
