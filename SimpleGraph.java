@@ -145,9 +145,9 @@ class SimpleGraph{
     public void draw(Graphics2D g){ 
         final int DIAMETER = 30; 
         g.setColor(Color.orange);
-        g.drawLine(0,0,0,1000) ;
-        g.drawLine(0,0,1000,0) ;
-        g.drawLine(0,0,1000,1000) ;
+        g.drawLine(0,0,0,1024) ;
+        g.drawLine(0,0,1024,0) ;
+        g.drawLine(0,0,1024,1024) ;
 
         g.setColor(Color.red);
         for (String currentVertex : coordinates.keySet()){

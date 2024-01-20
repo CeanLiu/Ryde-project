@@ -135,7 +135,7 @@ public class Interface extends JFrame {
             BufferedImage image = ImageIO.read(new File("mapImage.png"));
             
             mapPanel = new GraphPanel(image,map);
-            mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+            //mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
         } catch (IOException ex) {
             
