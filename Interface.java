@@ -26,11 +26,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class Interface extends JFrame {
     final int MAX_X = (int) getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int) getToolkit().getScreenSize().getHeight();
-
 
     private BufferedImage mapImage;
     JFrame frame;
@@ -43,13 +41,10 @@ public class Interface extends JFrame {
     Client client;
     private boolean isDriver;
 
-    public Interface(SimpleGraph map, String imageFile){
+    public Interface(SimpleGraph map, String imageFile) {
         this.map = map;
-         try {
-
-            // Load the image that will be shown in the panel
+        try {
             mapImage = ImageIO.read(new File(imageFile));
-
         } catch (IOException ex) {
             System.out.println("No Image Found");
         }
@@ -63,7 +58,6 @@ public class Interface extends JFrame {
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null);
         GridBagConstraints frameGBC = new GridBagConstraints();
-
 
         // ------------------------------------------------------------------------------------------------------------------
         // #region
@@ -96,9 +90,9 @@ public class Interface extends JFrame {
         startGBC.insets = new Insets(100, 100, 30, 20); // Increased bottom margin, decreased left margin
         rideButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                if(event.getSource() == driveButton){
+                if (event.getSource() == driveButton) {
                     isDriver = true;
-                }else{
+                } else {
                     isDriver = false;
                 }
                 goLoginPage(isDriver);
@@ -130,48 +124,43 @@ public class Interface extends JFrame {
         continueButton.setFont(new Font(buttonFont.getName(), Font.PLAIN, 24));
         continueButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                try{
-                Long phoneNum = Long.parseLong(phoneNumberTextField.getText().trim());
-                goUserPage(phoneNum);
-                }catch(NullPointerException e){
+                try {
+                    Long phoneNum = Long.parseLong(phoneNumberTextField.getText().trim());
+                    goUserPage(phoneNum);
+                } catch (NullPointerException e) {
                     System.out.println("Please fill in your phone number");
-                    
-                        
+
                 }
             }
         });
         userLoginPanel.add(continueButton);
         userLoginPanel.setVisible(false);
-        frame.add(userLoginPanel,frameGBC);
+        frame.add(userLoginPanel, frameGBC);
 
         // #endregion
         // ----------------------------------------------------------------------------------------------
-       
-       
+
         userPanel = new UserPanel(map);
         try {
 
             // Load the image that will be shown in the panel
             BufferedImage image = ImageIO.read(new File("mapImage.png"));
-            mapPanel = new MapPanel(image,map,userPanel);
-            //mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+            mapPanel = new MapPanel(image, map, userPanel);
+            // mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
         } catch (IOException ex) {
-            
+
         }
 
         splitPane = new JSplitPane(1);
         splitPane.setLeftComponent(userPanel);
         splitPane.setRightComponent(mapPanel);
 
+        // MouseClickListener mouseClickListener = new MouseClickListener();
+        // mapPanel.addMouseListener(mouseClickListener);
+        // userPanel.setVisible(false);
+        // frameGBC.anchor = GridBagConstraints.NORTHWEST;
 
-
-        //MouseClickListener mouseClickListener = new MouseClickListener();
-        //mapPanel.addMouseListener(mouseClickListener);
-        //userPanel.setVisible(false);
-        //frameGBC.anchor = GridBagConstraints.NORTHWEST;
-
-        
         // Add the mouse click listener to the panel
         frameGBC.weightx = 1.0;
         frameGBC.weighty = 1.0;
@@ -179,11 +168,9 @@ public class Interface extends JFrame {
         frameGBC.anchor = GridBagConstraints.NORTHWEST;
         splitPane.setVisible(false);
         splitPane.setDividerLocation(500);
-        frame.add(splitPane,frameGBC);
-        
+        frame.add(splitPane, frameGBC);
 
         frame.setVisible(true);
-        
 
     }
 
@@ -228,7 +215,7 @@ public class Interface extends JFrame {
 
     public void goUserPage(Long phoneNum) {
         initialize();
-        if(!isDriver){
+        if (!isDriver) {
             client = new User(phoneNum);
         }
         userPanel.setUser(client);
@@ -237,8 +224,8 @@ public class Interface extends JFrame {
     }
 
     public static void main(String[] args) {
-        SimpleGraph hi= new SimpleGraph();
-        Interface bruh = new Interface(hi,"mapImage.png");
+        SimpleGraph hi = new SimpleGraph();
+        Interface bruh = new Interface(hi, "mapImage.png");
         bruh.runGUI();
     }
 }

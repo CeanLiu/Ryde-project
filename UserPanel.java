@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -39,11 +40,9 @@ public class UserPanel extends JPanel {
 
     UserPanel(SimpleGraph map) {
         this.map = map;
-        ArrayList<Location> locationsList = map.getLocations();
+        HashMap<String, Location> locationsList = map.getLocations();
         this.locations = new String[locationsList.size()];
-        for (int i = 0; i < locationsList.size(); i++) {
-            this.locations[i] = locationsList.get(i).getName();
-        }
+        locationsList.keySet().toArray(locations);
         initGUI();
     }
 
