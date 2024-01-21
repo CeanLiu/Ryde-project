@@ -1,6 +1,17 @@
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -22,13 +33,15 @@ public class Interface extends JFrame {
 
 
     private BufferedImage mapImage;
-    JFrame frame,frame2;
-    JPanel welcomePanel, userLoginPanel, jPanel,userPanel;
+    JFrame frame;
+    JPanel welcomePanel, userLoginPanel, jPanel;
     JSplitPane splitPane;
     JButton driveButton, rideButton;
-    GraphPanel mapPanel;
+    MapPanel mapPanel;
+    UserPanel userPanel;
     SimpleGraph map;
     Client client;
+    private boolean isDriver;
 
     public Interface(SimpleGraph map, String imageFile){
         this.map = map;
@@ -83,7 +96,12 @@ public class Interface extends JFrame {
         startGBC.insets = new Insets(100, 100, 30, 20); // Increased bottom margin, decreased left margin
         rideButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                goLoginPage(event.getSource() == driveButton);
+                if(event.getSource() == driveButton){
+                    isDriver = true;
+                }else{
+                    isDriver = false;
+                }
+                goLoginPage(isDriver);
             }
         });
 
@@ -114,8 +132,7 @@ public class Interface extends JFrame {
             public void actionPerformed(ActionEvent event) {
                 try{
                 Long phoneNum = Long.parseLong(phoneNumberTextField.getText().trim());
-                client.setPhoneNum(phoneNum);
-                goUserPage();
+                goUserPage(phoneNum);
                 }catch(NullPointerException e){
                     System.out.println("Please fill in your phone number");
                     
@@ -129,12 +146,14 @@ public class Interface extends JFrame {
 
         // #endregion
         // ----------------------------------------------------------------------------------------------
+       
+       
+        userPanel = new UserPanel(map);
         try {
 
             // Load the image that will be shown in the panel
             BufferedImage image = ImageIO.read(new File("mapImage.png"));
-            
-            mapPanel = new GraphPanel(image,map);
+            mapPanel = new MapPanel(image,map,userPanel);
             //mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
         } catch (IOException ex) {
@@ -142,9 +161,6 @@ public class Interface extends JFrame {
         }
 
         splitPane = new JSplitPane(1);
-        JLabel user = new JLabel("Welcom user");
-        userPanel = new JPanel(new FlowLayout());
-        userPanel.add(user);
         splitPane.setLeftComponent(userPanel);
         splitPane.setRightComponent(mapPanel);
 
@@ -162,6 +178,7 @@ public class Interface extends JFrame {
         frameGBC.fill = GridBagConstraints.BOTH;
         frameGBC.anchor = GridBagConstraints.NORTHWEST;
         splitPane.setVisible(false);
+        splitPane.setDividerLocation(500);
         frame.add(splitPane,frameGBC);
         
 
@@ -193,112 +210,6 @@ public class Interface extends JFrame {
         });
     }
 
-    // class GraphicsPanel extends JPanel {
-    // private boolean zoomer = false;
-    // private boolean dragger = false;
-    // private boolean released = false;
-    // private double zoomFactor = 1.0;
-    // private double prevZoomFactor = 1.0;
-    // private double xOffset = 0;
-    // private double yOffset = 0;
-    // private double xDiff = 0;
-    // private double yDiff = 0;
-    // private Point startPoint;
-
-    // @Override
-    // public void paintComponent(Graphics g) {
-    //     super.paintComponent(g);
-
-    //     Graphics2D g2 = (Graphics2D) g;
-
-    //     if (zoomer) {
-    //         AffineTransform at = new AffineTransform();
-
-    //         double xRel = MouseInfo.getPointerInfo().getLocation().getX() - getLocationOnScreen().getX();
-    //         double yRel = MouseInfo.getPointerInfo().getLocation().getY() - getLocationOnScreen().getY();
-
-    //         double zoomDiv = zoomFactor / prevZoomFactor;
-
-    //         xOffset = (zoomDiv) * (xOffset) + (1 - zoomDiv) * xRel;
-    //         yOffset = (zoomDiv) * (yOffset) + (1 - zoomDiv) * yRel;
-
-    //         at.translate(xOffset, yOffset);
-    //         at.scale(zoomFactor, zoomFactor);
-    //         prevZoomFactor = zoomFactor;
-    //         g2.transform(at);
-    //         zoomer = false;
-    //     }
-
-    //     if (dragger) {
-    //         AffineTransform at = new AffineTransform();
-    //         at.translate(xOffset + xDiff, yOffset + yDiff);
-    //         at.scale(zoomFactor, zoomFactor);
-    //         g2.transform(at);
-
-    //         if (released) {
-    //             xOffset += xDiff;
-    //             yOffset += yDiff;
-    //             dragger = false;
-    //         }
-
-    //     }
-
-    //     // All drawings go here
-        
-    //     g2.drawImage(mapImage, 0, 0,this);
-    //     map.draw(g)
-
-    // }
-    
-
-//     class MouseClickListener extends MouseAdapter {
-//         @Override
-//         public void mouseClicked(MouseEvent e) {
-//             Point clickPoint = e.getPoint();
-//             System.out.println("Mouse Clicked at: (" + clickPoint.getX() + ", " + clickPoint.getY() + ")");
-//         }
-
-//         @Override
-//         public void mouseWheelMoved(MouseWheelEvent e) {
-//             zoomer = true;
-
-//             // Zoom in
-//             if (e.getWheelRotation() < 0) {
-//                 zoomFactor *= 1.1;
-//                 repaint();
-//             }
-//             // Zoom out
-//             if (e.getWheelRotation() > 0) {
-//                 zoomFactor /= 1.1;
-//                 repaint();
-//             }
-//         }
-
-//         @Override
-//         public void mouseDragged(MouseEvent e) {
-//             Point curPoint = e.getLocationOnScreen();
-//             xDiff = curPoint.x - startPoint.x;
-//             yDiff = curPoint.y - startPoint.y;
-
-//             dragger = true;
-//             repaint();
-//         }
-
-//         @Override
-//         public void mousePressed(MouseEvent e) {
-//             released = false;
-//             startPoint = MouseInfo.getPointerInfo().getLocation();
-//         }
-
-//         @Override
-//         public void mouseReleased(MouseEvent e) {
-//             released = true;
-//             repaint();
-//         }
-//     }
-// }
-
-
     public void initialize() {
         welcomePanel.setVisible(false);
         userLoginPanel.setVisible(false);
@@ -311,13 +222,16 @@ public class Interface extends JFrame {
             // driverLogin.setVisible(true);
         } else {
             userLoginPanel.setVisible(true);
-            client = new User();
         }
 
     }
 
-    public void goUserPage() {
+    public void goUserPage(Long phoneNum) {
         initialize();
+        if(!isDriver){
+            client = new User(phoneNum);
+        }
+        userPanel.setUser(client);
         splitPane.setVisible(true);
 
     }

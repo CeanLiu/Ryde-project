@@ -1,21 +1,21 @@
-A,237,512
-B,683,194
-C,418,789
-D,56,327
-E,892,631
-F,174,458
-G,749,872
-H,321,115
-I,605,543
-J,482,278
+New York,237,512
+Los Angeles,683,194
+Chicago,418,789
+San Francisco,56,327
+Miami,892,631
+Denver,174,458
+Seattle,749,872
+Boston,321,115
+Dallas,605,543
+Phoenix,482,278
 Edge:
-A:B
-B:A,C
-C:B
-D:E
-E:D,J
-F:G
-G:F,H
-H:G,I
-I:H,J
-J:E,I
+New York:Los Angeles
+Los Angeles:New York,Chicago
+Chicago:Los Angeles
+San Francisco:Miami
+Miami:San Francisco,Phoenix
+Denver:Seattle
+Seattle:Denver,Boston
+Boston:Seattle,Dallas
+Dallas:Boston,Phoenix
+Phoenix:Miami,Dallas

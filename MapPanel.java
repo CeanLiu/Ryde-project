@@ -2,6 +2,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -9,12 +10,16 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
-public class GraphPanel extends JPanel {
 
+public class MapPanel extends JPanel {
+    private UserPanel userPanel;
     private BufferedImage image;
     private SimpleGraph map;
     private AffineTransform at;
@@ -23,18 +28,20 @@ public class GraphPanel extends JPanel {
     private double yOffset = 0;
     private Point startPoint;
     private Point currentPoint;
+    private Location hoveredLocation; 
 
-    public GraphPanel(BufferedImage image, SimpleGraph map) {
+    public MapPanel(BufferedImage image, SimpleGraph map, UserPanel userPanel) {
 
         this.image = image;
         this.map = map;
+        this.userPanel = userPanel;
         initComponent();
 
     }
 
     private void initComponent() {
-        ClickListener clickListener = new ClickListener();
-        DragListener dragListener = new DragListener();
+        ClickListener clickListener = new ClickListener(userPanel);
+        MouseMotionListener dragListener = new MouseMotionListener(this,userPanel);
         WheeleListener wheeleListener = new WheeleListener();
         this.addMouseListener(clickListener);
         this.addMouseMotionListener(dragListener);
@@ -62,11 +69,11 @@ public class GraphPanel extends JPanel {
         public void mouseWheelMoved(MouseWheelEvent e) {
             // Zoom in if < 0, Zoom out if > 0
             if (e.getWheelRotation() < 0) {
-                if (scaleFactor < 5){
+                if (scaleFactor < 5) {
                     scaleFactor *= 1.1;
                 }
             } else if (e.getWheelRotation() > 0) {
-                if (scaleFactor > 0.8){
+                if (scaleFactor > 0.8) {
                     scaleFactor /= 1.1;
                 }
             }
@@ -85,6 +92,10 @@ public class GraphPanel extends JPanel {
     }
 
     private class ClickListener extends MouseAdapter {
+        private UserPanel userPanel;
+        public ClickListener(UserPanel userPanel){
+            this.userPanel = userPanel;
+        }
         public void mousePressed(MouseEvent e) {
             startPoint = e.getPoint();
         }
@@ -93,43 +104,68 @@ public class GraphPanel extends JPanel {
             resetLocation();
             repaint();
         }
+
+        public void mouseClicked(MouseEvent e){
+            if(hoveredLocation != null){
+                userPanel.finishChoose(hoveredLocation);
+            }
+        }
     }
 
-    private class DragListener extends MouseMotionAdapter {
+    private class MouseMotionListener extends MouseMotionAdapter {
+        private MapPanel mapPanel;
+        private UserPanel userPanel;
+
+        public MouseMotionListener(MapPanel mapPanel, UserPanel userPanel) {
+            this.mapPanel = mapPanel;
+            this.userPanel = userPanel;
+        }
+
         public void mouseDragged(MouseEvent e) {
             currentPoint = e.getPoint();
-            if (true) {
-                double moveX = currentPoint.getX() - startPoint.getX();
-                double moveY = currentPoint.getY() - startPoint.getY();
-                xOffset += moveX;
-                yOffset += moveY;
-                startPoint = currentPoint;
-            }
+            double moveX = currentPoint.getX() - startPoint.getX();
+            double moveY = currentPoint.getY() - startPoint.getY();
+            xOffset += moveX;
+            yOffset += moveY;
+            startPoint = currentPoint;
             repaint();
         }
 
+        public void mouseMoved(MouseEvent e) {
+            double mouseInPaneX = MouseInfo.getPointerInfo().getLocation().getX() - getLocationOnScreen().getX();
+            double mouseInPaneY = MouseInfo.getPointerInfo().getLocation().getY() - getLocationOnScreen().getY();
+            Point2D cursorLocation = new Point2D.Double(mouseInPaneX, mouseInPaneY);
+            try {
+                AffineTransform inverse = at.createInverse();
+                inverse.transform(cursorLocation, cursorLocation);
+                hoveredLocation = map.contains(cursorLocation);
+                //this is where I change the textfield for userPanel
+                userPanel.setTextField(hoveredLocation);
+            } catch (NoninvertibleTransformException ex) {
+                System.out.println("non invertible transofrm");
+            }
+            repaint();
+        }
+    }
+
+    public Location getHoveredLocation(){
+        return hoveredLocation;
     }
 
     public void resetLocation() {
         final int IMAGE_HEIGHT = 1024;
         final int IMAGE_WIDTH = 1024;
-        // double xOnPanel = at.getTranslateX();
-        // double yOnPanel = at.getTranslateY();
-        // double imageScaleWidth = IMAGE_WIDTH * scaleFactor;
-        // double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
-        // double panelWidth = getSize().width;
-        // double panelHeight = getSize().height;
-        int xOnPanel = (int) at.getTranslateX();
-int yOnPanel = (int) at.getTranslateY();
-int imageScaleWidth = (int) (IMAGE_WIDTH * scaleFactor);
-int imageScaleHeight = (int) (IMAGE_HEIGHT * scaleFactor);
-int panelWidth = (int) getSize().getWidth();
-int panelHeight = (int) getSize().getHeight();
-
-        System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " +imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
+        double xOnPanel = at.getTranslateX();
+        double yOnPanel = at.getTranslateY();
+        double imageScaleWidth = IMAGE_WIDTH * scaleFactor;
+        double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
+        double panelWidth = getSize().width;
+        double panelHeight = getSize().height;
+        System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: "
+                + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
         if (imageScaleWidth >= panelWidth) {
             if (xOnPanel + imageScaleWidth <= panelWidth) {
-                xOffset =  panelWidth-imageScaleWidth;
+                xOffset = panelWidth - imageScaleWidth;
             }
         } else {
             if (xOnPanel <= 0) {
@@ -138,7 +174,7 @@ int panelHeight = (int) getSize().getHeight();
         }
         if (imageScaleHeight >= panelHeight) {
             if (yOnPanel + imageScaleWidth <= panelHeight) {
-                yOffset = panelHeight-imageScaleWidth;
+                yOffset = panelHeight - imageScaleWidth;
             }
         } else {
             if (yOnPanel <= 0) {
@@ -151,7 +187,6 @@ int panelHeight = (int) getSize().getHeight();
         if (yOnPanel >= 0) {
             yOffset = 0;
         }
-
     }
 
 }
