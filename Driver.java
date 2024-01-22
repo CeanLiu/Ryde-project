@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Queue;
 
 public class Driver extends Client {
-    ArrayList<User> passengers;
-    User passenger;
+    ArrayList<User> ryders;
+    User ryder;
     int capacity;
-    Location currentLocation, passengerStart, passengerEnd;
-    UserPanel userPanel;
+    Location currentLocation, ryderStart, ryderEnd;
+    SimpleGraph graph;
 
     // public Driver(ArrayList<User> passengers, int capacity) {
     //     this.passengers = passengers;
@@ -22,8 +22,9 @@ public class Driver extends Client {
     //     this.capacity = capacity;
     //     this.currentLocation = "A";
     // }
-    public Driver(Location current, int capacity){
-        this.passenger = null;
+    public Driver(SimpleGraph graph, Location current, int capacity){
+        this.graph = graph;
+        this.ryder = null;
         this.currentLocation = current;
         this.capacity = capacity;
     }
@@ -38,49 +39,39 @@ public class Driver extends Client {
         super.stop();
     }
 
-    public void assignPassenger(User passenger){
-        this.passenger = passenger;
+    public void assignRyder(User ryder){
+        this.ryder = ryder;
     }
-    public void addPassenger(User passenger){
-        if (this.passenger.getNumber() == passenger.getNumber()){
-            passenger.inRide = true;
-            System.out.println("Welcome aboard, passenger " + this.passenger.getNumber());
+    public void addRyder(User ryder){
+        if (this.ryder.getNumber() == ryder.getNumber()){
+            ryder.inRide = true;
+            System.out.println("Welcome aboard, ryder " + this.ryder.getNumber());
         } else {
-            System.out.println("This passenger has not been assigned to the driver");
+            System.out.println("This ryder has not been assigned to the driver");
         }
     }
-    public void removePassenger(User passenger){
-        this.passenger = null;
-        passenger.inRide = false;
+    public void removeRyder(User ryder){
+        this.ryder = null;
+        ryder.inRide = false;
         System.out.println("You've arrived at your destination, have a good day");
-    }
-    public boolean getUpdates(){
-        try {
-            User temp = userPanel.getUser();
-            assignPassenger(temp);
-            return true;
-        } catch (NullPointerException e) {
-            System.out.println("There is no user yet");
-            return false;
-        }
     }
 
     public void move (){
         // assign passenger before moving, ie after they pay
-        passengerStart = passenger.start;
-        passengerEnd = passenger.end;
+        ryderStart = ryder.start;
+        ryderEnd = ryder.end;
 
         System.out.println("Current location: " + currentLocation.getName());
-        System.out.println("Start: "+passengerStart.getName());
-        System.out.println("End: " +passengerEnd.getName());
+        System.out.println("Start: "+ryderStart.getName());
+        System.out.println("End: " +ryderEnd.getName());
 
-        ArrayList<Location> currentToStart = createPath(currentLocation, passengerStart);
-        ArrayList<Location> startToEnd = createPath(passengerStart, passengerEnd);
+        ArrayList<Location> currentToStart = shortestPath(currentLocation, ryderStart);
+        ArrayList<Location> startToEnd = shortestPath(ryderStart, ryderEnd);
         ArrayList<Location> totalPath = new ArrayList<>();
         //path for driver to get from current location to user's starting point
         if (currentToStart == null){System.out.println("The driver cannot get to the starting point from their location");}
         else {
-            System.out.print("Path to passenger: ");
+            System.out.print("Path to ryder: ");
             for (int i = currentToStart.size()-1; i >= 0; i--){
                 System.out.print(currentToStart.get(i).getName());
                 totalPath.add(currentToStart.get(i));
@@ -137,14 +128,14 @@ public class Driver extends Client {
             }
             
 
-            if(currentLocation.getX() == passengerStart.getX() && currentLocation.getY() == passengerStart.getY()){
-                addPassenger(passenger);
+            if(currentLocation.getX() == ryderStart.getX() && currentLocation.getY() == ryderStart.getY()){
+                addRyder(ryder);
             }
-            if(this.passenger != null && passenger.inRide){
-                passenger.move(currentLocation.getX(),currentLocation.getY());
+            if(this.ryder != null && ryder.inRide){
+                ryder.move(currentLocation.getX(),currentLocation.getY());
             }
-            if(this.passenger.inRide == true && currentLocation.getX() == passengerEnd.getX() && currentLocation.getY() == passengerEnd.getY()){
-                removePassenger(passenger);
+            if(this.ryder != null && this.ryder.inRide == true && currentLocation.getX() == ryderEnd.getX() && currentLocation.getY() == ryderEnd.getY()){
+                removeRyder(ryder);
             }
         }
     }
@@ -185,16 +176,51 @@ public class Driver extends Client {
         return null;
     }
     //-------------------------------------------------------------------------
-    public Point closestPoint(ArrayList<Point> pickups, ArrayList<Point> destinations){
-        Point currentPoint = this.current;
-        Point nextPoint = null;
-        if (this.passengers.isEmpty()){
-            for (Point pickup: pickups){
-                //find distance
-            }
+    public ArrayList<Location> shortestPath(Location start, Location end){
+        HashMap<Location,Double> distance = new HashMap<>();
+        HashSet<Location> unvisited = new HashSet<>();
+        Queue<Location> queue = new LinkedList<>();
+        HashMap<Location,Location> connections = new HashMap<>();
+        ArrayList<Location> path = new ArrayList<>();
+        for (String name: graph.getLocations().keySet()){
+            unvisited.add(graph.getLocation(name));
         }
-    }
-    public int findDistance(Point current, Point other){
+        for (Location location: graph.getLocations().values()){
+            distance.put(location,Double.MAX_VALUE);
+        }
+        distance.put(start,0.0);
+        unvisited.remove(start);
+        queue.add(start);
+
+        while(!unvisited.isEmpty()){
+            Location current = queue.remove();
+            if (current.equals(end)){
+                while(!current.equals(start)){
+                    path.add(current);
+                    current = connections.get(current);
+                }
+                path.add(current);
+                return path;
+            }
+            // add all the distances of the connectors
+            for(Location connector: current.getConnections()){
+                if (unvisited.contains(connector)){
+                    distance.put(connector,distance.get(current)+current.getEdge(connector));
+                }
+            }
+            // find the shortest distance connector that isn't already visited
+            Double length = Double.MAX_VALUE;
+            Location closest = current;
+            for (Location connector: distance.keySet()){
+                if (unvisited.contains(connector) && distance.get(connector) < length){
+                    closest = connector;
+                }
+            }
+            unvisited.remove(closest);
+            queue.add(closest);
+            connections.put(closest,current);
+        }
+        return null;
 
     }
 }

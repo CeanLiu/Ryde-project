@@ -11,32 +11,19 @@ public class DriverThread implements Runnable{
             this.graph = graph;
             this.drivers = drivers;
             this.threadID = driverID;
-            this.driver = new Driver(graph.getLocation("Denver"),5);
+            this.driver = new Driver(graph,graph.getLocation("Denver"),capacity);
             drivers.add(driver);
         }
 
         @Override
         public void run() {
-            // move the driver along the roads
             try {
                 driver.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            boolean running = true;
-            while (running){
-                boolean ryder = driver.getUpdates();
-                if (ryder){
-                    driver.move();
-                }
-    
-                System.out.println("i am still running");
-            }
+            driver.move();
             
-            // for (Driver driver: drivers){
-            //     driver.move(g);
-            // }
-
             //pause thread execution for the duration of one video frame
             try{Thread.sleep(15);} catch (Exception e){e.printStackTrace();}
         }

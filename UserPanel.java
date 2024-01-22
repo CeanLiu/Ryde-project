@@ -40,6 +40,7 @@ public class UserPanel extends JPanel {
     private User user;
     private String[] locations;
     private boolean isChoosingStart, isChoosingEnd;
+    private ArrayList<Driver> drivers = new ArrayList<>();
 
     UserPanel(SimpleGraph map) {
         this.map = map;
@@ -109,6 +110,9 @@ public class UserPanel extends JPanel {
                 user.setStart(map.getLocation(startTextField.getText()));
                 user.setEnd(map.getLocation(endTextField.getText()));
                 System.out.println(user);
+
+                //driver thread
+                updateUser();
             }
         });
         bottomPanel.add(submitButton);
@@ -294,8 +298,10 @@ public class UserPanel extends JPanel {
         }
     }
 
-    public User getUser(){
-        return this.user;
+    public void updateUser(){
+        Thread driverThread = new Thread(new DriverThread(map,drivers,5,101000));
+        this.drivers.get(drivers.size()-1).assignRyder(this.user);
+        driverThread.start();
     }
 
 }

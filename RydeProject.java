@@ -6,10 +6,10 @@ public class RydeProject {
         Interface pInterface = new Interface(graph, "mapImage.png");
         pInterface.runGUI();
 
-        ArrayList<User> users = new ArrayList<>();
-        ArrayList<Driver> drivers = new ArrayList<>();
-        Thread driverThread = new Thread(new DriverThread(graph,drivers,5,101000));
-        driverThread.start();
+        // ArrayList<User> users = new ArrayList<>();
+        // ArrayList<Driver> drivers = new ArrayList<>();
+        // Thread driverThread = new Thread(new DriverThread(graph,5,101000,pInterface));
+        // driverThread.start();
 
 
         // int number = 1234567890;

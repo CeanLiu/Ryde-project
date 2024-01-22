@@ -24,6 +24,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +40,8 @@ public class Interface extends JFrame {
     MapPanel mapPanel;
     UserPanel userPanel;
     SimpleGraph map;
-    Client client;
+    // Client client;
+    ArrayList<User> users = new ArrayList<>();
     private boolean isDriver;
 
     public Interface(SimpleGraph map, String imageFile) {
@@ -222,9 +224,11 @@ public class Interface extends JFrame {
     public void goUserPage(Long phoneNum) {
         initialize();
         if (!isDriver) {
-            client = new User(phoneNum);
+            Thread userThread = new Thread(new UserThread(users, phoneNum));
+            userThread.start();
+            // client = new User(phoneNum);
         }
-        userPanel.setUser(client);
+        userPanel.setUser(users.get(users.size()-1));
         splitPane.setVisible(true);
 
     }

@@ -5,10 +5,12 @@ public class User extends Client{
     private long phoneNum; // acts as the user id
     Location current, start, end;
     boolean inRide;
+    boolean finished;
 
     public User(long phoneNum){ // add a parameter for the map containing the coordinates, and then allocate the coords for start to x and y
         this.inRide = false;
         this.phoneNum = phoneNum;
+        this.finished = false;
     }
     public void setStart(Location start){
         this.start = start;
@@ -42,7 +44,7 @@ public class User extends Client{
 
     //Connection to server
     public void start() throws Exception{
-        super.start("passenger");
+        super.start("ryder");
     }
     @Override
     public void stop() throws Exception{
