@@ -16,6 +16,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 
 public class MapPanel extends JPanel {
@@ -28,7 +29,7 @@ public class MapPanel extends JPanel {
     private double yOffset = 0;
     private Point startPoint;
     private Point currentPoint;
-    private Location hoveredLocation; 
+    private Location hoveredLocation = null; 
 
     public MapPanel(BufferedImage image, SimpleGraph map, UserPanel userPanel) {
 
@@ -84,8 +85,8 @@ public class MapPanel extends JPanel {
             // offset the x and y values so that the map stays in place when zooming in and
             // out
             double scaleChange = scaleFactor / prevScale;
-            xOffset = mouseInPaneX - scaleChange * (mouseInPaneX - xOffset);
-            yOffset = mouseInPaneY - scaleChange * (mouseInPaneY - yOffset);
+            xOffset = e.getX()- scaleChange * (e.getX() - xOffset);
+            yOffset = e.getY() - scaleChange * (e.getY() - yOffset);
             prevScale = scaleFactor;
             repaint();
         }
@@ -101,15 +102,16 @@ public class MapPanel extends JPanel {
         }
 
         public void mouseReleased(MouseEvent e) {
+            if(hoveredLocation != null){
+                userPanel.finishChoose(hoveredLocation);
+                hoveredLocation = null;
+            }
             resetLocation();
             repaint();
         }
 
-        public void mouseClicked(MouseEvent e){
-            if(hoveredLocation != null){
-                userPanel.finishChoose(hoveredLocation);
-            }
-        }
+        // public void mouseClicked(MouseEvent e){
+        // }
     }
 
     private class MouseMotionListener extends MouseMotionAdapter {
@@ -123,6 +125,10 @@ public class MapPanel extends JPanel {
 
         public void mouseDragged(MouseEvent e) {
             currentPoint = e.getPoint();
+            if (startPoint == null) {
+                startPoint = currentPoint;
+            }
+            System.out.println(currentPoint.getX() + startPoint.getX());
             double moveX = currentPoint.getX() - startPoint.getX();
             double moveY = currentPoint.getY() - startPoint.getY();
             xOffset += moveX;
@@ -132,15 +138,12 @@ public class MapPanel extends JPanel {
         }
 
         public void mouseMoved(MouseEvent e) {
-            double mouseInPaneX = MouseInfo.getPointerInfo().getLocation().getX() - getLocationOnScreen().getX();
-            double mouseInPaneY = MouseInfo.getPointerInfo().getLocation().getY() - getLocationOnScreen().getY();
-            Point2D cursorLocation = new Point2D.Double(mouseInPaneX, mouseInPaneY);
+            Point2D cursorLocation = new Point2D.Double(e.getX(), e.getY());
             try {
                 AffineTransform inverse = at.createInverse();
                 inverse.transform(cursorLocation, cursorLocation);
                 hoveredLocation = map.contains(cursorLocation);
                 //this is where I change the textfield for userPanel
-                userPanel.setTextField(hoveredLocation);
             } catch (NoninvertibleTransformException ex) {
                 System.out.println("non invertible transofrm");
             }
@@ -161,8 +164,7 @@ public class MapPanel extends JPanel {
         double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
         double panelWidth = getSize().width;
         double panelHeight = getSize().height;
-        System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: "
-                + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
+        System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
         if (imageScaleWidth >= panelWidth) {
             if (xOnPanel + imageScaleWidth <= panelWidth) {
                 xOffset = panelWidth - imageScaleWidth;

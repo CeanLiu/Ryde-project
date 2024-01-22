@@ -5,6 +5,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -47,6 +48,11 @@ public class Interface extends JFrame {
             mapImage = ImageIO.read(new File(imageFile));
         } catch (IOException ex) {
             System.out.println("No Image Found");
+        }
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
