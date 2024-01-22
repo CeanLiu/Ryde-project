@@ -22,8 +22,8 @@ public class Server {
         serverSocket = new ServerSocket(PORT);                //create and bind a socket
         while(true) {
             clientSocket = serverSocket.accept();             //wait for connection request
-            clientCounter = clientCounter +1;
-            System.out.println("User "+clientCounter+" connected");
+            clientCounter = clientCounter + 1;
+            System.out.println("Client "+clientCounter+" connected");            
             Thread connectionThread = new Thread(new ConnectionHandler(clientSocket));
             connectionThread.start();                         //start a new thread to handle the connection
         }
@@ -42,14 +42,14 @@ public class Server {
         @Override
         public void run() {
             try {
-                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 output = new PrintWriter(socket.getOutputStream());
                 //receive a message from the client
                 String msg = input.readLine();
                 System.out.println("Message from the client: " + msg);
                 //send a response to the client
-                output.println("User "+clientCounter+", you are connected!");
-                output.flush();         
+                output.println("Client "+clientCounter+", you are connected!");
+                output.flush();
                 //after completing the communication close the streams but do not close the socket!
                 input.close();
                 output.close();

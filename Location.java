@@ -42,6 +42,18 @@ public class Location {
         return this.y;
     }
 
+    public void setX(double x){
+        this.x = x;
+    }
+
+    public void setY(double y){
+        this.y = y;
+    }
+
+    public ArrayList<Location> getConnections(){
+        return this.connections;
+    }
+
     public boolean contains(Point2D point) {
         return isHovered = drawCircle.contains(point);
 

@@ -6,10 +6,10 @@ public class UserThread implements Runnable{
         User user;
         long threadID; // use the user's phone number as the thread id
 
-        public UserThread(ArrayList<User> users, String start, String destination, long phoneNum){
+        public UserThread(ArrayList<User> users, long phoneNum){
             this.users = users;
             this.threadID = phoneNum;
-            this.user = new User(phoneNum,start,destination);
+            this.user = new User(phoneNum);
             users.add(user);
         }
 

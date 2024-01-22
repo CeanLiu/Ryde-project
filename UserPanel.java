@@ -294,4 +294,8 @@ public class UserPanel extends JPanel {
         }
     }
 
+    public User getUser(){
+        return this.user;
+    }
+
 }

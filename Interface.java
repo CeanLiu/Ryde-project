@@ -71,7 +71,7 @@ public class Interface extends JFrame {
         GridBagConstraints startGBC = new GridBagConstraints();
 
         // Create the title label with a larger font
-        JLabel titleLabel = new JLabel("Welcom To RYDE");
+        JLabel titleLabel = new JLabel("Welcome To RYDE");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Larger font
         startGBC.gridx = 0;
         startGBC.gridy = 0;
@@ -227,11 +227,5 @@ public class Interface extends JFrame {
         userPanel.setUser(client);
         splitPane.setVisible(true);
 
-    }
-
-    public static void main(String[] args) {
-        SimpleGraph hi = new SimpleGraph();
-        Interface bruh = new Interface(hi, "mapImage.png");
-        bruh.runGUI();
     }
 }
