@@ -74,7 +74,7 @@ public class MapPanel extends JPanel {
                     scaleFactor *= 1.1;
                 }
             } else if (e.getWheelRotation() > 0) {
-                if (scaleFactor > 0.8) {
+                if (scaleFactor > 1) {
                     scaleFactor /= 1.1;
                 }
             }
@@ -99,6 +99,7 @@ public class MapPanel extends JPanel {
         }
         public void mousePressed(MouseEvent e) {
             startPoint = e.getPoint();
+            System.out.println("\nX: " + e.getX() + " y: " + e.getY()+"\n");
         }
 
         public void mouseReleased(MouseEvent e) {
@@ -143,6 +144,7 @@ public class MapPanel extends JPanel {
                 AffineTransform inverse = at.createInverse();
                 inverse.transform(cursorLocation, cursorLocation);
                 hoveredLocation = map.contains(cursorLocation);
+
                 //this is where I change the textfield for userPanel
             } catch (NoninvertibleTransformException ex) {
                 System.out.println("non invertible transofrm");
@@ -164,7 +166,7 @@ public class MapPanel extends JPanel {
         double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
         double panelWidth = getSize().width;
         double panelHeight = getSize().height;
-        System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
+        //System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
         if (imageScaleWidth >= panelWidth) {
             if (xOnPanel + imageScaleWidth <= panelWidth) {
                 xOffset = panelWidth - imageScaleWidth;

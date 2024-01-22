@@ -1,21 +1,38 @@
-New York,237,512
-Los Angeles,683,194
-Chicago,418,789
-San Francisco,56,327
-Miami,892,631
-Denver,174,458
-Seattle,749,872
-Boston,321,115
-Dallas,605,543
-Phoenix,482,278
+Central Park,470,141
+City Hall,587,531
+A,754,875
+D,743,648
+H,619,737
+M,181,330
+O,305,768
+E,186,532
+C,466,531
+G,465,780
+L,467,327
+BBB,946,331
+CCC,758,537
+ADF,760,333
+FJG,825,195
+YONGE-BAY,590,199
+ELGIN-YORK,305,329
+Central Park SW,343,208
 Edge:
-New York:Los Angeles
-Los Angeles:New York,Chicago
-Chicago:Los Angeles
-San Francisco:Miami
-Miami:San Francisco,Phoenix
-Denver:Seattle
-Seattle:Denver,Boston
-Boston:Seattle,Dallas
-Dallas:Boston,Phoenix
-Phoenix:Miami,Dallas
+Central Park:Central Park SW,L
+City Hall:C,CCC,YONGE-BAY
+A:D,H
+D:A,CCC
+H:G,D,City Hall,A
+M:E,ELGIN-YORK
+O:G,ELGIN-YORK
+E:M,C
+C:E,L,G
+G:H,O
+L:C,ELGIN-YORK,Central Park
+BBB:FJG,ADF
+CCC:ADF,City Hall,D
+ADF:CCC,L,BBB
+FJG:BBB,YONGE-BAY
+YONGE-BAY:FJG,Central Park SW
+ELGIN-YORK:M,L,Central Park SW
+Central Park SW:ELGIN-YORK,Central Park,YONGE-BAY
+
