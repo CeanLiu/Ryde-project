@@ -1,16 +1,14 @@
 import java.util.ArrayList;
 
 public class UserThread implements Runnable{
-
-        ArrayList<User> users;
+        Database db;
         User user;
         long threadID; // use the user's phone number as the thread id
 
-        public UserThread(ArrayList<User> users, long phoneNum){
-            this.users = users;
+        public UserThread(Database db, long phoneNum){
+            this.db = db;
             this.threadID = phoneNum;
-            this.user = new User(phoneNum);
-            users.add(user);
+            this.user = db.getUser(phoneNum);
         }
 
         @Override

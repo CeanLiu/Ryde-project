@@ -1,10 +1,11 @@
-import java.util.ArrayList;
 
 public class RydeProject {
     public static void main(String[] args) throws Exception{
         SimpleGraph graph = new SimpleGraph();
-        Interface pInterface = new Interface(graph, "mapImage.png");
+        Database db = new Database("clients.txt",graph);
+        Interface pInterface = new Interface(graph, "mapImage.png",db);
         pInterface.runGUI();
+
 
         // ArrayList<User> users = new ArrayList<>();
         // ArrayList<Driver> drivers = new ArrayList<>();

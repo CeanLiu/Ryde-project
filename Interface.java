@@ -7,6 +7,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import javafx.scene.chart.PieChart.Data;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -20,6 +22,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -33,6 +37,7 @@ public class Interface extends JFrame {
     final int MAX_Y = (int) getToolkit().getScreenSize().getHeight();
 
     private BufferedImage mapImage;
+    private Database db;
     JFrame frame;
     JPanel welcomePanel, userLoginPanel, jPanel;
     JSplitPane splitPane;
@@ -44,8 +49,9 @@ public class Interface extends JFrame {
     ArrayList<User> users = new ArrayList<>();
     private boolean isDriver;
 
-    public Interface(SimpleGraph map, String imageFile) {
+    public Interface(SimpleGraph map, String imageFile, Database db) {
         this.map = map;
+        this.db = db;
         try {
             mapImage = ImageIO.read(new File(imageFile));
         } catch (IOException ex) {
@@ -66,6 +72,15 @@ public class Interface extends JFrame {
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null);
         GridBagConstraints frameGBC = new GridBagConstraints();
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // Save data when the window is closing
+                db.saveDatabase();
+                // Optionally, you can also perform other cleanup tasks here
+            }
+        });
 
         // ------------------------------------------------------------------------------------------------------------------
         // #region
@@ -148,34 +163,20 @@ public class Interface extends JFrame {
         // #endregion
         // ----------------------------------------------------------------------------------------------
 
-        userPanel = new UserPanel(map);
-        try {
+        userPanel = new UserPanel(map, db);
+        mapPanel = new MapPanel(mapImage, map, userPanel);
 
-            // Load the image that will be shown in the panel
-            BufferedImage image = ImageIO.read(new File("mapImage.png"));
-            mapPanel = new MapPanel(image, map, userPanel);
-            // mapPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-
-        } catch (IOException ex) {
-
-        }
 
         splitPane = new JSplitPane(1);
         splitPane.setLeftComponent(userPanel);
         splitPane.setRightComponent(mapPanel);
+        splitPane.setDividerLocation(600);
 
-        // MouseClickListener mouseClickListener = new MouseClickListener();
-        // mapPanel.addMouseListener(mouseClickListener);
-        // userPanel.setVisible(false);
-        // frameGBC.anchor = GridBagConstraints.NORTHWEST;
-
-        // Add the mouse click listener to the panel
         frameGBC.weightx = 1.0;
         frameGBC.weighty = 1.0;
         frameGBC.fill = GridBagConstraints.BOTH;
         frameGBC.anchor = GridBagConstraints.NORTHWEST;
         splitPane.setVisible(false);
-        splitPane.setDividerLocation(500);
         frame.add(splitPane, frameGBC);
 
         frame.setVisible(true);
@@ -224,12 +225,11 @@ public class Interface extends JFrame {
     public void goUserPage(Long phoneNum) {
         initialize();
         if (!isDriver) {
-            Thread userThread = new Thread(new UserThread(users, phoneNum));
-            userThread.start();
-            // client = new User(phoneNum);
+            db.addUser(phoneNum);
+            //Thread userThread = new Thread(new UserThread(db, phoneNum));
+            //userThread.start();
+            userPanel.setUser(db.getUser(phoneNum));
         }
-        userPanel.setUser(users.get(users.size()-1));
         splitPane.setVisible(true);
-
     }
 }

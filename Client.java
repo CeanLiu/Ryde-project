@@ -4,7 +4,7 @@ import java.net.*;
 
 public class Client {
     private long phoneNum;
-    final String LOCAL_HOST = "127.0.0.1"; //"192.168.0.100";
+    final String LOCAL_HOST = "192.168.0.14";//"127.0.0.1"; //"192.168.0.100";
     final int PORT = 7777;
     
     Socket clientSocket;

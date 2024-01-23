@@ -78,6 +78,10 @@ class SimpleGraph {
         return this.locations;
     }
 
+    public Location getLocation(String name) {
+        return locations.get(name);
+    }
+
     public void draw(Graphics2D g2) {
         g2.setColor(Color.orange);
         g2.drawLine(0, 0, 0, 1024);
@@ -98,10 +102,6 @@ class SimpleGraph {
             }
         }
         return null;
-    }
-
-    public Location getLocation(String name) {
-        return locations.get(name);
     }
 
     @Override

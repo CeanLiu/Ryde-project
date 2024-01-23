@@ -12,6 +12,13 @@ public class User extends Client{
         this.phoneNum = phoneNum;
         this.finished = false;
     }
+    public User(long phoneNum,Location start, Location end, boolean inRide){ 
+        this.phoneNum = phoneNum;
+        this.start = start;
+        this.end = end;
+        this.inRide = inRide;
+        this.finished = false;
+    }
     public void setStart(Location start){
         this.start = start;
         this.current = start;

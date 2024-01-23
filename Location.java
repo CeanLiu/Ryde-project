@@ -42,15 +42,15 @@ public class Location {
         return this.y;
     }
 
-    public void setX(double x){
+    public void setX(double x) {
         this.x = x;
     }
 
-    public void setY(double y){
+    public void setY(double y) {
         this.y = y;
     }
 
-    public ArrayList<Location> getConnections(){
+    public ArrayList<Location> getConnections() {
         return this.connections;
     }
 
@@ -119,8 +119,10 @@ public class Location {
     @Override
     public String toString() {
         String str = "";
-        for (Location location : connections) {
-            str = str + " " + location.getName();
+        if (connections != null) {
+            for (Location location : connections) {
+                str = str + " " + location.getName();
+            }
         }
         return name + ": " + str;
     }
