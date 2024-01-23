@@ -20,7 +20,7 @@ import javax.swing.UIManager;
 
 
 public class MapPanel extends JPanel {
-    private UserPanel userPanel;
+    private InfoPanel userPanel;
     private BufferedImage image;
     private SimpleGraph map;
     private AffineTransform at;
@@ -31,7 +31,7 @@ public class MapPanel extends JPanel {
     private Point currentPoint;
     private Location hoveredLocation = null; 
 
-    public MapPanel(BufferedImage image, SimpleGraph map, UserPanel userPanel) {
+    public MapPanel(BufferedImage image, SimpleGraph map, InfoPanel userPanel) {
 
         this.image = image;
         this.map = map;
@@ -93,8 +93,8 @@ public class MapPanel extends JPanel {
     }
 
     private class ClickListener extends MouseAdapter {
-        private UserPanel userPanel;
-        public ClickListener(UserPanel userPanel){
+        private InfoPanel userPanel;
+        public ClickListener(InfoPanel userPanel){
             this.userPanel = userPanel;
         }
         public void mousePressed(MouseEvent e) {
@@ -117,9 +117,9 @@ public class MapPanel extends JPanel {
 
     private class MouseMotionListener extends MouseMotionAdapter {
         private MapPanel mapPanel;
-        private UserPanel userPanel;
+        private InfoPanel userPanel;
 
-        public MouseMotionListener(MapPanel mapPanel, UserPanel userPanel) {
+        public MouseMotionListener(MapPanel mapPanel, InfoPanel userPanel) {
             this.mapPanel = mapPanel;
             this.userPanel = userPanel;
         }

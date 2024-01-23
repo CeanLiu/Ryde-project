@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class Driver extends Client {
-    ArrayList<User> ryders = new ArrayList<>();;
+    ArrayList<User> ryders;
     Long phoneNum; 
     // User ryder;
     int capacity;
@@ -47,6 +47,10 @@ public class Driver extends Client {
 
     public long getNumber(){
         return this.phoneNum;
+    }
+
+    public void setCurrentLocation(Location location){
+        this.currentLocation = location;
     }
     // Connection to server
     public void start() throws Exception {

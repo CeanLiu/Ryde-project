@@ -39,11 +39,13 @@ public class Interface extends JFrame {
     private BufferedImage mapImage;
     private Database db;
     JFrame frame;
-    JPanel welcomePanel, userLoginPanel, jPanel;
+    JPanel welcomePanel, loginPanel, driverLoginPanel;
+    JTextField dCapacityTextField;
+    JLabel dCapacityLabel;
     JSplitPane splitPane;
     JButton driveButton, rideButton;
     MapPanel mapPanel;
-    UserPanel userPanel;
+    InfoPanel infoPanel;
     SimpleGraph map;
     // Client client;
     ArrayList<User> users = new ArrayList<>();
@@ -103,6 +105,12 @@ public class Interface extends JFrame {
         startGBC.gridy = 1;
         startGBC.gridwidth = 1; // Reset grid width
         startGBC.insets = new Insets(100, 20, 30, 10); // Increased bottom margin, decreased right margin
+        driveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                isDriver = true;
+                goLoginPage();
+            }
+        });
         welcomePanel.add(driveButton, startGBC);
 
         // Create the right button with a larger size
@@ -113,12 +121,8 @@ public class Interface extends JFrame {
         startGBC.insets = new Insets(100, 100, 30, 20); // Increased bottom margin, decreased left margin
         rideButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                if (event.getSource() == driveButton) {
-                    isDriver = true;
-                } else {
-                    isDriver = false;
-                }
-                goLoginPage(isDriver);
+                isDriver = false;
+                goLoginPage();
             }
         });
 
@@ -128,47 +132,59 @@ public class Interface extends JFrame {
         // -----------------------------------------------------------------------------------------------------------------
 
         // #region
-        userLoginPanel = new JPanel();
-        userLoginPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        loginPanel = new JPanel();
+        loginPanel.setLayout(new GridLayout(5, 1, 10, 10));
 
-        JLabel promptLabel = new JLabel("What is your phone number?");
-        Font labelFont = promptLabel.getFont();
-        promptLabel.setFont(new Font(labelFont.getName(), Font.PLAIN, 24));
-        userLoginPanel.add(promptLabel);
+        dCapacityLabel = new JLabel("What is your car's maximum capacity?");
+        dCapacityLabel.setFont(new Font(dCapacityLabel.getFont().getName(), Font.PLAIN, 24));
+        loginPanel.add(dCapacityLabel);
+        dCapacityLabel.setVisible(false);
+
+        dCapacityTextField = new JTextField();
+        setPlaceholder(dCapacityTextField, "Enter your car's capacity");
+        dCapacityTextField.setFont(new Font(dCapacityTextField.getFont().getName(), Font.PLAIN, 24));
+        loginPanel.add(dCapacityTextField);
+        dCapacityTextField.setVisible(false);
+
+        JLabel phoneLabel = new JLabel("What is your phone number?");
+        phoneLabel.setFont(new Font(phoneLabel.getFont().getName(), Font.PLAIN, 24));
+        loginPanel.add(phoneLabel);
 
         JTextField phoneNumberTextField = new JTextField();
         setPlaceholder(phoneNumberTextField, "Enter your phone number"); // Set placeholder text
-        Font textFont = phoneNumberTextField.getFont();
-        phoneNumberTextField.setFont(new Font(textFont.getName(), Font.PLAIN, 24));
-        userLoginPanel.add(phoneNumberTextField);
+        phoneNumberTextField.setFont(new Font(phoneNumberTextField.getFont().getName(), Font.PLAIN, 24));
+        loginPanel.add(phoneNumberTextField);
 
         JButton continueButton = new JButton("Continue");
-        Font buttonFont = continueButton.getFont();
-        continueButton.setFont(new Font(buttonFont.getName(), Font.PLAIN, 24));
+        continueButton.setFont(new Font(continueButton.getFont().getName(), Font.PLAIN, 24));
         continueButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 try {
                     Long phoneNum = Long.parseLong(phoneNumberTextField.getText().trim());
-                    goUserPage(phoneNum);
+                    if(isDriver){
+                        int capacity  =  Integer.parseInt(dCapacityTextField.getText().trim());
+                        goDriverPage(phoneNum, capacity);
+                    }else{
+                        goUserPage(phoneNum);
+                    }
                 } catch (NullPointerException e) {
                     System.out.println("Please fill in your phone number");
 
                 }
             }
         });
-        userLoginPanel.add(continueButton);
-        userLoginPanel.setVisible(false);
-        frame.add(userLoginPanel, frameGBC);
+        loginPanel.add(continueButton);
+        loginPanel.setVisible(false);
+        frame.add(loginPanel, frameGBC);
 
         // #endregion
         // ----------------------------------------------------------------------------------------------
 
-        userPanel = new UserPanel(map, db);
-        mapPanel = new MapPanel(mapImage, map, userPanel);
-
+        infoPanel = new InfoPanel(map, db);
+        mapPanel = new MapPanel(mapImage, map, infoPanel);
 
         splitPane = new JSplitPane(1);
-        splitPane.setLeftComponent(userPanel);
+        splitPane.setLeftComponent(infoPanel);
         splitPane.setRightComponent(mapPanel);
         splitPane.setDividerLocation(600);
 
@@ -208,28 +224,39 @@ public class Interface extends JFrame {
 
     public void initialize() {
         welcomePanel.setVisible(false);
-        userLoginPanel.setVisible(false);
+        loginPanel.setVisible(false);
         splitPane.setVisible(false);
     }
 
-    public void goLoginPage(boolean isDriver) {
+    public void goLoginPage() {
         initialize();
         if (isDriver) {
-            // driverLogin.setVisible(true);
-        } else {
-            userLoginPanel.setVisible(true);
+            dCapacityLabel.setVisible(true);
+            dCapacityTextField.setVisible(true);
         }
-
+        loginPanel.setVisible(true);
     }
 
     public void goUserPage(Long phoneNum) {
         initialize();
-        if (!isDriver) {
-            db.addUser(phoneNum);
-            Thread userThread = new Thread(new UserThread(db, phoneNum));
-            userThread.start();
-            userPanel.setUser(db.getUser(phoneNum));
-        }
+        db.addUser(phoneNum);
+        // Thread userThread = new Thread(new UserThread(db, phoneNum));
+        // userThread.start();
+        infoPanel.setUser(db.getUser(phoneNum));
+        infoPanel.initPanel();
         splitPane.setVisible(true);
+        repaint();
+    }
+
+    public void goDriverPage(long phoneNum, int capacity) {
+        initialize();
+        db.addDriver(phoneNum,capacity);
+        // Thread userThread = new Thread(new UserThread(db, phoneNum));
+        // userThread.start();
+        infoPanel.setDriver(db.getDriver(phoneNum));
+        infoPanel.initDriverPanel();
+        splitPane.setVisible(true);
+        repaint();
+
     }
 }
