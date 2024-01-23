@@ -5,25 +5,5 @@ public class RydeProject {
         Database db = new Database("clients.txt",graph);
         Interface pInterface = new Interface(graph, "mapImage.png",db);
         pInterface.runGUI();
-
-
-        // ArrayList<User> users = new ArrayList<>();
-        // ArrayList<Driver> drivers = new ArrayList<>();
-        // Thread driverThread = new Thread(new DriverThread(graph,5,101000,pInterface));
-        // driverThread.start();
-
-
-        // int number = 1234567890;
-
-        // Thread userThread = new Thread(new UserThread(users, number));
-        // userThread.start();
-
-        // users.add(new User(number));
-        // users.get(0).setStart(graph.getLocation("Dallas"));
-        // users.get(0).setEnd(graph.getLocation("Miami"));
-
-        
-
-        
     }
 }

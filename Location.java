@@ -69,7 +69,7 @@ public class Location {
             double xDifference = this.getX() - other.getX();
             double yDifference = this.getY() - other.getY();
             Double length = Math.sqrt(xDifference * xDifference + yDifference * yDifference);
-            System.out.println(other.toString() + length);
+            // System.out.println(other.toString() + length);
             return length;
         } else {
             return -1;

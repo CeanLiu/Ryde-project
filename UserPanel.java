@@ -103,10 +103,10 @@ public class UserPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (displayRideInfo()) {
-                    System.out.println(user);
+                    // System.out.println(user);
                     user.setStart(map.getLocation(startTextField.getText()));
                     user.setEnd(map.getLocation(endTextField.getText()));
-                    System.out.println(user);
+                    // System.out.println(user);
                     // driver thread
                     updateUser();
                 }
@@ -221,8 +221,8 @@ public class UserPanel extends JPanel {
     }
 
     public void finishChoose(Location location) {
-        System.out.println(location);
-        System.out.println(user);
+        // System.out.println(location);
+        // System.out.println(user);
         if (isChoosingStart) {
             startTextField.setText(location.getName());
         } else if (isChoosingEnd) {
@@ -234,7 +234,7 @@ public class UserPanel extends JPanel {
         startChooseButton.setVisible(true);
         endChooseButton.setVisible(true);
         repaint();
-        System.out.println(user);
+        // System.out.println(user);
     }
 
     private boolean displayRideInfo() {
@@ -292,6 +292,12 @@ public class UserPanel extends JPanel {
         db.addDriver(driverId, 5);
         Thread driverThread = new Thread(new DriverThread(db, driverId));
         db.getDriver(10010100).assignRyder(this.user);
+        //
+        User second = new User(12312312);
+        second.setStart(map.getLocation("City Hall"));
+        second.setEnd(map.getLocation("A"));
+        db.getDriver(driverId).assignRyder(second);
+        //
         driverThread.start();
     }
 

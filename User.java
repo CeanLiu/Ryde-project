@@ -21,7 +21,10 @@ public class User extends Client{
     }
     public void setStart(Location start){
         this.start = start;
-        this.current = start;
+        this.current = new Location(start.getName(),start.getX(),start.getY());
+        for(Location connector: start.getConnections()){
+            current.addConnection(connector);
+        }
     }
     public void setEnd(Location end){
         this.end = end;
@@ -44,9 +47,6 @@ public class User extends Client{
         if (current.getX() == end.getX() && current.getY() == end.getY()){
             System.out.println("I've arrived at my destination: "+end.getName());
         }
-        // for (String node: graph.getAllCoords().keySet()){
-        //     if (graph.getCoordinates(node) == this.location){System.out.println("User is now at: " + node);}
-        // }
     }
 
     //Connection to server

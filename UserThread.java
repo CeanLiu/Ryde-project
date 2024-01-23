@@ -17,7 +17,6 @@ public class UserThread implements Runnable{
             try {
                 user.start();
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 

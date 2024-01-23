@@ -18,21 +18,21 @@ ELGIN-YORK,305,329
 Central Park SW,343,208
 Edge:
 Central Park:Central Park SW,L
-City Hall:C,CCC,YONGE-BAY
+City Hall:C,CCC,YONGE-BAY,H
 A:D,H
-D:A,CCC
+D:A,CCC,H
 H:G,D,City Hall,A
 M:E,ELGIN-YORK
 O:G,ELGIN-YORK
 E:M,C
-C:E,L,G
-G:H,O
-L:C,ELGIN-YORK,Central Park
+C:E,L,G,City Hall
+G:H,O,C
+L:C,ELGIN-YORK,Central Park,ADF
 BBB:FJG,ADF
 CCC:ADF,City Hall,D
 ADF:CCC,L,BBB
 FJG:BBB,YONGE-BAY
-YONGE-BAY:FJG,Central Park SW
-ELGIN-YORK:M,L,Central Park SW
+YONGE-BAY:FJG,Central Park SW,City Hall
+ELGIN-YORK:M,L,Central Park SW,O
 Central Park SW:ELGIN-YORK,Central Park,YONGE-BAY
 

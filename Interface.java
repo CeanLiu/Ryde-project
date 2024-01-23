@@ -240,8 +240,8 @@ public class Interface extends JFrame {
     public void goUserPage(Long phoneNum) {
         initialize();
         db.addUser(phoneNum);
-        // Thread userThread = new Thread(new UserThread(db, phoneNum));
-        // userThread.start();
+        Thread userThread = new Thread(new UserThread(db, phoneNum));
+        userThread.start();
         infoPanel.setUser(db.getUser(phoneNum));
         infoPanel.initPanel();
         splitPane.setVisible(true);
@@ -251,8 +251,8 @@ public class Interface extends JFrame {
     public void goDriverPage(long phoneNum, int capacity) {
         initialize();
         db.addDriver(phoneNum,capacity);
-        // Thread userThread = new Thread(new UserThread(db, phoneNum));
-        // userThread.start();
+        Thread userThread = new Thread(new UserThread(db, phoneNum));
+        userThread.start();
         infoPanel.setDriver(db.getDriver(phoneNum));
         infoPanel.initDriverPanel();
         splitPane.setVisible(true);
