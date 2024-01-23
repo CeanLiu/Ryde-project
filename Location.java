@@ -34,11 +34,11 @@ public class Location {
         return this.name;
     }
 
-    public double getX() {
+    synchronized public double getX() {
         return this.x;
     }
 
-    public double getY() {
+    synchronized public double getY() {
         return this.y;
     }
 

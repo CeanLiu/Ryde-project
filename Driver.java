@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Queue;
 
 public class Driver extends Client {
-    ArrayList<User> ryders;
+    ArrayList<User> ryders = new ArrayList<>();;
     Long phoneNum; 
-    User ryder;
+    // User ryder;
     int capacity;
-    Location currentLocation, ryderStart, ryderEnd;
+    Location currentLocation;
+    // ArrayList<Location> ryderStarts, ryderEnds;
     SimpleGraph graph;
 
     // public Driver(ArrayList<User> passengers, int capacity) {
@@ -27,6 +28,8 @@ public class Driver extends Client {
     public Driver(SimpleGraph graph, long phoneNum, int capacity){
         this.phoneNum = phoneNum;
         this.capacity = capacity;
+        this.currentLocation = graph.getLocation("Central Park");
+        this.graph = graph;
     }
 
     public Driver(long phoneNum, Location current, int capacity){
@@ -37,7 +40,7 @@ public class Driver extends Client {
     
     public Driver(SimpleGraph graph, Location current, int capacity){
         this.graph = graph;
-        this.ryder = null;
+        this.ryders = null;
         this.currentLocation = current;
         this.capacity = capacity;
     }
@@ -56,59 +59,128 @@ public class Driver extends Client {
     }
 
     public void assignRyder(User ryder){
-        this.ryder = ryder;
+        this.ryders.add(ryder);
+        // this.ryder = ryder;
     }
-    public void addRyder(User ryder){
-        if (this.ryder.getNumber() == ryder.getNumber()){
-            ryder.inRide = true;
-            System.out.println("Welcome aboard, ryder " + this.ryder.getNumber());
-        } else {
-            System.out.println("This ryder has not been assigned to the driver");
+    public void addRyder(User newRyder){
+        for (User ryder: this.ryders){
+            if (ryder.getNumber() == newRyder.getNumber()){
+                newRyder.inRide = true;
+                System.out.println("Welcome aboard, ryder " + newRyder.getNumber());
+                return;
+            }
         }
     }
     public void removeRyder(User ryder){
-        this.ryder = null;
+        this.ryders.remove(ryder);
         ryder.inRide = false;
         System.out.println("You've arrived at your destination, have a good day");
     }
 
     public void move() {
         // assign passenger before moving, ie after they pay
-        ryderStart = ryder.start;
-        ryderEnd = ryder.end;
+        // for (User ryder: this.ryders){
+        //     ryderStarts.add(ryder.start);
+        //     ryderEnds.add(ryder.end);
+        // }
 
-        System.out.println("Current location: " + currentLocation.getName());
-        System.out.println("Start: "+ryderStart.getName());
-        System.out.println("End: " +ryderEnd.getName());
+        System.out.println("\nDriver's current location: " + currentLocation.getName());
+        // System.out.println("Start: "+ryderStart.getName());
+        // System.out.println("End: " +ryderEnd.getName());
 
-        ArrayList<Location> currentToStart = shortestPath(currentLocation, ryderStart);
-        ArrayList<Location> startToEnd = shortestPath(ryderStart, ryderEnd);
-        ArrayList<Location> totalPath = new ArrayList<>();
-        //path for driver to get from current location to user's starting point
-        if (currentToStart == null){System.out.println("The driver cannot get to the starting point from their location");}
-        else {
-            System.out.print("Path to ryder: ");
-            for (int i = currentToStart.size()-1; i >= 0; i--){
-                System.out.print(currentToStart.get(i).getName());
-                totalPath.add(currentToStart.get(i));
-            }
-            System.out.println();
-            // path for driver to get from user's starting point to their destination
-            if (startToEnd == null) {
-                System.out.println("You cannot get from the starting to location to the destination");
-            } else {
-                System.out.print("Path to destination: ");
-                for (int i = startToEnd.size() - 1; i >= 0; i--) {
-                    System.out.print(startToEnd.get(i).getName());
-                    totalPath.add(startToEnd.get(i));
+        //pickup ryders
+        ArrayList<User> pickupPending = new ArrayList<>(ryders);
+        while(!pickupPending.isEmpty()){
+            ArrayList<ArrayList<Location>> closestRyder = new ArrayList<>();
+            // find the shortest path to a user, move, keep repeating until collected all users
+            for (User ryder: pickupPending){
+                if (ryder.inRide == false){
+                    closestRyder.add(createPath(currentLocation,ryder.start));
                 }
-                System.out.println();
+            }
+            ArrayList<Location> closest = closestRyder.get(0);
+            for (ArrayList<Location> path: closestRyder){
+                if (path.size() < closest.size()){
+                    closest = path;
+                }
+            }
+            // print and move 
+            System.out.println("Path to the ryders: ");
+            for (int i = closest.size()-1; i > 0; i--){
+                System.out.print(closest.get(i).getName() + ", ");
+                moveSteps(closest.get(i),closest.get(i-1));
+            }
+            System.out.println(closest.get(0).getName() + " || done");
+            System.out.println("Driver's new location after picking up: " + currentLocation.getName());
+
+            ArrayList<User> temp = new ArrayList<>(pickupPending);
+            for(User ryder: temp){
+                if (ryder.start.getX() == currentLocation.getX() && ryder.start.getY() == currentLocation.getY()){
+                    pickupPending.remove(ryder);
+                }
             }
         }
-        // follow the path
-        for (int i = 0; i < totalPath.size() - 1; i++) {
-            moveSteps(totalPath.get(i), totalPath.get(i + 1));
+        // drop off ryders
+        ArrayList<User> dropoffPending = new ArrayList<>(ryders);
+        while(!dropoffPending.isEmpty()){
+            ArrayList<ArrayList<Location>> closestStop = new ArrayList<>();
+            // find the shortest path to a user, move, keep repeating until collected all users
+            for (User ryder: dropoffPending){
+                if (ryder.inRide == true){
+                    //update currentLocation after moving
+                    closestStop.add(createPath(currentLocation,ryder.end));
+                }
+            }
+            ArrayList<Location> closest = closestStop.get(0);
+            for (ArrayList<Location> path: closestStop){
+                if (path.size() < closest.size()){
+                    closest = path;
+                }
+            }
+            // print and move 
+            System.out.println("Path to drop off: ");
+            for (int i = closest.size()-1; i > 0; i--){
+                System.out.print(closest.get(i).getName() + ", ");
+                moveSteps(closest.get(i),closest.get(i-1));
+            }
+            System.out.println(closest.get(0).getName());
+
+            ArrayList<User> temp = new ArrayList<>(dropoffPending);
+            for(User ryder: temp){
+                if (ryder.end.getX() == currentLocation.getX() && ryder.end.getY() == currentLocation.getY()){
+                    dropoffPending.remove(ryder);
+                }
+            }
         }
+
+        
+        // ArrayList<Location> currentToStart = shortestPath(currentLocation, ryderStart);
+        // ArrayList<Location> startToEnd = shortestPath(ryderStart, ryderEnd);
+        // ArrayList<Location> totalPath = new ArrayList<>();
+        // //path for driver to get from current location to user's starting point
+        // if (currentToStart == null){System.out.println("The driver cannot get to the starting point from their location");}
+        // else {
+        //     System.out.print("Path to ryder: ");
+        //     for (int i = currentToStart.size()-1; i >= 0; i--){
+        //         System.out.print(currentToStart.get(i).getName());
+        //         totalPath.add(currentToStart.get(i));
+        //     }
+        //     System.out.println();
+        //     //path for driver to get from user's starting point to their destination
+        //     if (startToEnd == null){System.out.println("You cannot get from the starting to location to the destination");}
+        //     else {
+        //         System.out.print("Path to destination: ");
+        //         for (int i = startToEnd.size()-1; i >= 0; i--){
+        //             System.out.print(startToEnd.get(i).getName());
+        //             totalPath.add(startToEnd.get(i));
+        //         }
+        //         System.out.println();
+        //     }
+        // }
+        // //follow the path
+        // for (int i = 0; i < totalPath.size()-1; i++){
+        //     moveSteps(totalPath.get(i),totalPath.get(i+1));
+        // }
     }
 
     public void moveSteps(Location initial, Location next) {// (Graphics g){
@@ -144,16 +216,31 @@ public class Driver extends Client {
                 y1 += sy;
                 currentLocation.setY(y1);
             }
-            
-
-            if(currentLocation.getX() == ryderStart.getX() && currentLocation.getY() == ryderStart.getY()){
-                addRyder(ryder);
+            for(Location location: graph.getLocations().values()){
+                if(currentLocation.getX() == location.getX() && currentLocation.getY() == location.getY()){
+                    currentLocation = location;
+                }
             }
-            if(this.ryder != null && ryder.inRide){
-                ryder.move(currentLocation.getX(),currentLocation.getY());
+            for(User ryder: ryders){
+                if(currentLocation.getX() == ryder.start.getX() && currentLocation.getY() == ryder.start.getY()){
+                    addRyder(ryder);
+                    // currentLocation = ryder.start;
+                }
             }
-            if(this.ryder != null && this.ryder.inRide == true && currentLocation.getX() == ryderEnd.getX() && currentLocation.getY() == ryderEnd.getY()){
-                removeRyder(ryder);
+            if(this.ryders != null){
+                for (User ryder: ryders){
+                    if(ryder.inRide){
+                        ryder.move(currentLocation.getX(),currentLocation.getY());
+                    }
+                }
+            }
+            if(!this.ryders.isEmpty()){
+                for(User ryder: ryders){
+                    if(ryder.inRide == true && currentLocation.getX() == ryder.end.getX() && currentLocation.getY() == ryder.end.getY()){
+                        removeRyder(ryder);
+                        if(ryders.isEmpty()){break;}
+                    }
+                }
             }
         }
     }

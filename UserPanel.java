@@ -290,9 +290,9 @@ public class UserPanel extends JPanel {
     public void updateUser() {
         int driverId = 10010100;
         db.addDriver(driverId, 5);
-        //Thread driverThread = new Thread(new DriverThread(db, driverId));
+        Thread driverThread = new Thread(new DriverThread(db, driverId));
         db.getDriver(10010100).assignRyder(this.user);
-        //driverThread.start();
+        driverThread.start();
     }
 
 }

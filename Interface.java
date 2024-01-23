@@ -226,8 +226,8 @@ public class Interface extends JFrame {
         initialize();
         if (!isDriver) {
             db.addUser(phoneNum);
-            //Thread userThread = new Thread(new UserThread(db, phoneNum));
-            //userThread.start();
+            Thread userThread = new Thread(new UserThread(db, phoneNum));
+            userThread.start();
             userPanel.setUser(db.getUser(phoneNum));
         }
         splitPane.setVisible(true);
