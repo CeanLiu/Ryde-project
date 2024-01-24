@@ -11,52 +11,59 @@ public class Database {
     final int IN_RIDE = 4;
     final int CURR_LOCAT = 1;
     final int CAPCITY = 2;
-    private ArrayList<User> requestingUsers = new ArrayList<>();
-    private ArrayList<Driver> freeDrivers = new ArrayList<>();
-    private ArrayList<User> noRequestUsers = new ArrayList<>();
-    private ArrayList<Driver> occupiedDrivers = new ArrayList<>();
+    final int IS_DRIVE = 3;
+    private final String CLIENT_FILE = "clients.txt";
+    private final String RYDE_INFO_FILE = "rydeInfo.txt";
     private HashMap<Long, User> users;
     private HashMap<Long, Driver> drivers;
-    private String fileName;
     private SimpleGraph map;
 
-    public Database(String fileName, SimpleGraph map) {
-        this.fileName = fileName;
+    public Database(SimpleGraph map) {
         this.users = new HashMap<>();
         this.drivers = new HashMap<>();
         this.map = map;
-        // loadDatabase();
+        loadDatabase();
 
     }
 
     private void loadDatabase() {
         // add final indexes for box attributes
         try {
-            Scanner input = new Scanner(new FileReader(fileName));
+            Scanner input = new Scanner(new FileReader(CLIENT_FILE));
             boolean readUser = true;
-            boolean readDriver = false;
             while (input.hasNext()) {
-                String info = input.nextLine().trim();
-                if (info.equals("Driver:")) {
-                    readUser  = false;
+                String infoLine = input.nextLine().trim();
+                String [] info = infoLine.split(":");
+                if(info[0].equals("Driver")){
+                    readUser = false;
+                }else {
+                    readUser = true;
                 }
                 if (readUser) {
-                    String[] driverDetail = info.split(",");
+                    String[] driverDetail = info[1].split(",");
                     long phoneNum = Long.parseLong(driverDetail[PHONE]);
                     Location startLocat = map.getLocation(driverDetail[START_LOCAT]);
                     Location endLocat = map.getLocation(driverDetail[END_LOCAT]);
                     boolean isAlone = ("true").equals(driverDetail[IS_ALONE]);
                     boolean hasRide = ("true").equals(driverDetail[IN_RIDE]);
                     users.put(phoneNum, new User(phoneNum,startLocat,endLocat,isAlone,hasRide));
-                }else if (readDriver){
-                    String[] driverDetail = info.split(",");
+                }else {
+                    String[] driverDetail = info[1].split(",");
                     long phoneNum = Long.parseLong(driverDetail[PHONE]);
-                    int capacity = Integer.parseInt(driverDetail[CAPCITY]);
                     Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
-                    drivers.put(phoneNum, new Driver(phoneNum, currLocat, capacity));
+                    int capacity = Integer.parseInt(driverDetail[CAPCITY]);
+                    boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
+                    drivers.put(phoneNum, new Driver(map, phoneNum, currLocat, capacity, isDrive));
                 }
-                if (info.equals("Driver:")) {
-                    readDriver = true;
+            }
+            input = new Scanner(new FileReader(RYDE_INFO_FILE));
+            while (input.hasNext()) {
+                String rydeInfo = input.nextLine().trim();
+                String [] infoDetail = rydeInfo.split(":");
+                Driver driver = drivers.get(Long.parseLong(infoDetail[0]));
+                String [] ryders = infoDetail[1].split(",");
+                for(String ryder : ryders){
+                    driver.addRyder(users.get(Long.parseLong(ryder)));
                 }
             }
             input.close();
@@ -68,20 +75,20 @@ public class Database {
 
     public void saveDatabase() {
         try {
-            PrintWriter writer = new PrintWriter(new File(this.fileName));
-            // for (User user : users.values()) {
-            //     writer.println(user.getNumber());
-            //     System.out.println("asdfasdfasdf");
-            // }
-            // writer.println("Driver:");
-            // for (Driver driver : drivers.values()) {
-            //     writer.write(driver.toString());
-            // }
-
-            // for(User user : requestingUsers){
-            //     writer.println(user.)
-            // }
-            // writer.close();
+            PrintWriter writer = new PrintWriter(new File(CLIENT_FILE));
+            for(User user : users.values()){
+                writer.println(user.toString());
+            }
+            for(Driver driver : drivers.values()){
+                writer.println(driver.getInfo());
+            }
+            writer = new PrintWriter(new File(RYDE_INFO_FILE));
+            for(Driver driver : drivers.values()){
+                if(driver.hasRyders()){
+                    writer.println(driver.getNumber() + ":" +driver.getRydeInfo());
+                }
+            }
+            writer.close();
         } catch (IOException e) {
             System.err.println("Error saving database: " + e.getMessage());
         }
@@ -95,19 +102,32 @@ public class Database {
         return drivers.get(phoneNum);
     }
 
-    public void addUser(InfoPanel gui, long phoneNum) {
-        users.put(phoneNum, new User(phoneNum, gui));
+    public HashMap<Long, User> getUsers(){
+        return this.users;
+    }
+    public HashMap<Long, Driver> getDrivers(){
+        return this.drivers;
     }
 
-    public ArrayList<User> getRequestList() {
-        return requestingUsers;
+    public void addUser(InfoPanel gui, long phoneNum) {
+        users.put(phoneNum, new User(phoneNum, gui));
     }
 
     public void addDriver(InfoPanel gui,long phoneNum, int capacity) {
         drivers.put(phoneNum, new Driver(map, gui, phoneNum, capacity));
     }
 
-    public void addRequestingUser(String userText) {
+    public void update(String dataReceived){
+        String type = dataReceived.split(":")[0];
+        if(type.equals("Driver")){
+            updateDriver(dataReceived.split(":")[1]);
+        }else{
+            updateUser(dataReceived.split(":")[1]);
+        }
+        saveDatabase();
+    }
+
+    public void updateUser(String userText) {
         System.out.println("ok");
         String[] userDetail = userText.split(",");
         long phoneNum = Long.parseLong(userDetail[PHONE]);
@@ -120,10 +140,37 @@ public class Database {
             user.setStart(startLocation);
             user.setEnd(endLocation);
             user.setChoice(isAlone);
-            user.setStatus(inRide);
+            user.setRideStatus(inRide);
         } else {
-            requestingUsers.add(new User(phoneNum, startLocation, endLocation, isAlone, inRide));
+            users.put(phoneNum, new User(phoneNum, startLocation, endLocation, isAlone, inRide));
         }
+    }
+
+    public void updateDriver(String driverText){
+        String [] driverLine = driverText.split("_");
+        String driverDetails = driverLine[0];
+        String[] driverDetail = driverDetails.split(",");
+        long phoneNum = Long.parseLong(driverDetail[PHONE]);
+        Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
+        int capacity = Integer.parseInt(driverDetail[CAPCITY]);
+        boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
+        if (drivers.containsKey(phoneNum)) {
+            Driver driver = drivers.get(phoneNum);
+            driver.setCurrentLocation(currLocat);
+            driver.setDrive(isDrive);
+        } else {
+            drivers.put(phoneNum, new Driver(map, phoneNum, currLocat, capacity, isDrive));
+        }
+        if(driverLine.length > 1){
+            Driver driver = drivers.get(phoneNum);
+            String [] ryders = driverLine[1].split(",");
+            for(String ryder : ryders){
+                long ryderNum = Long.parseLong(ryder);
+                users.get(ryderNum).setDriver(driver);
+            }
+
+        }
+        
     }
 
     public void removeUser(long phoneNum) {

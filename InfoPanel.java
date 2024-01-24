@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -31,9 +32,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 
 public class InfoPanel extends JPanel {
-    JPanel displayPanel;
+    JPanel displayPanel, dButtonPanel;
     private JTextField uStartTextField, uEndTextField, nowTextField, dChooseTextField;
-    private JButton uChooseStartButton, uChooseEndButton, dChooseButton;
+    private JButton uChooseStartButton, uChooseEndButton, dChooseButton, driveButton;
     private JPopupMenu locationMenu;
     private JList<String> locationList;
     private SimpleGraph map;
@@ -52,7 +53,7 @@ public class InfoPanel extends JPanel {
     }
 
     public void initUserPanel() {
-        setLayout(new FlowLayout(FlowLayout.CENTER));
+        setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel welcomeLabel = new JLabel("Welcome, User");
@@ -88,6 +89,11 @@ public class InfoPanel extends JPanel {
 
         middlePanel.add(endPanel);
 
+        displayPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        middlePanel.add(displayPanel);
+
+        add(middlePanel);
+
         JPanel locationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         locationList = new JList<>(locations);
         locationList.addListSelectionListener(new ListListener());
@@ -95,9 +101,8 @@ public class InfoPanel extends JPanel {
         locationMenu.add(new JScrollPane(locationList));
         locationMenu.setFocusable(false);
         locationPanel.add(locationMenu);
-        add(locationPanel);
 
-        add(middlePanel);
+        add(locationPanel);
 
         // Bottom panel for the submit button
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -110,6 +115,7 @@ public class InfoPanel extends JPanel {
                         user.setStart(map.getLocation(uStartTextField.getText()));
                         user.setEnd(map.getLocation(uEndTextField.getText()));
                         user.send(user.toString());
+                        bottomPanel.setVisible(false);
                     }
                 }
             }
@@ -166,6 +172,21 @@ public class InfoPanel extends JPanel {
         displayPanel = new JPanel();
         displayPanel.setLayout((new BoxLayout(displayPanel, BoxLayout.Y_AXIS)));
         add(displayPanel);
+
+        dButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        driveButton = new JButton("Start Drive");
+        dButtonPanel.add(driveButton);
+        dButtonPanel.setVisible(false);
+        driveButton.addActionListener(new ActionListener() {
+            @Override 
+            public void actionPerformed(ActionEvent e){
+                if(driver != null){
+                    hideDisplay();
+                    driver.send(driver.toString());
+                }
+            }
+        });
+        add(dButtonPanel);
     }
 
     public class TextFieldListener implements DocumentListener {
@@ -294,7 +315,7 @@ public class InfoPanel extends JPanel {
             uStartTextField.setText(location.getName());
         } else if (uIsChoosingEnd) {
             uEndTextField.setText(location.getName());
-        } else {
+        } else if (dIsChoosing){
             dChooseTextField.setText(location.getName());
         }
         uIsChoosingStart = false;
@@ -361,29 +382,48 @@ public class InfoPanel extends JPanel {
         }
     }
 
-    public void createRequest() {
+    public void createRequest(String txt) {
         displayPanel.removeAll();
-        ArrayList<User> requestList = db.getRequestList();
-        for (User user : requestList) {
-            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            JLabel request = new JLabel(user.toString());
-            JButton accept = new JButton("Accept User");
-            accept.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (driver != null) {
-                        driver.addRyder(user);
-                        //db.removeRequest(user);
-                        displayPanel.removeAll();
-                        displayPanel.setVisible(false);
+        displayInfo(txt);
+        HashMap<Long, User> requestList = db.getUsers();
+        for (User user : requestList.values()) {
+            if(!user.hasDriver()){
+                JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                JLabel request = new JLabel(user.toString());
+                JButton accept = new JButton("Accept User");
+                accept.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (driver != null) {
+                            driver.assignRyder(user);
+                            driver.send(driver.toString());
+                            driveButton.setVisible(true);
+                            //db.removeRequest(user);
+                        }
                     }
-                }
-            });
-            panel.add(request);
-            panel.add(accept);
-            displayPanel.add(panel);
+                });
+                panel.add(request);
+                panel.add(accept);
+                displayPanel.add(panel);
+            }
         }
         revalidate();
         repaint();
     }
-}
+
+    public void displayInfo(String txt){
+        JPanel textPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JTextArea infoArea = new JTextArea(txt);
+        textPanel.add(infoArea);
+        displayPanel.add(textPanel);
+        revalidate();
+        repaint();
+    }
+
+    public void hideDisplay(){
+        displayPanel.removeAll();
+        displayPanel.setVisible(false);
+    }
+}   
+
+

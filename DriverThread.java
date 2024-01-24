@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class DriverThread implements Runnable {
     private Database db;
     private Driver driver;
@@ -18,22 +16,24 @@ public class DriverThread implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        while (driver.hasNoRyders()) {
+        while (true) {
             String msg = driver.receive();
             if(msg != null){
-                db.addRequestingUser(msg);
-                if(driver.hasCurrLocation()){
-                    driver.createRequestGui();
-                }   
+                db.update(msg);
             }
-        }
-        // driver.move();
+            if(!driver.isDrive()) {
+                if (driver.hasCurrLocation()) {
+                    driver.createRequestGui();
+                }
+            }
+            // driver.move();
 
-        // pause thread execution for the duration of one video frame
-        try {
-            Thread.sleep(15);
-        } catch (Exception e) {
-            e.printStackTrace();
+            // pause thread execution for the duration of one video frame
+            try {
+                Thread.sleep(15);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

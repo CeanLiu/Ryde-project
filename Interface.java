@@ -59,7 +59,7 @@ public class Interface extends JFrame {
     public void runGUI() {
         // Set the size to 3/4 of the screen
         frame = new JFrame("RYDE");
-        frame.setSize(MAX_X, MAX_Y);
+        frame.setSize(MAX_X *3/4, MAX_Y *3/4);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null);

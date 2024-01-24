@@ -3,12 +3,13 @@ import java.util.ArrayList;
 
 public class User extends Client{
     private long phoneNum; // acts as the user id
-    InfoPanel gui;
-    Location current, start, end;
-    boolean inRide, isAlone;
-    boolean finished;
+    private InfoPanel gui;
+    private Location current, start, end;
+    private boolean inRide, isAlone;
+    private boolean finished;
+    private Driver driver;
 
-    public User(long phoneNum, InfoPanel gui ){ // add a parameter for the map containing the coordinates, and then allocate the coords for start to x and y
+    public User(long phoneNum, InfoPanel gui){ // add a parameter for the map containing the coordinates, and then allocate the coords for start to x and y
         this.gui = gui;
         this.phoneNum = phoneNum;
         this.inRide = false;
@@ -21,6 +22,31 @@ public class User extends Client{
         this.isAlone = isAlone;
         this.inRide = inRide;
         this.finished = false;
+    }
+
+    public Location getCurrent() {
+        return current;
+    }
+    public Location getEnd() {
+        return end;
+    }
+    public Location getStart() {
+        return start;
+    }
+    public boolean isInRide() {
+        return inRide;
+    }
+    public boolean isAlone() {
+        return isAlone;
+    }
+    public boolean isFinished() {
+        return finished;
+    }
+    public boolean hasDriver() {
+        return this.driver != null;
+    }
+    public Driver getDriver() {
+        return driver;
     }
     public void setStart(Location start){
         this.start = start;
@@ -35,16 +61,12 @@ public class User extends Client{
     public void setChoice(Boolean isAlone){
         this.isAlone = isAlone;
     }
-    public void setStatus(Boolean inRide){
+    public void setRideStatus(Boolean inRide){
         this.inRide = inRide;
     }
-
-    // public User(long phoneNum, String start, String destination){ // add a parameter for the map containing the coordinates, and then allocate the coords for start to x and y
-    //     this.phoneNum = phoneNum;
-    //     // this.start = start;
-    //     // this.destination = destination;
-    //     this.inRide = false;
-    // }
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
 
     public long getNumber(){
         return phoneNum;
@@ -67,9 +89,29 @@ public class User extends Client{
         super.stop();
     }
 
+    public void displayInfoGUI(){
+        String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: " + getEnd().toString();
+        if(isAlone()){
+            info += "\nCar Pool: No";
+        }else{
+            info += "\nCar Pool: Yes";
+        }
+        if(getDriver()!=null){
+            info += "\nDriver Phone Number: " + getDriver().getNumber();
+            if(isInRide()){
+                info += "\nEnjoy your ride";
+            }else{
+                info += "\nPlease wait for driver to pick-up";
+            }
+        }else{
+            info += "\nPlease wait patiently for a driver to pick up order";
+        }
+        gui.displayInfo(info);
+    }
+
     @Override 
     public String toString(){
-        return phoneNum + "," + start + "," + end + "," + isAlone + "," + inRide;
+        return "User:"+ phoneNum + "," + start + "," + end + "," + isAlone + "," + inRide;
     }
     
 

@@ -19,9 +19,15 @@ public class UserThread implements Runnable{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            while(true){
+                String msg = user.receive();
+                if(msg != null){
+                    db.update(msg);
+                }
+                user.displayInfoGUI();
             //pause thread execution for the duration of one video frame
             try{Thread.sleep(15);} catch (Exception e){e.printStackTrace();}
+            }
         }
         
 }
