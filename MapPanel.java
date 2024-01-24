@@ -42,7 +42,7 @@ public class MapPanel extends JPanel {
 
     private void initComponent() {
         ClickListener clickListener = new ClickListener(userPanel);
-        MouseMotionListener dragListener = new MouseMotionListener(this,userPanel);
+        MouseMotionListener dragListener = new MouseMotionListener();
         WheeleListener wheeleListener = new WheeleListener();
         this.addMouseListener(clickListener);
         this.addMouseMotionListener(dragListener);
@@ -78,9 +78,6 @@ public class MapPanel extends JPanel {
                     scaleFactor /= 1.1;
                 }
             }
-            // get the coordinates of the cursor on the panel
-            double mouseInPaneX = MouseInfo.getPointerInfo().getLocation().getX() - getLocationOnScreen().getX();
-            double mouseInPaneY = MouseInfo.getPointerInfo().getLocation().getY() - getLocationOnScreen().getY();
 
             // offset the x and y values so that the map stays in place when zooming in and
             // out
@@ -116,20 +113,12 @@ public class MapPanel extends JPanel {
     }
 
     private class MouseMotionListener extends MouseMotionAdapter {
-        private MapPanel mapPanel;
-        private InfoPanel userPanel;
-
-        public MouseMotionListener(MapPanel mapPanel, InfoPanel userPanel) {
-            this.mapPanel = mapPanel;
-            this.userPanel = userPanel;
-        }
 
         public void mouseDragged(MouseEvent e) {
             currentPoint = e.getPoint();
             if (startPoint == null) {
                 startPoint = currentPoint;
             }
-            System.out.println(currentPoint.getX() + startPoint.getX());
             double moveX = currentPoint.getX() - startPoint.getX();
             double moveY = currentPoint.getY() - startPoint.getY();
             xOffset += moveX;

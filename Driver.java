@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.Queue;
 
 public class Driver extends Client {
-    ArrayList<User> ryders = new ArrayList<>();
-    Long phoneNum; 
-    int capacity;
-    Location currentLocation;
-    SimpleGraph graph;
+    private ArrayList<User> ryders = new ArrayList<>();
+    private boolean hasRequest;
+    private Long phoneNum; 
+    private int capacity;
+    private Location currentLocation;
+    private InfoPanel gui;
+    private SimpleGraph graph;
 
     // public Driver(ArrayList<User> passengers, int capacity) {
     // this.passengers = passengers;
@@ -26,9 +28,10 @@ public class Driver extends Client {
     // this.currentLocation = "A";
     // }
 
-    public Driver(SimpleGraph graph, long phoneNum, int capacity){
+    public Driver(SimpleGraph graph, InfoPanel gui, long phoneNum, int capacity){
         this.phoneNum = phoneNum;
         this.capacity = capacity;
+        this.gui = gui;
         this.currentLocation = graph.getLocation("Central Park");
         this.graph = graph;
     }
@@ -45,15 +48,7 @@ public class Driver extends Client {
         this.currentLocation = current;
         this.capacity = capacity;
     }
-
-    public long getNumber(){
-        return this.phoneNum;
-    }
-
-    public void setCurrentLocation(Location location){
-        this.currentLocation = location;
-    }
-    // Connection to server
+    
     public void start() throws Exception {
         super.start("driver");
     }
@@ -63,8 +58,28 @@ public class Driver extends Client {
         super.stop();
     }
 
+    public long getNumber(){
+        return this.phoneNum;
+    }
+
+    public boolean hasNoRyders(){
+        return this.ryders.isEmpty();
+    }
+
+    public boolean hasCurrLocation(){
+        return this.currentLocation != null;
+    }
+
+    public void setCurrentLocation(Location location){
+        this.currentLocation = location;
+    }
+
     public void assignRyder(User ryder){
         this.ryders.add(ryder);
+    }
+
+    public void createRequestGui(){
+        gui.createRequest();
     }
     public void addRyder(User newRyder){
         for (User ryder: this.ryders){
@@ -75,6 +90,7 @@ public class Driver extends Client {
             }
         }
     }
+
     public void removeRyder(User ryder){
         ryder.inRide = false;
         ryders.remove(ryder);

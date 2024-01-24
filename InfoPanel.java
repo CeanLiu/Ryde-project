@@ -1,12 +1,16 @@
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -27,6 +31,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 
 public class InfoPanel extends JPanel {
+    JPanel displayPanel;
     private JTextField uStartTextField, uEndTextField, nowTextField, dChooseTextField;
     private JButton uChooseStartButton, uChooseEndButton, dChooseButton;
     private JPopupMenu locationMenu;
@@ -46,19 +51,18 @@ public class InfoPanel extends JPanel {
         locationsList.keySet().toArray(locations);
     }
 
-    public void initPanel() {
-        // JPanel userPanel = new JPanel(new BorderLayout());
-        setLayout(new BorderLayout());
-        // Top panel for the title
+    public void initUserPanel() {
+        setLayout(new FlowLayout(FlowLayout.CENTER));
+
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel welcomeLabel = new JLabel("Welcome, User");
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Set a larger font
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titlePanel.add(welcomeLabel);
-        // userPanel.add(titlePanel, BorderLayout.NORTH);
-        add(titlePanel, BorderLayout.NORTH);
+        add(titlePanel);
 
-        // Middle panel for choosing locaiton
-        JPanel middlePanel = new JPanel(new GridLayout(3, 1, 0, 10));
+        // Middle panel for choosing location
+        JPanel middlePanel = new JPanel();
+        middlePanel.setLayout(new BoxLayout(middlePanel, BoxLayout.Y_AXIS));
 
         JPanel startPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel startLabel = new JLabel("Choose your start location: ");
@@ -72,7 +76,6 @@ public class InfoPanel extends JPanel {
 
         middlePanel.add(startPanel);
 
-        // -----
         JPanel endPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel endLabel = new JLabel("Choose your end location: ");
         endPanel.add(endLabel);
@@ -82,6 +85,7 @@ public class InfoPanel extends JPanel {
         uChooseEndButton = new JButton("Choose On Map");
         uChooseEndButton.addActionListener(new ChooseListener());
         endPanel.add(uChooseEndButton);
+
         middlePanel.add(endPanel);
 
         JPanel locationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -91,12 +95,9 @@ public class InfoPanel extends JPanel {
         locationMenu.add(new JScrollPane(locationList));
         locationMenu.setFocusable(false);
         locationPanel.add(locationMenu);
-        middlePanel.add(locationPanel);
+        add(locationPanel);
 
-        // Add panels to the main panel
-
-        // userPanel.add(middlePanel, BorderLayout.CENTER);
-        add(middlePanel, BorderLayout.CENTER);
+        add(middlePanel);
 
         // Bottom panel for the submit button
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -106,53 +107,49 @@ public class InfoPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (user != null) {
                     if (displayRideInfo()) {
-                        System.out.println(user);
                         user.setStart(map.getLocation(uStartTextField.getText()));
                         user.setEnd(map.getLocation(uEndTextField.getText()));
-                        System.out.println(user);
-                        // driver thread
-                        updateUser();
+                        user.send(user.toString());
                     }
                 }
             }
         });
         bottomPanel.add(submitButton);
-        add(bottomPanel, BorderLayout.SOUTH);
-        // userPanel.add(bottomPanel, BorderLayout.SOUTH);
-        // add(userPanel);
+        add(bottomPanel);
     }
 
     public void initDriverPanel() {
-        // JPanel driverPanel = new JPanel(new BorderLayout());
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel welcomeLabel = new JLabel("Welcome, Driver"); // Changed the label for the driver
+        JLabel welcomeLabel = new JLabel("Welcome, Driver");
         welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titlePanel.add(welcomeLabel);
-        // driverPanel.add(titlePanel, BorderLayout.NORTH);
         add(titlePanel, BorderLayout.NORTH);
 
-        JPanel middlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel locatLabel = new JLabel("Choose your current location: ");
-        middlePanel.add(locatLabel);
-        dChooseTextField = new JTextField(20);
-        dChooseTextField.getDocument().addDocumentListener(new TextFieldListener());
-        middlePanel.add(dChooseTextField);
+        JPanel middlePanel = new JPanel(new GridLayout(6, 0, 0, 0));
 
         JPanel locationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel locatLabel = new JLabel("Choose your current location: ");
+        locationPanel.add(locatLabel);
+        dChooseTextField = new JTextField(20);
+        dChooseTextField.getDocument().addDocumentListener(new TextFieldListener());
+        locationPanel.add(dChooseTextField);
+
         locationList = new JList<>(locations);
         locationList.addListSelectionListener(new ListListener());
         locationMenu = new JPopupMenu();
         locationMenu.add(new JScrollPane(locationList));
         locationMenu.setFocusable(false);
         locationPanel.add(locationMenu);
+
         middlePanel.add(locationPanel);
 
-        // Adding the missing line to add the dChooseButton
+        // Using GridBagLayout for better control
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         dChooseButton = new JButton("Choose On Map");
         dChooseButton.addActionListener(new ChooseListener());
-        middlePanel.add(dChooseButton);
+        buttonPanel.add(dChooseButton);
         JButton confirmButton = new JButton("Confirm Location");
         confirmButton.addActionListener(new ActionListener() {
             @Override
@@ -162,11 +159,13 @@ public class InfoPanel extends JPanel {
                 }
             }
         });
-        middlePanel.add(confirmButton);
-        add(middlePanel, BorderLayout.CENTER);
+        buttonPanel.add(confirmButton);
+        middlePanel.add(buttonPanel);
+        add(middlePanel);
 
-        // driverPanel.add(locatPanel);
-        // add(driverPanel);
+        displayPanel = new JPanel();
+        displayPanel.setLayout((new BoxLayout(displayPanel, BoxLayout.Y_AXIS)));
+        add(displayPanel);
     }
 
     public class TextFieldListener implements DocumentListener {
@@ -285,15 +284,12 @@ public class InfoPanel extends JPanel {
         if (user != null) {
             uChooseEndButton.setVisible(!uIsChoosingEnd);
             uChooseStartButton.setVisible(!uIsChoosingStart);
-        } else {
+        } else if (driver != null) {
             dChooseButton.setVisible(!dIsChoosing);
         }
     }
 
     public void finishChoose(Location location) {
-        System.out.println(location);
-        System.out.println(user);
-        System.out.println(driver);
         if (uIsChoosingStart) {
             uStartTextField.setText(location.getName());
         } else if (uIsChoosingEnd) {
@@ -307,8 +303,6 @@ public class InfoPanel extends JPanel {
         locationMenu.setVisible(false);
         setButtonStatus();
         repaint();
-        System.out.println(user);
-        System.out.println(driver);
     }
 
     private boolean displayRideInfo() {
@@ -335,40 +329,61 @@ public class InfoPanel extends JPanel {
             JRadioButton carpoolButton = new JRadioButton("I want to Carpool");
             optionPanel.add(carpoolButton);
             buttonGroup.add(carpoolButton);
-            JRadioButton singleButton = new JRadioButton("I want to ride alone");
+            JRadioButton singleButton = new JRadioButton("I want to Ride Alone");
             optionPanel.add(singleButton);
             buttonGroup.add(singleButton);
 
-            int optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select an Option",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-            while (!carpoolButton.isSelected() && !singleButton.isSelected()) {
-                JOptionPane.showMessageDialog(this, "Please select an option.", "Error", JOptionPane.ERROR_MESSAGE);
-                optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select an Option",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-                if (optionResult != JOptionPane.OK_OPTION) {
-                    return false;
+            int optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select your Ryde Option", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            
+            if (optionResult == JOptionPane.CANCEL_OPTION) {
+                return false;
+            } else {
+                while (!carpoolButton.isSelected() && !singleButton.isSelected()) {
+                    if (optionResult == JOptionPane.OK_OPTION) {
+                        JOptionPane.showMessageDialog(this, "Please select an option.", "Error", JOptionPane.ERROR_MESSAGE);
+                        optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select your Ryde Option", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        return false;
+                    }
                 }
-            }
 
             if (carpoolButton.isSelected()) {
                 info = info + "Going Carpool\n" + "Price: $30";
+                user.setChoice(false);
             } else if (singleButton.isSelected()) {
                 info = info + "Going Alone\n" + "Price: $45";
+                user.setChoice(true);
             }
 
             JOptionPane.showMessageDialog(this, info, "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
             return true;
         }
+        }
     }
 
-    public void updateUser() {
-        int driverId = 10010100;
-        db.addDriver(driverId, 5);
-        // Thread driverThread = new Thread(new DriverThread(db, driverId));
-        db.getDriver(10010100).assignRyder(this.user);
-        // driverThread.start();
+    public void createRequest() {
+        displayPanel.removeAll();
+        ArrayList<User> requestList = db.getRequestList();
+        for (User user : requestList) {
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            JLabel request = new JLabel(user.toString());
+            JButton accept = new JButton("Accept User");
+            accept.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (driver != null) {
+                        driver.addRyder(user);
+                        //db.removeRequest(user);
+                        displayPanel.removeAll();
+                        displayPanel.setVisible(false);
+                    }
+                }
+            });
+            panel.add(request);
+            panel.add(accept);
+            displayPanel.add(panel);
+        }
+        revalidate();
+        repaint();
     }
-
 }

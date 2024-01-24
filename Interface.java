@@ -7,8 +7,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
-import javafx.scene.chart.PieChart.Data;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -19,19 +17,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class Interface extends JFrame {
     final int MAX_X = (int) getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int) getToolkit().getScreenSize().getHeight();
@@ -47,7 +38,6 @@ public class Interface extends JFrame {
     MapPanel mapPanel;
     InfoPanel infoPanel;
     SimpleGraph map;
-    // Client client;
     ArrayList<User> users = new ArrayList<>();
     private boolean isDriver;
 
@@ -69,7 +59,7 @@ public class Interface extends JFrame {
     public void runGUI() {
         // Set the size to 3/4 of the screen
         frame = new JFrame("RYDE");
-        frame.setSize(MAX_X * 3 / 4, MAX_Y * 3 / 4);
+        frame.setSize(MAX_X, MAX_Y);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null);
@@ -239,19 +229,19 @@ public class Interface extends JFrame {
 
     public void goUserPage(Long phoneNum) {
         initialize();
-        db.addUser(phoneNum);
+        db.addUser(infoPanel, phoneNum);
         Thread userThread = new Thread(new UserThread(db, phoneNum));
         userThread.start();
         infoPanel.setUser(db.getUser(phoneNum));
-        infoPanel.initPanel();
+        infoPanel.initUserPanel();
         splitPane.setVisible(true);
         repaint();
     }
 
     public void goDriverPage(long phoneNum, int capacity) {
         initialize();
-        db.addDriver(phoneNum,capacity);
-        Thread userThread = new Thread(new UserThread(db, phoneNum));
+        db.addDriver(infoPanel, phoneNum,capacity);
+        Thread userThread = new Thread(new DriverThread(db, phoneNum));
         userThread.start();
         infoPanel.setDriver(db.getDriver(phoneNum));
         infoPanel.initDriverPanel();

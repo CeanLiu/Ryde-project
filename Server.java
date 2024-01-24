@@ -1,60 +1,98 @@
-//imports for network communication
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server {
-    final int PORT = 7777;       
-    
+    final int PORT = 7777;
+
     ServerSocket serverSocket;
-    Socket clientSocket;
-    PrintWriter output;
-    BufferedReader input;
+    ArrayList<ConnectionHandler> clients= new ArrayList<>();
+    private LinkedBlockingQueue<String> messages = new LinkedBlockingQueue<String>();
     int clientCounter = 0;
-    
-    public static void main(String[] args) throws Exception{ 
+
+    public static void main(String[] args) throws Exception {
         Server server = new Server();
         server.go();
     }
-    
-    public void go() throws Exception{ 
-        //create a socket with the local IP address and wait for connection request       
+
+    public void go() throws Exception {
+        // create a socket with the local IP address and wait for connection request
         System.out.println("Waiting for a connection request from a client ...");
-        serverSocket = new ServerSocket(PORT);                //create and bind a socket
-        while(true) {
-            clientSocket = serverSocket.accept();             //wait for connection request
-            clientCounter = clientCounter + 1;
-            System.out.println("Client "+clientCounter+" connected");            
-            Thread connectionThread = new Thread(new ConnectionHandler(clientSocket));
-            connectionThread.start();                         //start a new thread to handle the connection
-        }
+        serverSocket = new ServerSocket(PORT); // create and bind a socket
+        Thread accept = new Thread() {
+            public void run(){
+                while(true){
+                    try{
+                        Socket clientSocket = serverSocket.accept();
+                        ConnectionHandler connectionHandler = new ConnectionHandler(clientSocket);
+                        clients.add(connectionHandler);
+                        Thread connectionThread = new Thread(connectionHandler);
+                        connectionThread.start();
+                       System.out.println("Client "+clients.size()+" connected");  
+                    }
+                    catch(Exception e){ e.printStackTrace(); }
+                }
+            }
+        };
+        accept.start();
+
+        Thread messageHandling = new Thread() {
+            public void run(){
+                while(true){
+                    try{
+                        if(!messages.isEmpty()){
+                            String msg = messages.remove();
+                            System.out.println("Message Received: " + msg);
+                            sendToAll(msg);
+                        }
+                    }catch(Exception e){e.printStackTrace(); }
+                }
+            }
+        };
+        messageHandling.start();
     }
-    
-//------------------------------------------------------------------------------
-    class ConnectionHandler extends Thread { 
+
+    // ------------------------------------------------------------------------------
+    class ConnectionHandler extends Thread {
         Socket socket;
         PrintWriter output;
         BufferedReader input;
-        
-        public ConnectionHandler(Socket socket) { 
+
+        public ConnectionHandler(Socket socket) {
             this.socket = socket;
         }
-//------------------------------------------------------------------------------        
+
+        // ------------------------------------------------------------------------------
         @Override
         public void run() {
             try {
-                input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                output = new PrintWriter(socket.getOutputStream());
-                //receive a message from the client
-                String msg = input.readLine();
-                System.out.println("Message from the client: " + msg);
-                //send a response to the client
-                output.println("Client "+clientCounter+", you are connected!");
-                output.flush();
-                //after completing the communication close the streams but do not close the socket!
-                input.close();
-                output.close();
-
-            }catch (IOException e) {e.printStackTrace();}
+                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                output = new PrintWriter(socket.getOutputStream(),false);
+                while (true) {
+                    // Receive a message from the client
+                    String msg = input.readLine();
+                    messages.put(msg);
+                    System.out.println("Message from client " + clientCounter + ": " + msg);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-    }    
+        public void send(String msg){
+            try{
+                
+                output.println(msg);
+                output.flush();
+            }catch(Exception e){ e.printStackTrace(); }
+        }
+    }
+    
+    public void sendToAll(String msg){
+        int i = 0;
+        for(ConnectionHandler client : clients){
+            System.out.print("client " + i++ + msg + "\n");
+            client.send(msg);
+        }
+    }
 }

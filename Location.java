@@ -172,13 +172,14 @@ public class Location {
 
     @Override
     public String toString() {
-        String str = "";
-        if (connections != null) {
-            for (Location location : connections) {
-                str = str + " " + location.getName();
-            }
-        }
-        return name + ": " + str;
+        return getName();
+        // String str = "";
+        // if (connections != null) {
+        //     for (Location location : connections) {
+        //         str = str + " " + location.getName();
+        //     }
+        // }
+        // return name + ": " + str;
     }
 
 }
