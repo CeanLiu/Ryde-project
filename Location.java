@@ -6,8 +6,12 @@ import java.awt.FontMetrics;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 public class Location {
     final int DIAMETER = 30;
@@ -83,6 +87,56 @@ public class Location {
             }
         }
         return false;
+    }
+
+    public ArrayList<Location> shortestPath(Location other, SimpleGraph graph){ // shortest distance from this to other
+        HashMap<Location,Double> distance = new HashMap<>();
+        HashSet<Location> unvisited = new HashSet<>();
+        HashMap<Location,Location> previous = new HashMap<>();
+        ArrayList<Location> path = new ArrayList<>();
+
+        PriorityQueue<Location> queue = new PriorityQueue<>(Comparator.comparingDouble(distance::get));
+
+        for (Location location: graph.getLocations().values()){
+            distance.put(location,Double.MAX_VALUE);
+            unvisited.add(location);
+            previous.put(location,null);
+        }
+        distance.put(this,0.0);
+        queue.add(this);
+
+        while(!queue.isEmpty()){
+            Location current = queue.poll();
+            unvisited.remove(current);
+
+            if (current.equals(other)){
+                while(current != null){
+                    path.add(current);
+                    current = previous.get(current);
+                }
+                Collections.reverse(path);
+                return path;
+            }
+            // add all the distances of the connectors
+            for(Location connector: current.getConnections()){
+                double newDistance = distance.get(current) + current.getEdge(connector);
+                if (newDistance < distance.get(connector)){
+                    distance.put(connector,newDistance);
+                    previous.put(connector,current);
+                    queue.add(connector);
+                }
+            }
+
+        }
+        return null;
+
+    }
+    public double pathLength(ArrayList<Location> path){
+        double length = 0;
+        for (int i = 0; i < path.size()-1; i++){
+            length = length + path.get(i).getEdge(path.get(i+1));
+        }
+        return length;
     }
 
     public void drawEdge(Graphics2D g2) {

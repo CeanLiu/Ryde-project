@@ -91,13 +91,13 @@ public class Driver extends Client {
             // find the shortest path to a user, move, keep repeating until collected all users
             for (User ryder: pickupPending){
                 if (ryder.inRide == false){
-                    closestRyder.add(shortestPath(currentLocation,ryder.start));
+                    closestRyder.add(currentLocation.shortestPath(ryder.start,graph));
                 }
             }
             // find the shortest path out of all the users
             ArrayList<Location> closest = closestRyder.get(0);
             for (ArrayList<Location> path: closestRyder){
-                if (pathLength(path) < pathLength(closest)){
+                if (currentLocation.pathLength(path) < currentLocation.pathLength(closest)){
                     closest = new ArrayList<>(path);
                 }
             }
@@ -128,13 +128,13 @@ public class Driver extends Client {
             // find the shortest path to a user, move, keep repeating until collected all users
             for (User ryder: dropoffPending){
                 if (ryder.inRide == true){
-                    closestStop.add(shortestPath(currentLocation,ryder.end));
+                    closestStop.add(currentLocation.shortestPath(ryder.end, graph));
                 }
             }
             // find the shortest path out of all the users
             ArrayList<Location> closest = closestStop.get(0);
             for (ArrayList<Location> path: closestStop){
-                if (pathLength(path) < pathLength(closest)){
+                if (currentLocation.pathLength(path) < currentLocation.pathLength(closest)){
                     closest = new ArrayList<>(path);
                 }
             }
@@ -249,53 +249,5 @@ public class Driver extends Client {
         return null;
     }
     //-------------------------------------------------------------------------
-    public ArrayList<Location> shortestPath(Location start, Location end){ // shortest distance
-        HashMap<Location,Double> distance = new HashMap<>();
-        HashSet<Location> unvisited = new HashSet<>();
-        HashMap<Location,Location> previous = new HashMap<>();
-        ArrayList<Location> path = new ArrayList<>();
-
-        PriorityQueue<Location> queue = new PriorityQueue<>(Comparator.comparingDouble(distance::get));
-
-        for (Location location: graph.getLocations().values()){
-            distance.put(location,Double.MAX_VALUE);
-            unvisited.add(location);
-            previous.put(location,null);
-        }
-        distance.put(start,0.0);
-        queue.add(start);
-
-        while(!queue.isEmpty()){
-            Location current = queue.poll();
-            unvisited.remove(current);
-
-            if (current.equals(end)){
-                while(current != null){
-                    path.add(current);
-                    current = previous.get(current);
-                }
-                Collections.reverse(path);
-                return path;
-            }
-            // add all the distances of the connectors
-            for(Location connector: current.getConnections()){
-                double newDistance = distance.get(current) + current.getEdge(connector);
-                if (newDistance < distance.get(connector)){
-                    distance.put(connector,newDistance);
-                    previous.put(connector,current);
-                    queue.add(connector);
-                }
-            }
-
-        }
-        return null;
-
-    }
-    public double pathLength(ArrayList<Location> path){
-        double length = 0;
-        for (int i = 0; i < path.size()-1; i++){
-            length = length + path.get(i).getEdge(path.get(i+1));
-        }
-        return length;
-    }
+    
 }
