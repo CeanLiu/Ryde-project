@@ -235,6 +235,7 @@ public class Interface extends JFrame {
         infoPanel.setUser(db.getUser(phoneNum));
         infoPanel.initUserPanel();
         splitPane.setVisible(true);
+        db.getUser(phoneNum).updateGUI();
         repaint();
     }
 
@@ -246,6 +247,7 @@ public class Interface extends JFrame {
         infoPanel.setDriver(db.getDriver(phoneNum));
         infoPanel.initDriverPanel();
         splitPane.setVisible(true);
+        db.getDriver(phoneNum).updateGUI();
         repaint();
 
     }

@@ -1,16 +1,12 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -32,16 +28,16 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
 
 public class InfoPanel extends JPanel {
-    JPanel displayPanel, dButtonPanel;
+    JPanel displayPanel, dButtonPanel, bottomPanel;
+    JButton uChooseStartButton, uChooseEndButton, dChooseButton, driveButton, confirmButton;
     private JTextField uStartTextField, uEndTextField, nowTextField, dChooseTextField;
-    private JButton uChooseStartButton, uChooseEndButton, dChooseButton, driveButton;
     private JPopupMenu locationMenu;
     private JList<String> locationList;
     private SimpleGraph map;
     private User user;
     private Driver driver;
     private String[] locations;
-    private boolean uIsChoosingStart, uIsChoosingEnd, dIsChoosing;
+    private boolean uIsChoosingStart, uIsChoosingEnd, dIsChoosing, showPath;
     private Database db;
 
     InfoPanel(SimpleGraph map, Database db) {
@@ -105,7 +101,7 @@ public class InfoPanel extends JPanel {
         add(locationPanel);
 
         // Bottom panel for the submit button
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton submitButton = new JButton("Start My Ryde!");
         submitButton.addActionListener(new ActionListener() {
             @Override
@@ -115,7 +111,7 @@ public class InfoPanel extends JPanel {
                         user.setStart(map.getLocation(uStartTextField.getText()));
                         user.setEnd(map.getLocation(uEndTextField.getText()));
                         user.send(user.toString());
-                        bottomPanel.setVisible(false);
+                        user.updateGUI();
                     }
                 }
             }
@@ -156,12 +152,14 @@ public class InfoPanel extends JPanel {
         dChooseButton = new JButton("Choose On Map");
         dChooseButton.addActionListener(new ChooseListener());
         buttonPanel.add(dChooseButton);
-        JButton confirmButton = new JButton("Confirm Location");
+        confirmButton = new JButton("Confirm Location");
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (driver != null) {
                     driver.setCurrentLocation(map.getLocation(dChooseTextField.getText()));
+                    driver.send(driver.toString());
+                    driver.updateGUI();
                 }
             }
         });
@@ -176,13 +174,13 @@ public class InfoPanel extends JPanel {
         dButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         driveButton = new JButton("Start Drive");
         dButtonPanel.add(driveButton);
-        dButtonPanel.setVisible(false);
         driveButton.addActionListener(new ActionListener() {
             @Override 
             public void actionPerformed(ActionEvent e){
                 if(driver != null){
-                    hideDisplay();
+                    driver.setDrive(true);
                     driver.send(driver.toString());
+                    driver.updateGUI();
                 }
             }
         });
@@ -317,6 +315,8 @@ public class InfoPanel extends JPanel {
             uEndTextField.setText(location.getName());
         } else if (dIsChoosing){
             dChooseTextField.setText(location.getName());
+        } else{
+            return;
         }
         uIsChoosingStart = false;
         uIsChoosingEnd = false;
@@ -382,9 +382,8 @@ public class InfoPanel extends JPanel {
         }
     }
 
-    public void createRequest(String txt) {
-        displayPanel.removeAll();
-        displayInfo(txt);
+    public void createRequest(Color color, String txt) {
+        displayInfo(color, txt);
         HashMap<Long, User> requestList = db.getUsers();
         for (User user : requestList.values()) {
             if(!user.hasDriver()){
@@ -397,8 +396,7 @@ public class InfoPanel extends JPanel {
                         if (driver != null) {
                             driver.assignRyder(user);
                             driver.send(driver.toString());
-                            driveButton.setVisible(true);
-                            //db.removeRequest(user);
+                            driver.updateGUI();
                         }
                     }
                 });
@@ -411,18 +409,46 @@ public class InfoPanel extends JPanel {
         repaint();
     }
 
-    public void displayInfo(String txt){
+    public void displayInfo(Color color, String txt){
+        displayPanel.removeAll();
         JPanel textPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JTextArea infoArea = new JTextArea(txt);
+        infoArea.setForeground(color);
         textPanel.add(infoArea);
         displayPanel.add(textPanel);
+        if(user != null){
+            bottomPanel.setVisible(false);
+        }
         revalidate();
         repaint();
     }
 
-    public void hideDisplay(){
-        displayPanel.removeAll();
-        displayPanel.setVisible(false);
+    public void setLocationText(String start, String end){
+        uStartTextField.setText(start);
+        uEndTextField.setText(end);
+        uStartTextField.setEditable(false);
+        uEndTextField.setEditable(false);
+        uChooseEndButton.setVisible(false);
+        uChooseStartButton.setVisible(false);
+        locationMenu.setVisible(false);
+    }
+
+    public void setLocationText(String currentLocation){
+        dChooseTextField.setText(currentLocation);
+        dChooseTextField.setEditable(false);
+        dChooseButton.setVisible(false);
+        locationMenu.setVisible(false);
+    }
+
+    public void resetTextField(){
+        if(user != null){
+            uStartTextField.setText("");
+            uEndTextField.setText("");
+            uStartTextField.setEditable(true);
+            uEndTextField.setEditable(true);
+            uChooseStartButton.setVisible(true);
+            uChooseEndButton.setVisible(true);
+        }
     }
 }   
 

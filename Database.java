@@ -14,6 +14,8 @@ public class Database {
     final int IS_DRIVE = 3;
     private final String CLIENT_FILE = "clients.txt";
     private final String RYDE_INFO_FILE = "rydeInfo.txt";
+    private File clientFile;
+    private File rydeInfoFile;
     private HashMap<Long, User> users;
     private HashMap<Long, Driver> drivers;
     private SimpleGraph map;
@@ -21,9 +23,10 @@ public class Database {
     public Database(SimpleGraph map) {
         this.users = new HashMap<>();
         this.drivers = new HashMap<>();
+        this.clientFile = new File(CLIENT_FILE);
+        this.rydeInfoFile = new File(RYDE_INFO_FILE);
         this.map = map;
         loadDatabase();
-
     }
 
     private void loadDatabase() {
@@ -63,7 +66,10 @@ public class Database {
                 Driver driver = drivers.get(Long.parseLong(infoDetail[0]));
                 String [] ryders = infoDetail[1].split(",");
                 for(String ryder : ryders){
-                    driver.addRyder(users.get(Long.parseLong(ryder)));
+                    User user =users.get(Long.parseLong(ryder));
+                    driver.addRyder(user);
+                    user.setDriver(driver);
+                    
                 }
             }
             input.close();
@@ -74,21 +80,25 @@ public class Database {
     }
 
     public void saveDatabase() {
+        System.out.println("asjdfljafaskdljkla");
         try {
-            PrintWriter writer = new PrintWriter(new File(CLIENT_FILE));
+            PrintWriter writer = new PrintWriter(new FileOutputStream(clientFile,false));
             for(User user : users.values()){
                 writer.println(user.toString());
             }
             for(Driver driver : drivers.values()){
                 writer.println(driver.getInfo());
             }
-            writer = new PrintWriter(new File(RYDE_INFO_FILE));
+            writer.close();
+            writer.flush();
+            PrintWriter rydeWriter = new PrintWriter(new FileOutputStream(rydeInfoFile, false));
             for(Driver driver : drivers.values()){
                 if(driver.hasRyders()){
-                    writer.println(driver.getNumber() + ":" +driver.getRydeInfo());
+                    rydeWriter.println(driver.getNumber() + ":" +driver.getRydeInfo());
                 }
             }
-            writer.close();
+            rydeWriter.close();
+            rydeWriter.flush();
         } catch (IOException e) {
             System.err.println("Error saving database: " + e.getMessage());
         }
@@ -110,11 +120,19 @@ public class Database {
     }
 
     public void addUser(InfoPanel gui, long phoneNum) {
-        users.put(phoneNum, new User(phoneNum, gui));
+        if(users.containsKey(phoneNum)){
+            users.get(phoneNum).setGui(gui);
+        }else{
+            users.put(phoneNum, new User(phoneNum, gui));
+        }
     }
 
     public void addDriver(InfoPanel gui,long phoneNum, int capacity) {
-        drivers.put(phoneNum, new Driver(map, gui, phoneNum, capacity));
+        if(drivers.containsKey(phoneNum)){
+            drivers.get(phoneNum).setGUI(gui);
+        }else{
+            drivers.put(phoneNum, new Driver(map, gui, phoneNum, capacity));
+        }
     }
 
     public void update(String dataReceived){

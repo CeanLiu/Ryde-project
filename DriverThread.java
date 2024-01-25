@@ -1,3 +1,5 @@
+import javax.swing.SwingUtilities;
+
 public class DriverThread implements Runnable {
     private Database db;
     private Driver driver;
@@ -18,14 +20,17 @@ public class DriverThread implements Runnable {
         }
         while (true) {
             String msg = driver.receive();
-            if(msg != null){
-                db.update(msg);
-            }
-            if(!driver.isDrive()) {
-                if (driver.hasCurrLocation()) {
-                    driver.createRequestGui();
+            if (msg != null) {
+                // Ensure proper synchronization for database updates
+                synchronized (db) {
+                    db.update(msg);
+                    db.saveDatabase();
                 }
             }
+            //runs the gui 
+            SwingUtilities.invokeLater(() -> {
+                driver.updateGUI();
+            });
             // driver.move();
 
             // pause thread execution for the duration of one video frame

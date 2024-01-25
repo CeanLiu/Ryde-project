@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+import javax.swing.SwingUtilities;
+
 public class Location {
     final int DIAMETER = 30;
     private String name;
@@ -139,12 +141,23 @@ public class Location {
         return length;
     }
 
-    public void drawEdge(Graphics2D g2) {
+    public void drawAllEdge(Graphics2D g2) {
         g2.setColor(Color.black);
         for (Location location : connections) {
             g2.setStroke(new BasicStroke(3));
             g2.drawLine((int) this.getX(), (int) this.getY(), (int) location.getX(), (int) location.getY());
         }
+    }
+
+    public void drawPath(Graphics2D g2, SimpleGraph graph, Location other){
+        g2.setColor(Color.blue);
+        g2.setStroke(new BasicStroke(5));
+        ArrayList<Location> path  = shortestPath(other, graph);
+        for (int i = 0; i < path.size()-1; i++) {
+                Location current = path.get(i);
+                Location next = path.get(i+1);
+                g2.drawLine((int) current.getX(), (int) current.getY(), (int) next.getX(), (int) next.getY());
+            }
     }
 
     public void drawVertex(Graphics2D g2) {

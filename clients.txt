@@ -1,0 +1,10 @@
+User:1,M,E,true,false
+User:2,Central Park,M,true,false
+User:5,ELGIN-YORK,M,true,false
+User:235,Central Park,M,false,false
+Driver:1,E,1,false
+Driver:2,Central Park SW,1,true
+Driver:5,M,235,true
+Driver:23,M,1,false
+Driver:235,Central Park SW,1,false
+Driver:12,M,1,true

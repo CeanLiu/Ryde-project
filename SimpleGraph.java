@@ -87,9 +87,9 @@ class SimpleGraph {
         g2.drawLine(0, 0, 0, 1024);
         g2.drawLine(0, 0, 1024, 0);
         g2.drawLine(0, 0, 1024, 1024);
-        for (Location location : locations.values()) {
-            location.drawEdge(g2);
-        }
+        // for (Location location : locations.values()) {
+        //     location.drawAllEdge(g2);
+        // }
         for (Location location : locations.values()) {
             location.drawVertex(g2);
         }

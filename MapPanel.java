@@ -20,6 +20,7 @@ import javax.swing.UIManager;
 
 
 public class MapPanel extends JPanel {
+    private Client client;
     private InfoPanel userPanel;
     private BufferedImage image;
     private SimpleGraph map;
@@ -60,7 +61,7 @@ public class MapPanel extends JPanel {
         g2.transform(at);
         g2.drawImage(image, 0, 0, this);
         map.draw(g2);
-
+        client.drawPath(g2);
     }
 
     private class WheeleListener implements MouseWheelListener {
@@ -107,9 +108,6 @@ public class MapPanel extends JPanel {
             resetLocation();
             repaint();
         }
-
-        // public void mouseClicked(MouseEvent e){
-        // }
     }
 
     private class MouseMotionListener extends MouseMotionAdapter {
