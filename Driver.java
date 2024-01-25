@@ -15,6 +15,7 @@ import java.util.Queue;
 import javax.swing.SwingUtilities;
 
 public class Driver extends Client {
+    private ArrayList<Location> combinedPath = new ArrayList<>();
     private ArrayList<User> ryders = new ArrayList<>();
     private Long phoneNum;
     private int capacity;
@@ -169,7 +170,18 @@ public class Driver extends Client {
                     closest = new ArrayList<>(path);
                 }
             }
-            // print and move
+            // add to total path for the driver
+            for (Location step: closest){
+                if (combinedPath.size() == 0){
+                    combinedPath.add(step);
+                }
+                else {
+                    if (!combinedPath.get(combinedPath.size()-1).equals(step)){
+                        combinedPath.add(step);
+                    }
+                }
+            }
+            // print and move 
             System.out.println("Path to the ryders: ");
             for (int i = 0; i < closest.size() - 1; i++) {
                 System.out.print(closest.get(i).getName() + ", ");
@@ -207,7 +219,13 @@ public class Driver extends Client {
                     closest = new ArrayList<>(path);
                 }
             }
-            // print and move
+            // add to total path for driver
+            for (Location step: closest){
+                if (!combinedPath.get(combinedPath.size()-1).equals(step)){
+                    combinedPath.add(step);
+                }
+            }
+            // print and move 
             System.out.println("Path to drop off: ");
             for (int i = 0; i < closest.size() - 1; i++) {
                 System.out.print(closest.get(i).getName() + ", ");
@@ -316,6 +334,9 @@ public class Driver extends Client {
         }
         System.out.println("Return path is null in method create path");
         return null;
+    }
+    public ArrayList<Location> getAllPaths(){
+        return this.combinedPath;
     }
 
     // -------------------------------------------------------------------------

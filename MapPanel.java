@@ -61,7 +61,7 @@ public class MapPanel extends JPanel {
         g2.transform(at);
         g2.drawImage(image, 0, 0, this);
         map.draw(g2);
-        client.drawPath(g2);
+        // client.drawPath(g2);
     }
 
     private class WheeleListener implements MouseWheelListener {

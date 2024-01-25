@@ -49,7 +49,7 @@ public class Database {
                     Location endLocat = map.getLocation(driverDetail[END_LOCAT]);
                     boolean isAlone = ("true").equals(driverDetail[IS_ALONE]);
                     boolean hasRide = ("true").equals(driverDetail[IN_RIDE]);
-                    users.put(phoneNum, new User(phoneNum,startLocat,endLocat,isAlone,hasRide));
+                    users.put(phoneNum, new User(phoneNum,startLocat,endLocat,isAlone,hasRide,map));
                 }else {
                     String[] driverDetail = info[1].split(",");
                     long phoneNum = Long.parseLong(driverDetail[PHONE]);
@@ -123,7 +123,7 @@ public class Database {
         if(users.containsKey(phoneNum)){
             users.get(phoneNum).setGui(gui);
         }else{
-            users.put(phoneNum, new User(phoneNum, gui));
+            users.put(phoneNum, new User(phoneNum, gui,map));
         }
     }
 
@@ -160,7 +160,7 @@ public class Database {
             user.setChoice(isAlone);
             user.setRideStatus(inRide);
         } else {
-            users.put(phoneNum, new User(phoneNum, startLocation, endLocation, isAlone, inRide));
+            users.put(phoneNum, new User(phoneNum, startLocation, endLocation, isAlone, inRide,map));
         }
     }
 
