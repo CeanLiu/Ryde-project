@@ -149,15 +149,10 @@ public class Location {
         }
     }
 
-    public void drawPath(Graphics2D g2, SimpleGraph graph, Location other){
+    public void drawPath(Graphics2D g2, Location other){
         g2.setColor(Color.blue);
         g2.setStroke(new BasicStroke(5));
-        ArrayList<Location> path  = shortestPath(other, graph);
-        for (int i = 0; i < path.size()-1; i++) {
-                Location current = path.get(i);
-                Location next = path.get(i+1);
-                g2.drawLine((int) current.getX(), (int) current.getY(), (int) next.getX(), (int) next.getY());
-            }
+        g2.drawLine((int) this.getX(), (int) this.getY(), (int) other.getX(), (int) other.getY());
     }
 
     public void drawVertex(Graphics2D g2) {

@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.io.*;
 import java.net.*;
 
+import javax.swing.SwingUtilities;
+
 abstract public class Client {
 
     final String LOCAL_HOST = "127.0.0.1"; // "192.168.0.100";
@@ -45,5 +47,6 @@ abstract public class Client {
         clientSocket.close();
     }
 
-    abstract public void drawPath(Graphics2D g2);
+    abstract public void updateGUI();
+    abstract public void draw(Graphics2D g2);
 }

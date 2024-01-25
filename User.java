@@ -1,35 +1,46 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
 public class User extends Client {
     private long phoneNum; // acts as the user id
-    private InfoPanel gui;
+    private Interface gui;
     private Location current, start, end;
     private boolean inRide, isAlone;
     private boolean finished;
     private Driver driver;
     private SimpleGraph graph;
-    
+    private BufferedImage userImage;
 
-    public User(long phoneNum, InfoPanel gui, SimpleGraph map) { 
+    public User(Interface gui, SimpleGraph graph, long phoneNum) {
         this.gui = gui;
+        this.graph = graph;
         this.phoneNum = phoneNum;
         this.inRide = false;
         this.finished = false;
+        try {
+            userImage = ImageIO.read(new File("mapImage.png"));
+        } catch (IOException ex) {
+            System.out.println("No Image Found");
+        }
     }
 
-    public User(long phoneNum, Location start, Location end, boolean isAlone, boolean inRide, SimpleGraph graph) {
+    public User(Interface gui, SimpleGraph graph,long phoneNum, Location start, Location end, boolean isAlone, boolean inRide) {
+        this.gui = gui;
+        this.graph = graph;
         this.phoneNum = phoneNum;
-        this.start = start;
+        this.start = this.current = start;
         this.end = end;
         this.isAlone = isAlone;
         this.inRide = inRide;
         this.finished = false;
-        this.graph = graph;
     }
 
     public long getNumber() {
@@ -72,8 +83,8 @@ public class User extends Client {
         return graph;
     }
 
-    public boolean isDoneChoose(){
-        return getEnd()!=null && getStart()!=null;
+    public boolean isDoneChoose() {
+        return getEnd() != null && getStart() != null;
     }
 
     public void setStart(Location start) {
@@ -100,7 +111,7 @@ public class User extends Client {
         this.driver = driver;
     }
 
-    public void setGui(InfoPanel gui) {
+    public void setGui(Interface gui) {
         this.gui = gui;
     }
 
@@ -129,40 +140,46 @@ public class User extends Client {
 
     public void updateGUI() {
         SwingUtilities.invokeLater(() -> {
-            String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: "+ getEnd().toString();
-            if (isAlone()) {
-                info += "\nCar Pool: No";
-            } else {
-                info += "\nCar Pool: Yes";
-            }
-            if (getDriver() != null) {
-                info += "\nDriver Phone Number: " + getDriver().getNumber();
-                if (isInRide()) {
-                    info += "\nEnjoy your ride";
+            InfoPanel infoPanel = gui.getInfoPanel();
+            MapPanel mapPanel = gui.getMapPanel();
+            if (isDoneChoose()) {
+                String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: " + getEnd().toString();
+                if (isAlone()) {
+                    info += "\nCar Pool: No";
                 } else {
-                    info += "\nPlease wait for the driver to pick up";
+                    info += "\nCar Pool: Yes";
                 }
+                if (getDriver() != null) {
+                    info += "\nDriver Phone Number: " + getDriver().getNumber();
+                    if (isInRide()) {
+                        info += "\nEnjoy your ride";
+                    } else {
+                        info += "\nPlease wait for the driver to pick up";
+                    }
+                } else {
+                    System.out.println(getDriver());
+                    info += "\nPlease wait patiently for a driver to pick up the order";
+                }
+                infoPanel.bottomPanel.setVisible(false);
+                infoPanel.setLocationText(start.toString(), end.toString());
+                infoPanel.displayInfo(Color.black, info);
+                System.out.println(mapPanel.toString());
+                System.out.println(graph.toString());
+                System.out.println(getCurrent());
+                System.out.println(getEnd());
+                mapPanel.setPathToDraw(getCurrent().shortestPath(getEnd(),graph));
             } else {
-                System.out.println(getDriver());
-                info += "\nPlease wait patiently for a driver to pick up the order";
-            }
-            if(isDoneChoose()){
-                gui.bottomPanel.setVisible(false);
-                gui.setLocationText(start.toString(), end.toString());
-                gui.displayInfo(Color.black, info);
-            }else{
-                gui.bottomPanel.setVisible(true);
-                gui.resetTextField();
+                infoPanel.bottomPanel.setVisible(true);
+                infoPanel.resetTextField();
             }
         });
     }
 
-    @Override
-    public void drawPath(Graphics2D g2){
-        SwingUtilities.invokeLater (()->{
-            getStart().drawPath(g2, graph, current);
-        });
+    @Override 
+    public void draw(Graphics2D g2){
+        g2.drawImage(userImage,0,0,null);
     }
+
 
     @Override
     public String toString() {

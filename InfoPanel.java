@@ -34,8 +34,9 @@ public class InfoPanel extends JPanel {
     private JPopupMenu locationMenu;
     private JList<String> locationList;
     private SimpleGraph map;
-    private User user;
-    private Driver driver;
+    private Client client;
+    // private User user;
+    // private Driver driver;
     private String[] locations;
     private boolean uIsChoosingStart, uIsChoosingEnd, dIsChoosing, showPath;
     private Database db;
@@ -49,7 +50,7 @@ public class InfoPanel extends JPanel {
     }
 
     public void initUserPanel() {
-        setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel welcomeLabel = new JLabel("Welcome, User");
@@ -106,12 +107,12 @@ public class InfoPanel extends JPanel {
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (user != null) {
+                if (client instanceof User) {
                     if (displayRideInfo()) {
-                        user.setStart(map.getLocation(uStartTextField.getText()));
-                        user.setEnd(map.getLocation(uEndTextField.getText()));
-                        user.send(user.toString());
-                        user.updateGUI();
+                        ((User) client).setStart(map.getLocation(uStartTextField.getText()));
+                        ((User) client).setEnd(map.getLocation(uEndTextField.getText()));
+                        ((User) client).send(client.toString());
+                        ((User) client).updateGUI();
                     }
                 }
             }
@@ -156,10 +157,10 @@ public class InfoPanel extends JPanel {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (driver != null) {
-                    driver.setCurrentLocation(map.getLocation(dChooseTextField.getText()));
-                    driver.send(driver.toString());
-                    driver.updateGUI();
+                if (client instanceof Driver) {
+                    ((Driver) client).setCurrentLocation(map.getLocation(dChooseTextField.getText()));
+                    ((Driver) client).send(client.toString());
+                    ((Driver) client).updateGUI();
                 }
             }
         });
@@ -175,16 +176,185 @@ public class InfoPanel extends JPanel {
         driveButton = new JButton("Start Drive");
         dButtonPanel.add(driveButton);
         driveButton.addActionListener(new ActionListener() {
-            @Override 
-            public void actionPerformed(ActionEvent e){
-                if(driver != null){
-                    driver.setDrive(true);
-                    driver.send(driver.toString());
-                    driver.updateGUI();
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (client instanceof Driver) {
+                    ((Driver) client).setDrive(true);
+                    ((Driver) client).send(client.toString());
+                    ((Driver) client).updateGUI();
                 }
             }
         });
         add(dButtonPanel);
+    }
+    
+    public Client getClient() {
+        return client;
+    }
+    
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public void setButtonStatus() {
+        if (client instanceof User) {
+            uChooseEndButton.setVisible(!uIsChoosingEnd);
+            uChooseStartButton.setVisible(!uIsChoosingStart);
+        } else if (client instanceof Driver) {
+            dChooseButton.setVisible(!dIsChoosing);
+        }
+    }
+
+    public void finishChoose(Location location) {
+        if (uIsChoosingStart) {
+            uStartTextField.setText(location.getName());
+        } else if (uIsChoosingEnd) {
+            uEndTextField.setText(location.getName());
+        } else if (dIsChoosing) {
+            dChooseTextField.setText(location.getName());
+        } else {
+            return;
+        }
+        uIsChoosingStart = false;
+        uIsChoosingEnd = false;
+        dIsChoosing = false;
+        locationMenu.setVisible(false);
+        setButtonStatus();
+        repaint();
+    }
+
+    public void createRequest(Color color, String txt) {
+        displayInfo(color, txt);
+        HashMap<Long, User> requestList = db.getUsers();
+        for (User user : requestList.values()) {
+            if (!user.hasDriver()) {
+                JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                JLabel request = new JLabel(user.toString());
+                JButton accept = new JButton("Accept User");
+                accept.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (client instanceof Driver) {
+                            ((Driver) client).assignRyder(user);
+                            ((Driver) client).send(client.toString());
+                            ((Driver) client).updateGUI();
+                        }
+                    }
+                });
+                panel.add(request);
+                panel.add(accept);
+                displayPanel.add(panel);
+            }
+        }
+        revalidate();
+        repaint();
+    }
+
+    public void displayInfo(Color color, String txt) {
+        displayPanel.removeAll();
+        JPanel textPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JTextArea infoArea = new JTextArea(txt);
+        infoArea.setForeground(color);
+        textPanel.add(infoArea);
+        displayPanel.add(textPanel);
+        if (client instanceof User) {
+            bottomPanel.setVisible(false);
+        }
+        revalidate();
+        repaint();
+    }
+
+    public void setLocationText(String start, String end) {
+        uStartTextField.setText(start);
+        uEndTextField.setText(end);
+        uStartTextField.setEditable(false);
+        uEndTextField.setEditable(false);
+        uChooseEndButton.setVisible(false);
+        uChooseStartButton.setVisible(false);
+        locationMenu.setVisible(false);
+    }
+
+    public void setLocationText(String currentLocation) {
+        dChooseTextField.setText(currentLocation);
+        dChooseTextField.setEditable(false);
+        dChooseButton.setVisible(false);
+        locationMenu.setVisible(false);
+    }
+
+    public void resetTextField() {
+        if (client instanceof User) {
+            uStartTextField.setText("");
+            uEndTextField.setText("");
+            uStartTextField.setEditable(true);
+            uEndTextField.setEditable(true);
+            uChooseStartButton.setVisible(true);
+            uChooseEndButton.setVisible(true);
+        } else {
+            dChooseTextField.setText("");
+            dChooseTextField.setEditable(true);
+            dChooseButton.setVisible(true);
+            confirmButton.setVisible(true);
+        }
+    }
+
+    private boolean displayRideInfo() {
+        Location startLocation = map.getLocation(uStartTextField.getText());
+        Location endLocation = map.getLocation(uEndTextField.getText());
+
+        if (startLocation == null || endLocation == null) {
+            JOptionPane.showMessageDialog(this, "Please choose valid start and end locations.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        } else if (startLocation.equals(endLocation)) {
+            JOptionPane.showMessageDialog(this, "Start Location and End Location cannot be the Same.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        } else {
+            // Additional information about start and end locations
+            String info = "Start Location: " + startLocation.getName() + "\n" + "End Location: " + endLocation.getName()
+                    + "\n";
+
+            // Create a dialog for option selection
+            JPanel optionPanel = new JPanel(new GridLayout(2, 1));
+            ButtonGroup buttonGroup = new ButtonGroup();
+
+            JRadioButton carpoolButton = new JRadioButton("I want to Carpool");
+            optionPanel.add(carpoolButton);
+            buttonGroup.add(carpoolButton);
+            JRadioButton singleButton = new JRadioButton("I want to Ride Alone");
+            optionPanel.add(singleButton);
+            buttonGroup.add(singleButton);
+
+            int optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select your Ryde Option",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+            if (optionResult == JOptionPane.CANCEL_OPTION) {
+                return false;
+            } else {
+                while (!carpoolButton.isSelected() && !singleButton.isSelected()) {
+                    if (optionResult == JOptionPane.OK_OPTION) {
+                        JOptionPane.showMessageDialog(this, "Please select an option.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select your Ryde Option",
+                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        return false;
+                    }
+                }
+                if (client instanceof User) {
+                    if (carpoolButton.isSelected()) {
+                        info = info + "Going Carpool\n" + "Price: $30";
+                        ((User) client).setChoice(false);
+                    } else if (singleButton.isSelected()) {
+                        info = info + "Going Alone\n" + "Price: $45";
+                        ((User) client).setChoice(true);
+                    }
+                }
+
+                JOptionPane.showMessageDialog(this, info, "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            }
+        }
     }
 
     public class TextFieldListener implements DocumentListener {
@@ -205,13 +375,13 @@ public class InfoPanel extends JPanel {
 
         private void updateList(Document txtDocument) {
             DefaultListModel<String> listModel = new DefaultListModel<String>();
-            if (user != null) {
+            if (client instanceof User) {
                 if (txtDocument == uStartTextField.getDocument()) {
                     nowTextField = uStartTextField;
                 } else if (txtDocument == uEndTextField.getDocument()) {
                     nowTextField = uEndTextField;
                 }
-            } else if (driver != null) {
+            } else if (client instanceof Driver) {
                 nowTextField = dChooseTextField;
             }
             String input = nowTextField.getText().toLowerCase();
@@ -251,20 +421,15 @@ public class InfoPanel extends JPanel {
         public void valueChanged(ListSelectionEvent e) {
             try {
                 if (!e.getValueIsAdjusting()) {
-                    // invokeLater will postpones execution until the thread is not occupied
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            int selectedIndex = locationList.getSelectedIndex();
-                            if (selectedIndex != -1) {
-                                nowTextField.setText(locationList.getSelectedValue());
-                                locationMenu.setVisible(false);
-                                uIsChoosingStart = false;
-                                uIsChoosingEnd = false;
-                                dIsChoosing = false;
-                                setButtonStatus();
-                            }
-                        }
-                    });
+                    int selectedIndex = locationList.getSelectedIndex();
+                    if (selectedIndex != -1) {
+                        nowTextField.setText(locationList.getSelectedValue());
+                        locationMenu.setVisible(false);
+                        uIsChoosingStart = false;
+                        uIsChoosingEnd = false;
+                        dIsChoosing = false;
+                        setButtonStatus();
+                    }
                 }
             } catch (IllegalStateException ex) {
                 ex.printStackTrace();
@@ -288,168 +453,4 @@ public class InfoPanel extends JPanel {
             repaint();
         }
     }
-
-    public void setUser(User user) {
-        this.user = user;
-        this.driver = null;
-    }
-
-    public void setDriver(Driver driver) {
-        this.driver = driver;
-        this.user = null;
-    }
-
-    public void setButtonStatus() {
-        if (user != null) {
-            uChooseEndButton.setVisible(!uIsChoosingEnd);
-            uChooseStartButton.setVisible(!uIsChoosingStart);
-        } else if (driver != null) {
-            dChooseButton.setVisible(!dIsChoosing);
-        }
-    }
-
-    public void finishChoose(Location location) {
-        if (uIsChoosingStart) {
-            uStartTextField.setText(location.getName());
-        } else if (uIsChoosingEnd) {
-            uEndTextField.setText(location.getName());
-        } else if (dIsChoosing){
-            dChooseTextField.setText(location.getName());
-        } else{
-            return;
-        }
-        uIsChoosingStart = false;
-        uIsChoosingEnd = false;
-        dIsChoosing = false;
-        locationMenu.setVisible(false);
-        setButtonStatus();
-        repaint();
-    }
-
-    private boolean displayRideInfo() {
-        Location startLocation = map.getLocation(uStartTextField.getText());
-        Location endLocation = map.getLocation(uEndTextField.getText());
-
-        if (startLocation == null || endLocation == null) {
-            JOptionPane.showMessageDialog(this, "Please choose valid start and end locations.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        } else if (startLocation.equals(endLocation)) {
-            JOptionPane.showMessageDialog(this, "Start Location and End Location cannot be the Same.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        } else {
-            // Additional information about start and end locations
-            String info = "Start Location: " + startLocation.getName() + "\n" + "End Location: " + endLocation.getName()
-                    + "\n";
-
-            // Create a dialog for option selection
-            JPanel optionPanel = new JPanel(new GridLayout(2, 1));
-            ButtonGroup buttonGroup = new ButtonGroup();
-
-            JRadioButton carpoolButton = new JRadioButton("I want to Carpool");
-            optionPanel.add(carpoolButton);
-            buttonGroup.add(carpoolButton);
-            JRadioButton singleButton = new JRadioButton("I want to Ride Alone");
-            optionPanel.add(singleButton);
-            buttonGroup.add(singleButton);
-
-            int optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select your Ryde Option", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-            
-            if (optionResult == JOptionPane.CANCEL_OPTION) {
-                return false;
-            } else {
-                while (!carpoolButton.isSelected() && !singleButton.isSelected()) {
-                    if (optionResult == JOptionPane.OK_OPTION) {
-                        JOptionPane.showMessageDialog(this, "Please select an option.", "Error", JOptionPane.ERROR_MESSAGE);
-                        optionResult = JOptionPane.showConfirmDialog(this, optionPanel, "Select your Ryde Option", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    } else {
-                        return false;
-                    }
-                }
-
-            if (carpoolButton.isSelected()) {
-                info = info + "Going Carpool\n" + "Price: $30";
-                user.setChoice(false);
-            } else if (singleButton.isSelected()) {
-                info = info + "Going Alone\n" + "Price: $45";
-                user.setChoice(true);
-            }
-
-            JOptionPane.showMessageDialog(this, info, "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
-            return true;
-        }
-        }
-    }
-
-    public void createRequest(Color color, String txt) {
-        displayInfo(color, txt);
-        HashMap<Long, User> requestList = db.getUsers();
-        for (User user : requestList.values()) {
-            if(!user.hasDriver()){
-                JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                JLabel request = new JLabel(user.toString());
-                JButton accept = new JButton("Accept User");
-                accept.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (driver != null) {
-                            driver.assignRyder(user);
-                            driver.send(driver.toString());
-                            driver.updateGUI();
-                        }
-                    }
-                });
-                panel.add(request);
-                panel.add(accept);
-                displayPanel.add(panel);
-            }
-        }
-        revalidate();
-        repaint();
-    }
-
-    public void displayInfo(Color color, String txt){
-        displayPanel.removeAll();
-        JPanel textPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JTextArea infoArea = new JTextArea(txt);
-        infoArea.setForeground(color);
-        textPanel.add(infoArea);
-        displayPanel.add(textPanel);
-        if(user != null){
-            bottomPanel.setVisible(false);
-        }
-        revalidate();
-        repaint();
-    }
-
-    public void setLocationText(String start, String end){
-        uStartTextField.setText(start);
-        uEndTextField.setText(end);
-        uStartTextField.setEditable(false);
-        uEndTextField.setEditable(false);
-        uChooseEndButton.setVisible(false);
-        uChooseStartButton.setVisible(false);
-        locationMenu.setVisible(false);
-    }
-
-    public void setLocationText(String currentLocation){
-        dChooseTextField.setText(currentLocation);
-        dChooseTextField.setEditable(false);
-        dChooseButton.setVisible(false);
-        locationMenu.setVisible(false);
-    }
-
-    public void resetTextField(){
-        if(user != null){
-            uStartTextField.setText("");
-            uEndTextField.setText("");
-            uStartTextField.setEditable(true);
-            uEndTextField.setEditable(true);
-            uChooseStartButton.setVisible(true);
-            uChooseEndButton.setVisible(true);
-        }
-    }
-}   
-
-
+}

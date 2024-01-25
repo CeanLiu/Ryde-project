@@ -19,8 +19,10 @@ public class Database {
     private HashMap<Long, User> users;
     private HashMap<Long, Driver> drivers;
     private SimpleGraph map;
+    private Interface gui;
 
-    public Database(SimpleGraph map) {
+    public Database(SimpleGraph map, Interface gui) {
+        this.gui = gui;
         this.users = new HashMap<>();
         this.drivers = new HashMap<>();
         this.clientFile = new File(CLIENT_FILE);
@@ -49,14 +51,14 @@ public class Database {
                     Location endLocat = map.getLocation(driverDetail[END_LOCAT]);
                     boolean isAlone = ("true").equals(driverDetail[IS_ALONE]);
                     boolean hasRide = ("true").equals(driverDetail[IN_RIDE]);
-                    users.put(phoneNum, new User(phoneNum,startLocat,endLocat,isAlone,hasRide,map));
+                    users.put(phoneNum, new User(gui,map, phoneNum,startLocat,endLocat,isAlone,hasRide));
                 }else {
                     String[] driverDetail = info[1].split(",");
                     long phoneNum = Long.parseLong(driverDetail[PHONE]);
                     Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
                     int capacity = Integer.parseInt(driverDetail[CAPCITY]);
                     boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
-                    drivers.put(phoneNum, new Driver(map, phoneNum, currLocat, capacity, isDrive));
+                    drivers.put(phoneNum, new Driver(gui, map, phoneNum, currLocat, capacity, isDrive));
                 }
             }
             input = new Scanner(new FileReader(RYDE_INFO_FILE));
@@ -67,7 +69,7 @@ public class Database {
                 String [] ryders = infoDetail[1].split(",");
                 for(String ryder : ryders){
                     User user =users.get(Long.parseLong(ryder));
-                    driver.addRyder(user);
+                    driver.assignRyder(user);
                     user.setDriver(driver);
                     
                 }
@@ -119,19 +121,19 @@ public class Database {
         return this.drivers;
     }
 
-    public void addUser(InfoPanel gui, long phoneNum) {
+    public void addUser(Interface gui, long phoneNum) {
         if(users.containsKey(phoneNum)){
             users.get(phoneNum).setGui(gui);
         }else{
-            users.put(phoneNum, new User(phoneNum, gui,map));
+            users.put(phoneNum, new User(gui,map,phoneNum));
         }
     }
 
-    public void addDriver(InfoPanel gui,long phoneNum, int capacity) {
+    public void addDriver(Interface gui,long phoneNum, int capacity) {
         if(drivers.containsKey(phoneNum)){
             drivers.get(phoneNum).setGUI(gui);
         }else{
-            drivers.put(phoneNum, new Driver(map, gui, phoneNum, capacity));
+            drivers.put(phoneNum, new Driver(gui,map,phoneNum,capacity));
         }
     }
 
@@ -160,7 +162,7 @@ public class Database {
             user.setChoice(isAlone);
             user.setRideStatus(inRide);
         } else {
-            users.put(phoneNum, new User(phoneNum, startLocation, endLocation, isAlone, inRide,map));
+            users.put(phoneNum, new User(gui,map,phoneNum, startLocation, endLocation, isAlone, inRide));
         }
     }
 
@@ -177,7 +179,7 @@ public class Database {
             driver.setCurrentLocation(currLocat);
             driver.setDrive(isDrive);
         } else {
-            drivers.put(phoneNum, new Driver(map, phoneNum, currLocat, capacity, isDrive));
+            drivers.put(phoneNum, new Driver(gui,map, phoneNum, currLocat, capacity, isDrive));
         }
         if(driverLine.length > 1){
             Driver driver = drivers.get(phoneNum);

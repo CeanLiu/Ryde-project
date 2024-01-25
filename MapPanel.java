@@ -15,13 +15,14 @@ import java.awt.geom.Point2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 
 public class MapPanel extends JPanel {
-    private Client client;
-    private InfoPanel userPanel;
+    private InfoPanel infoPanel;
     private BufferedImage image;
     private SimpleGraph map;
     private AffineTransform at;
@@ -31,18 +32,20 @@ public class MapPanel extends JPanel {
     private Point startPoint;
     private Point currentPoint;
     private Location hoveredLocation = null; 
+    private ArrayList<Location> pathToDraw;
+    private Client client;
 
-    public MapPanel(BufferedImage image, SimpleGraph map, InfoPanel userPanel) {
+    public MapPanel(BufferedImage image, SimpleGraph map, InfoPanel infoPanel) {
 
         this.image = image;
         this.map = map;
-        this.userPanel = userPanel;
+        this.infoPanel = infoPanel;
         initComponent();
 
     }
 
     private void initComponent() {
-        ClickListener clickListener = new ClickListener(userPanel);
+        ClickListener clickListener = new ClickListener(infoPanel);
         MouseMotionListener dragListener = new MouseMotionListener();
         WheeleListener wheeleListener = new WheeleListener();
         this.addMouseListener(clickListener);
@@ -60,10 +63,69 @@ public class MapPanel extends JPanel {
         at.scale(scaleFactor, scaleFactor);
         g2.transform(at);
         g2.drawImage(image, 0, 0, this);
+        if(pathToDraw!=null){
+            drawPath(g2,pathToDraw);
+        }
+        if(client!=null){
+            client.draw(g2);
+        }
         map.draw(g2);
-        // client.drawPath(g2);
     }
 
+    public Location getHoveredLocation(){
+        return hoveredLocation;
+    }
+
+    public void resetLocation() {
+        final int IMAGE_HEIGHT = 936;
+        final int IMAGE_WIDTH = 1013;
+        double xOnPanel = at.getTranslateX();
+        double yOnPanel = at.getTranslateY();
+        double imageScaleWidth = IMAGE_WIDTH * scaleFactor;
+        double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
+        double panelWidth = getSize().width;
+        double panelHeight = getSize().height;
+        //System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
+        if (imageScaleWidth >= panelWidth) {
+            if (xOnPanel + imageScaleWidth <= panelWidth) {
+                xOffset = panelWidth - imageScaleWidth;
+            }
+        } else {
+            if (xOnPanel <= 0) {
+                xOffset = 0;
+            }
+        }
+        if (imageScaleHeight >= panelHeight) {
+            if (yOnPanel + imageScaleWidth <= panelHeight) {
+                yOffset = panelHeight - imageScaleWidth;
+            }
+        } else {
+            if (yOnPanel <= 0) {
+                yOffset = 0;
+            }
+        }
+        if (xOnPanel >= 0) {
+            xOffset = 0;
+        }
+        if (yOnPanel >= 0) {
+            yOffset = 0;
+        }
+    }
+
+    public void setPathToDraw(ArrayList<Location> path){
+        this.pathToDraw = path;
+    }
+    public void drawPath(Graphics2D g2, ArrayList<Location> path){
+        for (int i = 0; i < path.size()-1; i++) {
+            System.out.println(path.get(i));
+            Location current = path.get(i);
+            Location next = path.get(i+1);
+            current.drawPath(g2, next);
+        }
+        repaint();
+    }
+    public void drawClient(Client client){
+    }
     private class WheeleListener implements MouseWheelListener {
         private double prevScale = 1;
 
@@ -140,44 +202,6 @@ public class MapPanel extends JPanel {
         }
     }
 
-    public Location getHoveredLocation(){
-        return hoveredLocation;
-    }
-
-    public void resetLocation() {
-        final int IMAGE_HEIGHT = 1024;
-        final int IMAGE_WIDTH = 1024;
-        double xOnPanel = at.getTranslateX();
-        double yOnPanel = at.getTranslateY();
-        double imageScaleWidth = IMAGE_WIDTH * scaleFactor;
-        double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
-        double panelWidth = getSize().width;
-        double panelHeight = getSize().height;
-        //System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
-        if (imageScaleWidth >= panelWidth) {
-            if (xOnPanel + imageScaleWidth <= panelWidth) {
-                xOffset = panelWidth - imageScaleWidth;
-            }
-        } else {
-            if (xOnPanel <= 0) {
-                xOffset = 0;
-            }
-        }
-        if (imageScaleHeight >= panelHeight) {
-            if (yOnPanel + imageScaleWidth <= panelHeight) {
-                yOffset = panelHeight - imageScaleWidth;
-            }
-        } else {
-            if (yOnPanel <= 0) {
-                yOffset = 0;
-            }
-        }
-        if (xOnPanel >= 0) {
-            xOffset = 0;
-        }
-        if (yOnPanel >= 0) {
-            yOffset = 0;
-        }
-    }
+   
 
 }

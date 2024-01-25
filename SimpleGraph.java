@@ -18,7 +18,6 @@ import java.io.IOException;
  * @version Oct 2023
  */
 class SimpleGraph {
-    BufferedImage mapImage;
     private HashMap<String, Location> locations;
 
     // Constructor
@@ -26,12 +25,6 @@ class SimpleGraph {
         this.locations = new HashMap<String, Location>();
         // this.coordinates = new HashMap<>();
         loadMap("map.txt");
-        try {
-            mapImage = ImageIO.read(new File("mapImage.png"));
-        } catch (IOException ex) {
-            System.out.println("No Image Found");
-        }
-
     }
 
     private void loadMap(String file) {

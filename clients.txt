@@ -1,13 +1,5 @@
-User:1,M,E,true,false
-User:2,Central Park,M,true,false
-User:5,ELGIN-YORK,M,true,false
-User:235,Central Park,M,false,false
-User:123,M,City Hall,true,false
-User:987987,null,null,false,false
-Driver:1,E,1,false
-Driver:2,Central Park SW,1,true
-Driver:5,M,235,true
-Driver:23,M,1,false
-Driver:234,ADF,4,true
-Driver:235,Central Park SW,1,false
-Driver:12,M,1,true
+User:235235,M,YONGE-BAY,true,false
+User:1,M,City Hall,true,false
+User:1235,M,E,false,false
+Driver:1,M,1,true
+Driver:1235,Central Park SW,1234,false

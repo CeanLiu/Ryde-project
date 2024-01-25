@@ -29,21 +29,20 @@ public class Interface extends JFrame {
 
     private BufferedImage mapImage;
     private Database db;
-    JFrame frame;
-    JPanel welcomePanel, loginPanel, driverLoginPanel;
-    JTextField dCapacityTextField;
-    JLabel dCapacityLabel;
-    JSplitPane splitPane;
-    JButton driveButton, rideButton;
-    MapPanel mapPanel;
-    InfoPanel infoPanel;
-    SimpleGraph map;
-    ArrayList<User> users = new ArrayList<>();
+    private JFrame frame;
+    private JPanel welcomePanel, loginPanel, driverLoginPanel;
+    private JTextField dCapacityTextField;
+    private JLabel dCapacityLabel;
+    private JSplitPane splitPane;
+    private JButton driveButton, rideButton;
+    private MapPanel mapPanel;
+    private InfoPanel infoPanel;
+    private SimpleGraph map;
     private boolean isDriver;
 
-    public Interface(SimpleGraph map, String imageFile, Database db) {
+    public Interface(SimpleGraph map, String imageFile) {
+        db = new Database(map,this);
         this.map = map;
-        this.db = db;
         try {
             mapImage = ImageIO.read(new File(imageFile));
         } catch (IOException ex) {
@@ -64,16 +63,6 @@ public class Interface extends JFrame {
         frame.setLayout(new GridBagLayout());
         frame.setLocationRelativeTo(null);
         GridBagConstraints frameGBC = new GridBagConstraints();
-
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // Save data when the window is closing
-                db.saveDatabase();
-                // Optionally, you can also perform other cleanup tasks here
-            }
-        });
-
         // ------------------------------------------------------------------------------------------------------------------
         // #region
         welcomePanel = new JPanel(new GridBagLayout());
@@ -189,6 +178,14 @@ public class Interface extends JFrame {
 
     }
 
+    public InfoPanel getInfoPanel() {
+        return infoPanel;
+    }
+
+    public MapPanel getMapPanel() {
+        return mapPanel;
+    }
+
     private void setPlaceholder(JTextField textField, String placeholder) {
         textField.setForeground(Color.GRAY);
         textField.setText(placeholder);
@@ -229,10 +226,10 @@ public class Interface extends JFrame {
 
     public void goUserPage(Long phoneNum) {
         initialize();
-        db.addUser(infoPanel, phoneNum);
+        db.addUser(this, phoneNum);
         Thread userThread = new Thread(new UserThread(db, phoneNum));
         userThread.start();
-        infoPanel.setUser(db.getUser(phoneNum));
+        infoPanel.setClient(db.getUser(phoneNum));
         infoPanel.initUserPanel();
         splitPane.setVisible(true);
         db.getUser(phoneNum).updateGUI();
@@ -241,10 +238,10 @@ public class Interface extends JFrame {
 
     public void goDriverPage(long phoneNum, int capacity) {
         initialize();
-        db.addDriver(infoPanel, phoneNum,capacity);
+        db.addDriver(this, phoneNum, capacity);
         Thread userThread = new Thread(new DriverThread(db, phoneNum));
         userThread.start();
-        infoPanel.setDriver(db.getDriver(phoneNum));
+        infoPanel.setClient(db.getDriver(phoneNum));
         infoPanel.initDriverPanel();
         splitPane.setVisible(true);
         db.getDriver(phoneNum).updateGUI();

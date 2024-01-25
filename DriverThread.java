@@ -31,7 +31,9 @@ public class DriverThread implements Runnable {
             SwingUtilities.invokeLater(() -> {
                 driver.updateGUI();
             });
-            // driver.move();
+            if(driver.isDrive()){
+                driver.move();
+            }
 
             // pause thread execution for the duration of one video frame
             try {

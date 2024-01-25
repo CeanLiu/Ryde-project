@@ -20,7 +20,7 @@ public class Driver extends Client {
     private Long phoneNum;
     private int capacity;
     private Location currentLocation;
-    private InfoPanel gui;
+    private Interface gui;
     private SimpleGraph graph;
     private boolean isDrive;
 
@@ -33,14 +33,15 @@ public class Driver extends Client {
     // this.currentLocation = "A";
     // }
 
-    public Driver(SimpleGraph graph, InfoPanel gui, long phoneNum, int capacity) {
-        this.phoneNum = phoneNum;
-        this.capacity = capacity;
+    public Driver(Interface gui, SimpleGraph graph,long phoneNum, int capacity) {
         this.gui = gui;
         this.graph = graph;
+        this.phoneNum = phoneNum;
+        this.capacity = capacity;
     }
 
-    public Driver(SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
+    public Driver(Interface gui, SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
+        this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
         this.currentLocation = current;
@@ -96,7 +97,7 @@ public class Driver extends Client {
         this.isDrive = isDrive;
     }
 
-    public void setGUI(InfoPanel gui) {
+    public void setGUI(Interface gui) {
         this.gui = gui;
     }
 
@@ -104,32 +105,6 @@ public class Driver extends Client {
         this.ryders.add(ryder);
     }
 
-    public void updateGUI() {
-        SwingUtilities.invokeLater(() -> {
-            String info = "Driver " + getNumber() + ": You have " + ryders.size() + " ryders.";
-            for (User ryder : ryders) {
-                info += "\nUser " + ryder.getNumber() + ":\nStart Location: " + ryder.getStart().toString()
-                        + "\nEnd Location: " + ryder.getEnd().toString();
-            }
-            if (hasCurrLocation()) {
-                gui.setLocationText(currentLocation.toString());
-                gui.confirmButton.setVisible(false);
-                if (!isDrive()) {
-                    gui.createRequest(Color.black, info);
-                    gui.dButtonPanel.setVisible(true);
-                    if(hasRyders()){
-                        gui.driveButton.setVisible(true);
-                    }
-                } else {
-                    gui.driveButton.setVisible(false);
-                    gui.displayInfo(Color.black, "Please go pick up your Ryder\n" + info);
-                }
-            } else {
-                gui.confirmButton.setVisible(true);
-                gui.displayInfo(Color.red, "Please Choose Your Current Location to Start Picking Customers");
-            }
-        });
-    }
 
     public void addRyder(User newRyder) {
         for (User ryder : this.ryders) {
@@ -162,7 +137,6 @@ public class Driver extends Client {
                     closestRyder.add(currentLocation.shortestPath(ryder.getStart(), graph));
                 }
             }
-            
             // find the shortest path out of all the users
             ArrayList<Location> closest = closestRyder.get(0);
             for (ArrayList<Location> path : closestRyder) {
@@ -243,6 +217,8 @@ public class Driver extends Client {
             }
         }
     }
+    
+    // public void ArrayList<>
 
     public void moveSteps(Location initial, Location next) {
         int x1 = (int) initial.getX();
@@ -335,11 +311,46 @@ public class Driver extends Client {
         System.out.println("Return path is null in method create path");
         return null;
     }
+    
     public ArrayList<Location> getAllPaths(){
         return this.combinedPath;
     }
 
     // -------------------------------------------------------------------------
+    @Override
+    public void updateGUI() {
+        SwingUtilities.invokeLater(() -> {
+            InfoPanel infoPanel = gui.getInfoPanel();
+            MapPanel mapPanel = gui.getMapPanel();
+            String info = "Driver " + getNumber() + ": You have " + ryders.size() + " ryders.";
+            for (User ryder : ryders) {
+                info += "\nUser " + ryder.getNumber() + ":\nStart Location: " + ryder.getStart().toString()
+                        + "\nEnd Location: " + ryder.getEnd().toString();
+            }
+            if (hasCurrLocation()) {
+                infoPanel.setLocationText(currentLocation.toString());
+                infoPanel.confirmButton.setVisible(false);
+                if (!isDrive()) {
+                    infoPanel.createRequest(Color.black, info);
+                    if(hasRyders()){
+                        System.out.println("hiii");
+                        infoPanel.driveButton.setVisible(true);
+                        mapPanel.setPathToDraw(combinedPath);
+                    }else{
+                        infoPanel.dButtonPanel.setVisible(false);
+                        mapPanel.setPathToDraw(combinedPath);
+                    }
+                } else {
+                    infoPanel.driveButton.setVisible(false);
+                    infoPanel.displayInfo(Color.black, "Please go pick up your Ryder\n" + info);
+                }
+            } else {
+                infoPanel.confirmButton.setVisible(true);
+                infoPanel.displayInfo(Color.red, "Please Choose Your Current Location to Start Picking Customers");
+            }
+        });
+    }
+    
     public String getInfo() {
         return "Driver:" + getNumber() + "," + getCurrentLocation() + "," + getCapacity() + "," + isDrive();
     }
@@ -355,10 +366,11 @@ public class Driver extends Client {
         }
         return info;
     }
-    // @Override 
-    // public void drawPath(Graphics2D g2 ArrayList<ArrayList<Location>>){
 
-    // }
+    @Override
+    public void draw(Graphics2D g2){
+    }
+
     @Override
     public String toString() {
         return getInfo() + "_" + getRydeInfo();
