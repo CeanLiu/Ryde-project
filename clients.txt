@@ -1,5 +1,4 @@
-User:235235,M,YONGE-BAY,true,false
-User:1,M,City Hall,true,false
-User:1235,M,E,false,false
-Driver:1,M,1,true
-Driver:1235,Central Park SW,1234,false
+User:345,C,H,false,false,932.0,1062.0
+User:234,E,L,false,false,372.0,1064.0
+User:123,Central Park,L,true,false,940.0,282.0
+Driver:111,ELGIN-YORK,1,true,610.0,658.0

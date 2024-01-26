@@ -28,6 +28,7 @@ public class DriverThread implements Runnable {
                     db.saveDatabase();
                 }
             }
+            System.out.println("driver has ryders:"+driver.getRydeInfo());
             System.out.println("driver.isDrive:"+driver.isDrive());
             if(driver.isDrive()){
                 System.out.println("moved");
@@ -38,6 +39,8 @@ public class DriverThread implements Runnable {
             SwingUtilities.invokeLater(() -> {
                 driver.updateGUI();
             });
+            System.out.println("driver is driving? "+driver.isDrive());
+            db.saveDatabase();
             
 
             // pause thread execution for the duration of one video frame

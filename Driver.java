@@ -239,6 +239,7 @@ public class Driver extends Client {
             }
         }
         setDrive(false);
+        this.send(toString());
     }
     
     // public void ArrayList<>
@@ -303,7 +304,12 @@ public class Driver extends Client {
                     }
                 }
                 temp = new ArrayList<>(ryders);
+            } else {
+                setDrive(false);
+                this.send(toString());
             }
+
+            System.out.println("driver has "+ryders.size()+" ryders left");
 
             this.send(toString());
 
@@ -365,7 +371,14 @@ public class Driver extends Client {
                 infoPanel.confirmButton.setVisible(false);
                 if (!isDrive()) {
                     if(ryders.size() < getCapacity()){
-                        infoPanel.createRequest(Color.black, info);
+                        if (ryders.size() == 1 && ryders.get(0).isAlone() == true){ // selected a user that rides alone
+                            infoPanel.createRequest(Color.black, info, "none");
+                        }
+                        else if (ryders.size() == 0){ // did not select a user yet
+                            infoPanel.createRequest(Color.black, info,"all");
+                        } else {    // selected a user that wants to carpool
+                            infoPanel.createRequest(Color.black, info, "carpool mf");
+                        }
                     }
                     System.out.println("hasRyders: " + hasRyders());
                     if(hasRyders()){
@@ -377,7 +390,7 @@ public class Driver extends Client {
                 } else {
                     System.out.println("location:"+currentLocation.toString());
                     System.out.println("isDrive:" + isDrive());
-                    System.out.println(ryders.size() <= getCapacity());
+                    // System.out.println(ryders.size() <= getCapacity());
                     mapPanel.setPathToDraw(combinedPath);
                     System.out.println("combinedPath:"+combinedPath.size());
                     infoPanel.dButtonPanel.setVisible(false);
@@ -398,7 +411,7 @@ public class Driver extends Client {
                 if(isDrive()){
                     AffineTransform transform = new AffineTransform();
                     transform.translate(x, y);
-                    System.out.println(getDirectionAngle());
+                    System.out.println("direction angle:"+getDirectionAngle());
                     transform.rotate(getDirectionAngle(), driverImage.getWidth(null) / 2.0, driverImage.getHeight(null) / 2.0);
                     g2.drawImage(driverImage, transform, null);
                 }
