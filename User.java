@@ -73,6 +73,17 @@ public class User extends Client {
         return finished;
     }
 
+    public void reset(){
+        // if(isFinished()){
+            this.current = null;
+            this.start = null;
+            this.end = null;
+            this.driver = null;
+            this.inRide = false;
+        // }
+
+    }
+
     public boolean hasDriver() {
         return this.driver != null;
     }
@@ -127,6 +138,8 @@ public class User extends Client {
         this.current.setY(y);
         if (current.getX() == end.getX() && current.getY() == end.getY()) {
             System.out.println("I've arrived at my destination: " + end.getName());
+            // finished = true;
+            // reset();
         }
     }
 

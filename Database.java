@@ -145,14 +145,20 @@ public class Database {
         }else{
             users.put(phoneNum, new User(userImage,gui,map,phoneNum));
         }
+        saveDatabase();
     }
 
     public void addDriver(Interface gui,long phoneNum, int capacity) {
         if(drivers.containsKey(phoneNum)){
+            if(capacity > drivers.get(phoneNum).getCapacity()){
+                drivers.get(phoneNum).setCapacity(capacity);
+            }
+            drivers.get(phoneNum).setDrive(false);
             drivers.get(phoneNum).setGUI(gui);
         }else{
             drivers.put(phoneNum, new Driver(driverImage,gui,map,phoneNum,capacity));
         }
+        saveDatabase();
     }
 
     public void update(String dataReceived){
@@ -162,7 +168,6 @@ public class Database {
         }else{
             updateUser(dataReceived.split(":")[1]);
         }
-        saveDatabase();
     }
 
     public void updateUser(String userText) {

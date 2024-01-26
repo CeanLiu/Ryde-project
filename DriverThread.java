@@ -32,6 +32,7 @@ public class DriverThread implements Runnable {
             if(driver.isDrive()){
                 System.out.println("moved");
                 driver.move();
+                db.saveDatabase();
             }
             //runs the gui 
             SwingUtilities.invokeLater(() -> {

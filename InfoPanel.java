@@ -113,6 +113,7 @@ public class InfoPanel extends JPanel {
                         ((User) client).setEnd(map.getLocation(uEndTextField.getText()));
                         ((User) client).send(client.toString());
                         ((User) client).updateGUI();
+                        db.saveDatabase();
                     }
                 }
             }
@@ -161,6 +162,7 @@ public class InfoPanel extends JPanel {
                     ((Driver) client).setCurrentLocation(map.getLocation(dChooseTextField.getText()));
                     ((Driver) client).send(client.toString());
                     ((Driver) client).updateGUI();
+                    db.saveDatabase();
                 }
             }
         });
@@ -181,6 +183,7 @@ public class InfoPanel extends JPanel {
                     ((Driver) client).setDrive(true);
                     ((Driver) client).send(client.toString());
                     ((Driver) client).updateGUI();
+                    db.saveDatabase();
                 }
             }
         });
@@ -239,6 +242,7 @@ public class InfoPanel extends JPanel {
                             ((Driver) client).assignRyder(user);
                             ((Driver) client).send(client.toString());
                             ((Driver) client).updateGUI();
+                            db.saveDatabase();
                         }
                     }
                 });

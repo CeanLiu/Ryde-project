@@ -34,6 +34,7 @@ public class Driver extends Client {
         this.graph = graph;
         this.phoneNum = phoneNum;
         this.capacity = capacity;
+        this.isDrive = false;
     }
 
     public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
@@ -61,6 +62,10 @@ public class Driver extends Client {
 
     public int getCapacity() {
         return capacity;
+    }
+
+    public void setCapacity(int cap) {
+        this.capacity = cap;
     }
 
     public Location getCurrentLocation() {
@@ -166,6 +171,7 @@ public class Driver extends Client {
             }
         }
         // drop off ryders
+        combinedPath.clear();
         ArrayList<User> dropoffPending = new ArrayList<>(ryders);
         while (!dropoffPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestStop = new ArrayList<>();
@@ -185,9 +191,18 @@ public class Driver extends Client {
             }
             // add to total path for driver
             for (Location step: closest){
-                if (!combinedPath.get(combinedPath.size()-1).equals(step)){
+                if (combinedPath.size() == 0){
                     combinedPath.add(step);
                 }
+                else {
+                    if (!combinedPath.get(combinedPath.size()-1).equals(step)){
+                        combinedPath.add(step);
+                    }
+                }
+            }
+            System.out.println("combined path");
+            for(Location path: combinedPath){
+                System.out.println(path.toString());
             }
             // print and move 
             System.out.println("Path to drop off: ");
@@ -198,14 +213,20 @@ public class Driver extends Client {
                 }
                 moveSteps(closest.get(i), closest.get(i + 1));
             }
+            System.out.println("combined path");
+            for(Location path: combinedPath){
+                System.out.println(path.toString());
+            }
             // remove the user from the list to be dropped off
             ArrayList<User> temp = new ArrayList<>(dropoffPending);
             for (User ryder : temp) {
                 if (ryder.getEnd().getX() == currentLocation.getX() && ryder.getEnd().getY() == currentLocation.getY()) {
                     dropoffPending.remove(ryder);
+                    ryder.reset();
                 }
             }
         }
+        setDrive(false);
     }
     
     // public void ArrayList<>
@@ -326,8 +347,10 @@ public class Driver extends Client {
             if (hasCurrLocation()) {
                 infoPanel.setLocationText(currentLocation.toString());
                 infoPanel.confirmButton.setVisible(false);
-                if (!isDrive() && ryders.size() <= getCapacity()) {
-                    infoPanel.createRequest(Color.black, info);
+                if (!isDrive()) {
+                    if(ryders.size() < getCapacity()){
+                        infoPanel.createRequest(Color.black, info);
+                    }
                     System.out.println("hasRyders: " + hasRyders());
                     if(hasRyders()){
                         infoPanel.dButtonPanel.setVisible(true); // 
@@ -336,6 +359,7 @@ public class Driver extends Client {
                         infoPanel.dButtonPanel.setVisible(false);
                     }
                 } else {
+                    System.out.println("location:"+currentLocation.toString());
                     System.out.println("isDrive:" + isDrive());
                     System.out.println(ryders.size() <= getCapacity());
                     mapPanel.setPathToDraw(combinedPath);
