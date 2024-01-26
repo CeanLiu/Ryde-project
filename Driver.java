@@ -250,14 +250,14 @@ public class Driver extends Client {
                 y1 += sy;
                 currentLocation.setY(y1);
             }
-            // for (Location location : graph.getLocations().values()) {
-            //     if (currentLocation.getX() == location.getX() && currentLocation.getY() == location.getY()) {
-            //         currentLocation = new Location(location.getName(), location.getX(), location.getY());
-            //         for (Location connector : location.getConnections()) {
-            //             currentLocation.addConnection(connector);
-            //         }
-            //     }
-            // }
+            for (Location location : graph.getLocations().values()) {
+                if (currentLocation.getX() == location.getX() && currentLocation.getY() == location.getY()) {
+                    currentLocation = new Location(location.getName(), location.getX(), location.getY());
+                    for (Location connector : location.getConnections()) {
+                        currentLocation.addConnection(connector);
+                    }
+                }
+            }
             for (User ryder : ryders) {
                 if (currentLocation.compare(currentLocation, ryder.getStart())) {
                     addRyder(ryder);
@@ -333,15 +333,14 @@ public class Driver extends Client {
                 if (!isDrive()) {
                     infoPanel.createRequest(Color.black, info);
                     if(hasRyders()){
-                        System.out.println("hiii");
-                        infoPanel.driveButton.setVisible(true);
+                        infoPanel.dButtonPanel.setVisible(true);
                         mapPanel.setPathToDraw(combinedPath);
                     }else{
                         infoPanel.dButtonPanel.setVisible(false);
-                        mapPanel.setPathToDraw(combinedPath);
                     }
                 } else {
-                    infoPanel.driveButton.setVisible(false);
+                    mapPanel.setPathToDraw(combinedPath);
+                    infoPanel.dButtonPanel.setVisible(false);
                     infoPanel.displayInfo(Color.black, "Please go pick up your Ryder\n" + info);
                 }
             } else {

@@ -32,6 +32,7 @@ abstract public class Client {
 
     public String receive() {
         try {
+            System.out.println(input);
             String msg = input.readLine();
             System.out.println(msg);
             return msg;

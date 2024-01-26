@@ -26,7 +26,7 @@ public class User extends Client {
         this.inRide = false;
         this.finished = false;
         try {
-            userImage = ImageIO.read(new File("mapImage.png"));
+            userImage = ImageIO.read(new File("user.png"));
         } catch (IOException ex) {
             System.out.println("No Image Found");
         }
@@ -36,11 +36,15 @@ public class User extends Client {
         this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
-        this.start = this.current = start;
+        this.start = start;
         this.end = end;
         this.isAlone = isAlone;
         this.inRide = inRide;
         this.finished = false;
+        this.current = new Location(start.getName(), start.getX(), start.getY());
+        for (Location connector : start.getConnections()) {
+            current.addConnection(connector);
+        }
     }
 
     public long getNumber() {
@@ -177,9 +181,13 @@ public class User extends Client {
 
     @Override 
     public void draw(Graphics2D g2){
-        g2.drawImage(userImage,0,0,null);
+        if(isDoneChoose()){
+            g2.drawImage(userImage,150,160,null);
+        }
+        else{
+            return;
+        }
     }
-
 
     @Override
     public String toString() {

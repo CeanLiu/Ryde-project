@@ -229,8 +229,9 @@ public class Interface extends JFrame {
         db.addUser(this, phoneNum);
         Thread userThread = new Thread(new UserThread(db, phoneNum));
         userThread.start();
-        infoPanel.setClient(db.getUser(phoneNum));
         infoPanel.initUserPanel();
+        infoPanel.setClient(db.getUser(phoneNum));
+        mapPanel.setClient(db.getUser(phoneNum));
         splitPane.setVisible(true);
         db.getUser(phoneNum).updateGUI();
         repaint();
@@ -239,13 +240,13 @@ public class Interface extends JFrame {
     public void goDriverPage(long phoneNum, int capacity) {
         initialize();
         db.addDriver(this, phoneNum, capacity);
-        Thread userThread = new Thread(new DriverThread(db, phoneNum));
-        userThread.start();
-        infoPanel.setClient(db.getDriver(phoneNum));
+        Thread driverThread = new Thread(new DriverThread(db, phoneNum));
+        driverThread.start();
         infoPanel.initDriverPanel();
+        infoPanel.setClient(db.getDriver(phoneNum));
+        mapPanel.setClient(db.getDriver(phoneNum));
         splitPane.setVisible(true);
         db.getDriver(phoneNum).updateGUI();
         repaint();
-
     }
 }

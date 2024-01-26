@@ -36,7 +36,6 @@ public class MapPanel extends JPanel {
     private Client client;
 
     public MapPanel(BufferedImage image, SimpleGraph map, InfoPanel infoPanel) {
-
         this.image = image;
         this.map = map;
         this.infoPanel = infoPanel;
@@ -70,6 +69,7 @@ public class MapPanel extends JPanel {
             client.draw(g2);
         }
         map.draw(g2);
+        repaint();
     }
 
     public Location getHoveredLocation(){
@@ -115,16 +115,18 @@ public class MapPanel extends JPanel {
     public void setPathToDraw(ArrayList<Location> path){
         this.pathToDraw = path;
     }
+    
     public void drawPath(Graphics2D g2, ArrayList<Location> path){
         for (int i = 0; i < path.size()-1; i++) {
-            System.out.println(path.get(i));
             Location current = path.get(i);
             Location next = path.get(i+1);
             current.drawPath(g2, next);
         }
         repaint();
     }
-    public void drawClient(Client client){
+
+    public void setClient(Client client){
+        this.client = client;
     }
     private class WheeleListener implements MouseWheelListener {
         private double prevScale = 1;
