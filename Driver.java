@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,37 +25,25 @@ public class Driver extends Client {
     private Interface gui;
     private SimpleGraph graph;
     private boolean isDrive;
+    private BufferedImage driverImage;
+    private double directionAngle;
 
-    // public Driver(ArrayList<User> passengers, int capacity) {
-    // this.passengers = passengers;
-    // for (User passenger: passengers){
-    // passenger.inRide = true;
-    // }
-    // this.capacity = capacity;
-    // this.currentLocation = "A";
-    // }
-
-    public Driver(Interface gui, SimpleGraph graph,long phoneNum, int capacity) {
+    public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph,long phoneNum, int capacity) {
+        this.driverImage = driverImage;
         this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
         this.capacity = capacity;
     }
 
-    public Driver(Interface gui, SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
+    public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
+        this.driverImage = driverImage;
         this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
         this.currentLocation = current;
         this.capacity = capacity;
         this.isDrive = isDrive;
-    }
-
-    public Driver(SimpleGraph graph, Location current, int capacity) {
-        this.graph = graph;
-        this.ryders = null;
-        this.currentLocation = current;
-        this.capacity = capacity;
     }
 
     public void start() throws Exception {
@@ -225,6 +215,7 @@ public class Driver extends Client {
         int y1 = (int) initial.getY();
         int x2 = (int) next.getX();
         int y2 = (int) next.getY();
+        directionAngle = Math.atan2(y2-y1,x2-x1);
 
         int dx = Math.abs(x2 - x1);
         int dy = Math.abs(y2 - y1);
@@ -278,6 +269,11 @@ public class Driver extends Client {
                     }
                 }
                 temp = new ArrayList<>(ryders);
+            }
+            try {
+                Thread.sleep(12);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -354,6 +350,25 @@ public class Driver extends Client {
         });
     }
     
+    @Override 
+    public void draw(Graphics2D g2){
+        if(hasCurrLocation()){
+            if(isDrive()){
+                AffineTransform transform = new AffineTransform();
+                transform.translate(currentLocation.getX()-56, currentLocation.getY()-94);
+                transform.rotate(Math.toRadians(directionAngle), driverImage.getWidth(null) / 2.0, driverImage.getHeight(null) / 2.0);
+                g2.drawImage(driverImage, transform, null);
+            }
+            else{
+                g2.drawImage(driverImage,(int)currentLocation.getX()-56,(int)currentLocation.getY()-89,null);
+            }
+            // Draw the rotated image
+    
+
+        }
+
+    }
+
     public String getInfo() {
         return "Driver:" + getNumber() + "," + getCurrentLocation() + "," + getCapacity() + "," + isDrive();
     }
@@ -370,9 +385,6 @@ public class Driver extends Client {
         return info;
     }
 
-    @Override
-    public void draw(Graphics2D g2){
-    }
 
     @Override
     public String toString() {

@@ -2,6 +2,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -15,8 +16,9 @@ import java.util.PriorityQueue;
 
 import javax.swing.SwingUtilities;
 
+
 public class Location {
-    final int DIAMETER = 30;
+    final int DIAMETER = 60;
     private String name;
     private double x;
     private double y;
@@ -151,7 +153,7 @@ public class Location {
 
     public void drawPath(Graphics2D g2, Location other){
         g2.setColor(Color.blue);
-        g2.setStroke(new BasicStroke(5));
+        g2.setStroke(new BasicStroke(10));
         g2.drawLine((int) this.getX(), (int) this.getY(), (int) other.getX(), (int) other.getY());
     }
 
@@ -163,6 +165,7 @@ public class Location {
         }
         g2.fill(drawCircle);
 
+        g2.setFont(new Font("Arial", Font.PLAIN, 30)); 
         FontMetrics fontMetrics = g2.getFontMetrics();
 
         g2.setColor(Color.white);

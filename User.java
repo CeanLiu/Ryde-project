@@ -19,20 +19,17 @@ public class User extends Client {
     private SimpleGraph graph;
     private BufferedImage userImage;
 
-    public User(Interface gui, SimpleGraph graph, long phoneNum) {
+    public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum) {
+        this.userImage = userImage;
         this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
         this.inRide = false;
         this.finished = false;
-        try {
-            userImage = ImageIO.read(new File("user.png"));
-        } catch (IOException ex) {
-            System.out.println("No Image Found");
-        }
     }
 
-    public User(Interface gui, SimpleGraph graph,long phoneNum, Location start, Location end, boolean isAlone, boolean inRide) {
+    public User(BufferedImage userImage, Interface gui, SimpleGraph graph,long phoneNum, Location start, Location end, boolean isAlone, boolean inRide) {
+        this.userImage = userImage;
         this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
@@ -45,11 +42,7 @@ public class User extends Client {
         for (Location connector : start.getConnections()) {
             current.addConnection(connector);
         }
-        try {
-            userImage = ImageIO.read(new File("user.png"));
-        } catch (IOException ex) {
-            System.out.println("No Image Found");
-        }
+
     }
 
     public long getNumber() {
@@ -187,7 +180,7 @@ public class User extends Client {
     @Override 
     public void draw(Graphics2D g2){
         if(isDoneChoose()){
-            g2.drawImage(userImage,150,160,null);
+            g2.drawImage(userImage,((int)current.getX()-50),((int)current.getY()-153),null);
         }
         else{
             return;

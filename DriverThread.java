@@ -41,7 +41,7 @@ public class DriverThread implements Runnable {
 
             // pause thread execution for the duration of one video frame
             try {
-                Thread.sleep(15);
+                Thread.sleep(1200);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -26,7 +26,7 @@ public class MapPanel extends JPanel {
     private BufferedImage image;
     private SimpleGraph map;
     private AffineTransform at;
-    private double scaleFactor = 1;
+    private double scaleFactor = 0.5;
     private double xOffset = 0;
     private double yOffset = 0;
     private Point startPoint;
@@ -65,10 +65,10 @@ public class MapPanel extends JPanel {
         if(pathToDraw!=null){
             drawPath(g2,pathToDraw);
         }
+        map.draw(g2);
         if(client!=null){
             client.draw(g2);
         }
-        map.draw(g2);
         repaint();
     }
 
@@ -77,8 +77,8 @@ public class MapPanel extends JPanel {
     }
 
     public void resetLocation() {
-        final int IMAGE_HEIGHT = 936;
-        final int IMAGE_WIDTH = 1013;
+        final int IMAGE_WIDTH = 2026;
+        final int IMAGE_HEIGHT = 1872;
         double xOnPanel = at.getTranslateX();
         double yOnPanel = at.getTranslateY();
         double imageScaleWidth = IMAGE_WIDTH * scaleFactor;
@@ -96,12 +96,15 @@ public class MapPanel extends JPanel {
             }
         }
         if (imageScaleHeight >= panelHeight) {
-            if (yOnPanel + imageScaleWidth <= panelHeight) {
-                yOffset = panelHeight - imageScaleWidth;
+            if (yOnPanel + imageScaleHeight <= panelHeight) {
+                yOffset = panelHeight - imageScaleHeight;
             }
         } else {
             if (yOnPanel <= 0) {
                 yOffset = 0;
+            }
+            if(xOnPanel <= 0){
+                xOffset = 0;
             }
         }
         if (xOnPanel >= 0) {
@@ -129,17 +132,17 @@ public class MapPanel extends JPanel {
         this.client = client;
     }
     private class WheeleListener implements MouseWheelListener {
-        private double prevScale = 1;
+        private double prevScale = 0.5;
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             // Zoom in if < 0, Zoom out if > 0
             if (e.getWheelRotation() < 0) {
-                if (scaleFactor < 5) {
+                if (scaleFactor < 3) {
                     scaleFactor *= 1.1;
                 }
             } else if (e.getWheelRotation() > 0) {
-                if (scaleFactor > 1) {
+                if (scaleFactor > 0.5) {
                     scaleFactor /= 1.1;
                 }
             }

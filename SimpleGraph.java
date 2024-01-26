@@ -76,10 +76,6 @@ class SimpleGraph {
     }
 
     public void draw(Graphics2D g2) {
-        g2.setColor(Color.orange);
-        g2.drawLine(0, 0, 0, 1024);
-        g2.drawLine(0, 0, 1024, 0);
-        g2.drawLine(0, 0, 1024, 1024);
         // for (Location location : locations.values()) {
         //     location.drawAllEdge(g2);
         // }

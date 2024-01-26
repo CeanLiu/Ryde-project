@@ -1,7 +1,12 @@
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+
+import javax.imageio.ImageIO;
 
 public class Database {
     final int PHONE = 0;
@@ -14,8 +19,12 @@ public class Database {
     final int IS_DRIVE = 3;
     private final String CLIENT_FILE = "clients.txt";
     private final String RYDE_INFO_FILE = "rydeInfo.txt";
+    private final String USER_IMAGE = "user.png";
+    private final String DRIVER_IMAGE = "driver.png";
     private File clientFile;
     private File rydeInfoFile;
+    private BufferedImage userImage;
+    private BufferedImage driverImage;
     private HashMap<Long, User> users;
     private HashMap<Long, Driver> drivers;
     private SimpleGraph map;
@@ -28,6 +37,16 @@ public class Database {
         this.clientFile = new File(CLIENT_FILE);
         this.rydeInfoFile = new File(RYDE_INFO_FILE);
         this.map = map;
+        try {
+            userImage = ImageIO.read(new File(USER_IMAGE));
+        } catch (IOException ex) {
+            System.out.println("No Image Found");
+        }
+        try {
+            driverImage = ImageIO.read(new File(DRIVER_IMAGE));
+        } catch (IOException ex) {
+            System.out.println("No Image Found");
+        }
         loadDatabase();
     }
 
@@ -51,14 +70,14 @@ public class Database {
                     Location endLocat = map.getLocation(driverDetail[END_LOCAT]);
                     boolean isAlone = ("true").equals(driverDetail[IS_ALONE]);
                     boolean hasRide = ("true").equals(driverDetail[IN_RIDE]);
-                    users.put(phoneNum, new User(gui,map, phoneNum,startLocat,endLocat,isAlone,hasRide));
+                    users.put(phoneNum, new User(userImage, gui, map, phoneNum,startLocat,endLocat,isAlone,hasRide));
                 }else {
                     String[] driverDetail = info[1].split(",");
                     long phoneNum = Long.parseLong(driverDetail[PHONE]);
                     Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
                     int capacity = Integer.parseInt(driverDetail[CAPCITY]);
                     boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
-                    drivers.put(phoneNum, new Driver(gui, map, phoneNum, currLocat, capacity, isDrive));
+                    drivers.put(phoneNum, new Driver(driverImage, gui, map, phoneNum, currLocat, capacity, isDrive));
                 }
             }
             input = new Scanner(new FileReader(RYDE_INFO_FILE));
@@ -124,7 +143,7 @@ public class Database {
         if(users.containsKey(phoneNum)){
             users.get(phoneNum).setGui(gui);
         }else{
-            users.put(phoneNum, new User(gui,map,phoneNum));
+            users.put(phoneNum, new User(userImage,gui,map,phoneNum));
         }
     }
 
@@ -132,7 +151,7 @@ public class Database {
         if(drivers.containsKey(phoneNum)){
             drivers.get(phoneNum).setGUI(gui);
         }else{
-            drivers.put(phoneNum, new Driver(gui,map,phoneNum,capacity));
+            drivers.put(phoneNum, new Driver(driverImage,gui,map,phoneNum,capacity));
         }
     }
 
@@ -161,7 +180,7 @@ public class Database {
             user.setChoice(isAlone);
             user.setRideStatus(inRide);
         } else {
-            users.put(phoneNum, new User(gui,map,phoneNum, startLocation, endLocation, isAlone, inRide));
+            users.put(phoneNum, new User(userImage, gui,map,phoneNum, startLocation, endLocation, isAlone, inRide));
         }
     }
 
@@ -178,7 +197,7 @@ public class Database {
             driver.setCurrentLocation(currLocat);
             driver.setDrive(isDrive);
         } else {
-            drivers.put(phoneNum, new Driver(gui,map, phoneNum, currLocat, capacity, isDrive));
+            drivers.put(phoneNum, new Driver(driverImage, gui,map, phoneNum, currLocat, capacity, isDrive));
         }
         if(driverLine.length > 1){
             Driver driver = drivers.get(phoneNum);

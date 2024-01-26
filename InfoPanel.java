@@ -174,7 +174,6 @@ public class InfoPanel extends JPanel {
 
         dButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         driveButton = new JButton("Start Drive");
-        dButtonPanel.add(driveButton);
         driveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -185,6 +184,8 @@ public class InfoPanel extends JPanel {
                 }
             }
         });
+        dButtonPanel.add(driveButton);
+        dButtonPanel.setVisible(false);
         add(dButtonPanel);
     }
     
