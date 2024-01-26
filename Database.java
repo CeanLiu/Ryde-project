@@ -82,7 +82,6 @@ public class Database {
     }
 
     public void saveDatabase() {
-        System.out.println("asjdfljafaskdljkla");
         try {
             PrintWriter writer = new PrintWriter(new FileOutputStream(clientFile,false));
             for(User user : users.values()){

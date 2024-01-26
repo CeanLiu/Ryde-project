@@ -45,6 +45,11 @@ public class User extends Client {
         for (Location connector : start.getConnections()) {
             current.addConnection(connector);
         }
+        try {
+            userImage = ImageIO.read(new File("user.png"));
+        } catch (IOException ex) {
+            System.out.println("No Image Found");
+        }
     }
 
     public long getNumber() {

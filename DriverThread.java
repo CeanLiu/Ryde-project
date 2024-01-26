@@ -19,6 +19,7 @@ public class DriverThread implements Runnable {
             e.printStackTrace();
         }
         while (true) {
+            System.out.println("driver thread started");
             String msg = driver.receive();
             if (msg != null) {
                 // Ensure proper synchronization for database updates
@@ -27,13 +28,16 @@ public class DriverThread implements Runnable {
                     db.saveDatabase();
                 }
             }
+            System.out.println("driver.isDrive:"+driver.isDrive());
+            if(driver.isDrive()){
+                System.out.println("moved");
+                driver.move();
+            }
             //runs the gui 
             SwingUtilities.invokeLater(() -> {
                 driver.updateGUI();
             });
-            if(driver.isDrive()){
-                driver.move();
-            }
+            
 
             // pause thread execution for the duration of one video frame
             try {

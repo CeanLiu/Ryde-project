@@ -330,16 +330,20 @@ public class Driver extends Client {
             if (hasCurrLocation()) {
                 infoPanel.setLocationText(currentLocation.toString());
                 infoPanel.confirmButton.setVisible(false);
-                if (!isDrive()) {
+                if (!isDrive() && ryders.size() <= getCapacity()) {
                     infoPanel.createRequest(Color.black, info);
+                    System.out.println("hasRyders: " + hasRyders());
                     if(hasRyders()){
-                        infoPanel.dButtonPanel.setVisible(true);
+                        infoPanel.dButtonPanel.setVisible(true); // 
                         mapPanel.setPathToDraw(combinedPath);
                     }else{
                         infoPanel.dButtonPanel.setVisible(false);
                     }
                 } else {
+                    System.out.println("isDrive:" + isDrive());
+                    System.out.println(ryders.size() <= getCapacity());
                     mapPanel.setPathToDraw(combinedPath);
+                    System.out.println("combinedPath:"+combinedPath.size());
                     infoPanel.dButtonPanel.setVisible(false);
                     infoPanel.displayInfo(Color.black, "Please go pick up your Ryder\n" + info);
                 }
