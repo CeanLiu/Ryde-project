@@ -147,6 +147,7 @@ public class Interface extends JFrame {
                         goUserPage(phoneNum);
                     }
                 } catch (NullPointerException e) {
+                    e.printStackTrace();
                     System.out.println("Please fill in your phone number");
 
                 }

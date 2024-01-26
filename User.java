@@ -18,6 +18,7 @@ public class User extends Client {
     private Driver driver;
     private SimpleGraph graph;
     private BufferedImage userImage;
+    private boolean checkedInRide = false;
 
     public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum) {
         this.userImage = userImage;
@@ -28,7 +29,8 @@ public class User extends Client {
         this.finished = false;
     }
 
-    public User(BufferedImage userImage, Interface gui, SimpleGraph graph,long phoneNum, Location start, Location end, boolean isAlone, boolean inRide) {
+    public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum, Location start, Location end,
+            boolean isAlone, boolean inRide) {
         this.userImage = userImage;
         this.gui = gui;
         this.graph = graph;
@@ -61,9 +63,9 @@ public class User extends Client {
         return start;
     }
 
-    public boolean isInRide() {
-        return inRide;
-    }
+    // public boolean isInRide() {
+    //     return inRide;
+    // }
 
     public boolean isAlone() {
         return isAlone;
@@ -73,13 +75,14 @@ public class User extends Client {
         return finished;
     }
 
-    public void reset(){
+    public void reset() {
         // if(isFinished()){
-            this.current = null;
-            this.start = null;
-            this.end = null;
-            this.driver = null;
-            this.inRide = false;
+        this.current = null;
+        this.start = null;
+        this.end = null;
+        this.driver = null;
+        this.inRide = false;
+        this.checkedInRide = false;
         // }
 
     }
@@ -99,6 +102,24 @@ public class User extends Client {
     public boolean isDoneChoose() {
         return getEnd() != null && getStart() != null;
     }
+
+    public boolean isInRide() {
+        if(hasDriver()){
+            if(!checkedInRide){
+                if(getCurrent().compare(getCurrent(), driver.getCurrentLocation())){
+                    checkedInRide = true;
+                    return inRide = true;
+                }else{
+                    return inRide = false;
+                }
+            }else{
+                return inRide;
+            }
+        }else{
+            return inRide = false;
+        }
+    }
+
 
     public void setStart(Location start) {
         this.start = start;
@@ -133,15 +154,29 @@ public class User extends Client {
     }
 
     // move the user
-    public void move(double x, double y) {
-        this.current.setX(x);
-        this.current.setY(y);
-        if (current.getX() == end.getX() && current.getY() == end.getY()) {
-            System.out.println("I've arrived at my destination: " + end.getName());
-            // finished = true;
-            // reset();
+    public void move() {
+        double x = driver.getCurrentLocation().getX();
+        double y = driver.getCurrentLocation().getY();
+        if (isInRide()) {
+            if (getCurrent().compare(getCurrent(), getEnd())) {
+                System.out.println("I've arrived at my destination: " + end.getName());
+                this.driver = null;
+                this.inRide = false;
+                // finished = true;
+                reset();
+            } else {
+                this.current.setX(x);
+                this.current.setY(y);
+                setRideStatus(true);
+                Location driverLocat = driver.getCurrentLocation();
+                current = new Location(driverLocat.getName(), driverLocat.getX(), driverLocat.getY());
+                for (Location connector : driverLocat.getConnections()) {
+                    current.addConnection(connector);
+                }
+            }
         }
     }
+
 
     // Connection to server
     public void start() throws Exception {
@@ -158,7 +193,8 @@ public class User extends Client {
             InfoPanel infoPanel = gui.getInfoPanel();
             MapPanel mapPanel = gui.getMapPanel();
             if (isDoneChoose()) {
-                String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: " + getEnd().toString();
+                String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: "
+                        + getEnd().toString();
                 if (isAlone()) {
                     info += "\nCar Pool: No";
                 } else {
@@ -178,11 +214,11 @@ public class User extends Client {
                 infoPanel.bottomPanel.setVisible(false);
                 infoPanel.setLocationText(start.toString(), end.toString());
                 infoPanel.displayInfo(Color.black, info);
-                System.out.println(mapPanel.toString());
-                System.out.println(graph.toString());
-                System.out.println(getCurrent());
-                System.out.println(getEnd());
-                mapPanel.setPathToDraw(getCurrent().shortestPath(getEnd(),graph));
+                // System.out.println(mapPanel.toString());
+                // System.out.println(graph.toString());
+                // System.out.println(getCurrent());
+                // System.out.println(getEnd());
+                mapPanel.setPathToDraw(getCurrent().shortestPath(getEnd(), graph));
             } else {
                 infoPanel.bottomPanel.setVisible(true);
                 infoPanel.resetTextField();
@@ -190,19 +226,22 @@ public class User extends Client {
         });
     }
 
-    @Override 
-    public void draw(Graphics2D g2){
-        if(isDoneChoose()){
-            g2.drawImage(userImage,((int)current.getX()-50),((int)current.getY()-153),null);
-        }
-        else{
+    @Override
+    public void draw(Graphics2D g2) {
+        if (isDoneChoose()) {
+            g2.drawImage(userImage, ((int) current.getX() - 50), ((int) current.getY() - 153), null);
+            if (hasDriver()) {
+                driver.draw(g2);
+            }
+        } else {
             return;
         }
     }
 
     @Override
     public String toString() {
-        return "User:" + getNumber() + "," + getStart() + "," + getEnd() + "," + isAlone() + "," + isInRide();
+        return "User:" + getNumber() + "," + getStart() + "," + getEnd() + "," + isAlone() + "," + isInRide() + ","
+                + current.getX() + "," + current.getY();
     }
 
 }

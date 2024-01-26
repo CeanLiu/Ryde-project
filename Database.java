@@ -17,6 +17,9 @@ public class Database {
     final int CURR_LOCAT = 1;
     final int CAPCITY = 2;
     final int IS_DRIVE = 3;
+    final int ANGLE = 4;
+    final int X = 4;
+    final int Y = 5;
     private final String CLIENT_FILE = "clients.txt";
     private final String RYDE_INFO_FILE = "rydeInfo.txt";
     private final String USER_IMAGE = "user.png";
@@ -57,6 +60,7 @@ public class Database {
             boolean readUser = true;
             while (input.hasNext()) {
                 String infoLine = input.nextLine().trim();
+                System.out.println(infoLine);
                 String [] info = infoLine.split(":");
                 if(info[0].equals("Driver")){
                     readUser = false;
@@ -87,7 +91,7 @@ public class Database {
                 Driver driver = drivers.get(Long.parseLong(infoDetail[0]));
                 String [] ryders = infoDetail[1].split(",");
                 for(String ryder : ryders){
-                    User user =users.get(Long.parseLong(ryder));
+                    User user = users.get(Long.parseLong(ryder));
                     driver.assignRyder(user);
                     user.setDriver(driver);
                     
@@ -104,13 +108,14 @@ public class Database {
         try {
             PrintWriter writer = new PrintWriter(new FileOutputStream(clientFile,false));
             for(User user : users.values()){
-                writer.println(user.toString());
+                if(user.isDoneChoose())
+                    writer.println(user.toString());
             }
             for(Driver driver : drivers.values()){
-                writer.println(driver.getInfo());
+                if(driver.hasCurrLocation())
+                    writer.println(driver.getInfo());
             }
             writer.close();
-            writer.flush();
             PrintWriter rydeWriter = new PrintWriter(new FileOutputStream(rydeInfoFile, false));
             for(Driver driver : drivers.values()){
                 if(driver.hasRyders()){
@@ -118,7 +123,6 @@ public class Database {
                 }
             }
             rydeWriter.close();
-            rydeWriter.flush();
         } catch (IOException e) {
             System.err.println("Error saving database: " + e.getMessage());
         }
@@ -145,7 +149,6 @@ public class Database {
         }else{
             users.put(phoneNum, new User(userImage,gui,map,phoneNum));
         }
-        saveDatabase();
     }
 
     public void addDriver(Interface gui,long phoneNum, int capacity) {
@@ -158,7 +161,6 @@ public class Database {
         }else{
             drivers.put(phoneNum, new Driver(driverImage,gui,map,phoneNum,capacity));
         }
-        saveDatabase();
     }
 
     public void update(String dataReceived){
@@ -197,13 +199,20 @@ public class Database {
         Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
         int capacity = Integer.parseInt(driverDetail[CAPCITY]);
         boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
+        double x = Double.parseDouble(driverDetail[X]);
+        double y = Double.parseDouble(driverDetail[Y]);
+        double dirAngle = Double.parseDouble(driverDetail[ANGLE]);
         if (drivers.containsKey(phoneNum)) {
             Driver driver = drivers.get(phoneNum);
             driver.setCurrentLocation(currLocat);
+            driver.setCapacity(capacity);
             driver.setDrive(isDrive);
+            driver.getCurrentLocation().setX(x);
+            driver.getCurrentLocation().setY(y);
         } else {
             drivers.put(phoneNum, new Driver(driverImage, gui,map, phoneNum, currLocat, capacity, isDrive));
         }
+        drivers.get(phoneNum).setDirectionAngle(dirAngle);
         if(driverLine.length > 1){
             Driver driver = drivers.get(phoneNum);
             String [] ryders = driverLine[1].split(",");
@@ -211,7 +220,6 @@ public class Database {
                 long ryderNum = Long.parseLong(ryder);
                 users.get(ryderNum).setDriver(driver);
             }
-
         }
         
     }

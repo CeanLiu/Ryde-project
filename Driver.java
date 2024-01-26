@@ -35,6 +35,7 @@ public class Driver extends Client {
         this.phoneNum = phoneNum;
         this.capacity = capacity;
         this.isDrive = false;
+        this.isDrive = false;
     }
 
     public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
@@ -42,7 +43,7 @@ public class Driver extends Client {
         this.gui = gui;
         this.graph = graph;
         this.phoneNum = phoneNum;
-        this.currentLocation = current;
+        setCurrentLocation(current);
         this.capacity = capacity;
         this.isDrive = isDrive;
     }
@@ -72,6 +73,10 @@ public class Driver extends Client {
         return currentLocation;
     }
 
+    public double getDirectionAngle() {
+        return directionAngle;
+    }
+
     public boolean hasRyders() {
         return !this.ryders.isEmpty();
     }
@@ -85,8 +90,12 @@ public class Driver extends Client {
     }
 
     public void setCurrentLocation(Location location) {
-        this.currentLocation = location;
+        this.currentLocation = new Location(location.getName(), location.getX(), location.getY());
+        for (Location connector : location.getConnections()) {
+            currentLocation.addConnection(connector);
+        }
     }
+
 
     public void setDrive(boolean isDrive) {
         this.isDrive = isDrive;
@@ -94,6 +103,10 @@ public class Driver extends Client {
 
     public void setGUI(Interface gui) {
         this.gui = gui;
+    }
+
+    public void setDirectionAngle(double directionAngle) {
+            this.directionAngle = directionAngle;
     }
 
     public void assignRyder(User ryder) {
@@ -113,7 +126,6 @@ public class Driver extends Client {
     }
 
     public void removeRyder(User ryder) {
-        // ryder.inRide = false;
         ryder.setRideStatus(false);
         ryders.remove(ryder);
         System.out.println("You've arrived at your destination, have a good day");
@@ -270,27 +282,31 @@ public class Driver extends Client {
                     }
                 }
             }
-            for (User ryder : ryders) {
-                if (currentLocation.compare(currentLocation, ryder.getStart())) {
-                    addRyder(ryder);
-                }
-            }
-            if (this.ryders != null) {
-                for (User ryder : ryders) {
-                    if (ryder.isInRide()) {
-                        ryder.move(currentLocation.getX(), currentLocation.getY());
-                    }
-                }
-            }
+            // for (User ryder : ryders) {
+            //     if (currentLocation.compare(currentLocation, ryder.getStart())) {
+            //         addRyder(ryder);
+            //     }
+            // }
+            // if (this.ryders != null) {
+            //     for (User ryder : ryders) {
+            //         if (ryder.isInRide()) {
+            //             ryder.move(currentLocation.getX(), currentLocation.getY());
+            //         }
+            //     }
+            // }
             if (!this.ryders.isEmpty()) {
                 ArrayList<User> temp = new ArrayList<>(ryders);
                 for (User ryder : temp) {
                     if (ryder.isInRide() && currentLocation.compare(currentLocation, ryder.getEnd())) {
                         removeRyder(ryder);
+                        this.send(toString());
                     }
                 }
                 temp = new ArrayList<>(ryders);
             }
+
+            this.send(toString());
+
             try {
                 Thread.sleep(12);
             } catch (InterruptedException e) {
@@ -373,28 +389,28 @@ public class Driver extends Client {
             }
         });
     }
-    
+
     @Override 
     public void draw(Graphics2D g2){
-        if(hasCurrLocation()){
-            if(isDrive()){
-                AffineTransform transform = new AffineTransform();
-                transform.translate(currentLocation.getX()-56, currentLocation.getY()-94);
-                transform.rotate(Math.toRadians(directionAngle), driverImage.getWidth(null) / 2.0, driverImage.getHeight(null) / 2.0);
-                g2.drawImage(driverImage, transform, null);
+            if(hasCurrLocation()){
+                int x = (int)(currentLocation.getX() - driverImage.getWidth(null) / 2.0);
+                int y = (int)(currentLocation.getY()- driverImage.getHeight(null) / 2.0);
+                if(isDrive()){
+                    AffineTransform transform = new AffineTransform();
+                    transform.translate(x, y);
+                    System.out.println(getDirectionAngle());
+                    transform.rotate(getDirectionAngle(), driverImage.getWidth(null) / 2.0, driverImage.getHeight(null) / 2.0);
+                    g2.drawImage(driverImage, transform, null);
+                }
+                else{
+                    g2.drawImage(driverImage,x,y,null);
+                }
             }
-            else{
-                g2.drawImage(driverImage,(int)currentLocation.getX()-56,(int)currentLocation.getY()-89,null);
-            }
-            // Draw the rotated image
-    
-
-        }
 
     }
 
     public String getInfo() {
-        return "Driver:" + getNumber() + "," + getCurrentLocation() + "," + getCapacity() + "," + isDrive();
+        return "Driver:" + getNumber() + "," + getCurrentLocation() + "," + getCapacity() + "," + isDrive()+","+ getCurrentLocation().getX()+","+getCurrentLocation().getY();
     }
 
     public String getRydeInfo() {
@@ -412,7 +428,7 @@ public class Driver extends Client {
 
     @Override
     public String toString() {
-        return getInfo() + "_" + getRydeInfo();
+        return getInfo() + "," + getDirectionAngle() + "_" + getRydeInfo();
     }
 
 }

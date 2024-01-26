@@ -48,6 +48,7 @@ abstract public class Client {
         clientSocket.close();
     }
 
+
     abstract public void updateGUI();
     abstract public void draw(Graphics2D g2);
 }

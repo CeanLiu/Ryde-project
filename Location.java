@@ -68,8 +68,8 @@ public class Location {
     }
 
     public boolean compare(Location location1, Location location2) {
-        return location1.getName().equals(location2.getName()) && location1.getX() == location2.getX()
-                && location1.getY() == location2.getY();
+        // return location1.getName().equals(location2.getName()) && location1.getX() == location2.getX()&& location1.getY() == location2.getY();
+        return location1.getName().equals(location2.getName());
     }
 
     public double getEdge(Location other) {
@@ -172,7 +172,7 @@ public class Location {
         int rectWidth = fontMetrics.stringWidth(name) + 2;
         int rectHeight = fontMetrics.getHeight();
         int rectX = (int) (x - rectWidth / 2);
-        int rectY = (int) (y + rectHeight);
+        int rectY = (int) (y + rectHeight+10);
         g2.fillRect(rectX, rectY, rectWidth, rectHeight);
 
         g2.setColor(Color.BLACK);
@@ -184,13 +184,16 @@ public class Location {
     @Override
     public String toString() {
         return getName();
-        // String str = "";
-        // if (connections != null) {
-        //     for (Location location : connections) {
-        //         str = str + " " + location.getName();
-        //     }
-        // }
-        // return name + ": " + str;
+    }
+
+    public String hi(){
+        String str = "";
+        if (connections != null) {
+            for (Location location : connections) {
+                str = str + " " + location.getName();
+            }
+        }
+        return name + ": " + str;
     }
 
 }
