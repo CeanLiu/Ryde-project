@@ -24,7 +24,7 @@ public class Driver extends Client {
     private Location currentLocation;
     private Interface gui;
     private SimpleGraph graph;
-    private boolean isDrive;
+    private volatile boolean isDrive;
     private BufferedImage driverImage;
     private double directionAngle;
 
@@ -49,7 +49,7 @@ public class Driver extends Client {
     }
 
     public void start() throws Exception {
-        super.start("driver");
+        super.start("newDriver:"+getNumber()+","+getCapacity());
     }
 
     @Override
@@ -85,19 +85,24 @@ public class Driver extends Client {
         return this.currentLocation != null;
     }
 
-    public boolean isDrive() {
+    public synchronized boolean isDrive() {
         return this.isDrive;
     }
 
     public void setCurrentLocation(Location location) {
-        this.currentLocation = new Location(location.getName(), location.getX(), location.getY());
-        for (Location connector : location.getConnections()) {
-            currentLocation.addConnection(connector);
+        if(location != null){
+            this.currentLocation = new Location(location.getName(), location.getX(), location.getY());
+            for (Location connector : location.getConnections()) {
+                currentLocation.addConnection(connector);
+            }
+        }else{
+            System.out.println("DRIVER CURR IS NULL");
+            return;
         }
     }
 
 
-    public void setDrive(boolean isDrive) {
+    public synchronized void setDrive(boolean isDrive) {
         this.isDrive = isDrive;
     }
 
@@ -110,25 +115,27 @@ public class Driver extends Client {
     }
 
     public void assignRyder(User ryder) {
-        this.ryders.add(ryder);
-    }
-
-
-    public void addRyder(User newRyder) {
-        for (User ryder : this.ryders) {
-            if (ryder.getNumber() == newRyder.getNumber()) {
-                // newRyder.inRide = true;
-                newRyder.setRideStatus(true);
-                System.out.println("Welcome aboard, ryder " + newRyder.getNumber());
-                return;
-            }
+        if(!ryders.contains(ryder)){
+            this.ryders.add(ryder);
         }
     }
 
-    public void removeRyder(User ryder) {
-        ryder.setRideStatus(false);
-        ryders.remove(ryder);
-        System.out.println("You've arrived at your destination, have a good day");
+
+    // public void addRyder(User newRyder) {
+    //     for (User ryder : this.ryders) {
+    //         if (ryder.getNumber() == newRyder.getNumber()) {
+    //             // newRyder.inRide = true;
+    //             newRyder.setRideStatus(true);
+    //             System.out.println("Welcome aboard, ryder " + newRyder.getNumber());
+    //             return;
+    //         }
+    //     }
+    // }
+
+    public void removeRyder(User ryder){
+        if(ryders.contains(ryder)){
+            ryders.remove(ryder);
+        }
     }
 
     public void move() {
@@ -136,15 +143,18 @@ public class Driver extends Client {
 
         // pickup ryders
         ArrayList<User> pickupPending = new ArrayList<>(ryders);
+        System.out.println(pickupPending + " " + ryders);
         while (!pickupPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestRyder = new ArrayList<>();
             // find the shortest path to a user, move, keep repeating until collected all users
             for (User ryder : pickupPending) {
                 if (!ryder.isInRide()) {
+                    System.out.println(currentLocation + "  " + currentLocation.shortestPath(ryder.getStart(),graph)+ " " + ryder.getStart());
                     closestRyder.add(currentLocation.shortestPath(ryder.getStart(), graph));
                 }
             }
             // find the shortest path out of all the users
+            System.out.println(closestRyder.get(0));
             ArrayList<Location> closest = closestRyder.get(0);
             for (ArrayList<Location> path : closestRyder) {
                 if (currentLocation.pathLength(path) < currentLocation.pathLength(closest)) {
@@ -184,6 +194,7 @@ public class Driver extends Client {
         }
         // drop off ryders
         combinedPath.clear();
+        System.out.println(getRydeInfo());
         ArrayList<User> dropoffPending = new ArrayList<>(ryders);
         while (!dropoffPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestStop = new ArrayList<>();
@@ -237,9 +248,8 @@ public class Driver extends Client {
                     ryder.reset();
                 }
             }
+            setDrive(false);
         }
-        setDrive(false);
-        this.send(toString());
     }
     
     // public void ArrayList<>
@@ -283,11 +293,12 @@ public class Driver extends Client {
                     }
                 }
             }
-            // for (User ryder : ryders) {
-            //     if (currentLocation.compare(currentLocation, ryder.getStart())) {
-            //         addRyder(ryder);
-            //     }
-            // }
+            for (User ryder : ryders) {
+                if (currentLocation.compare(currentLocation, ryder.getStart())) {
+                    send("aboard:"+ryder.getNumber()+","+getNumber());
+                    ryder.setRideStatus(true);
+                }
+            }
             // if (this.ryders != null) {
             //     for (User ryder : ryders) {
             //         if (ryder.isInRide()) {
@@ -299,22 +310,23 @@ public class Driver extends Client {
                 ArrayList<User> temp = new ArrayList<>(ryders);
                 for (User ryder : temp) {
                     if (ryder.isInRide() && currentLocation.compare(currentLocation, ryder.getEnd())) {
+                        send("arrive:"+ryder.getNumber()+","+getNumber());
                         removeRyder(ryder);
-                        this.send(toString());
                     }
                 }
                 temp = new ArrayList<>(ryders);
             } else {
+                System.out.println("I am a retard");
                 setDrive(false);
-                this.send(toString());
+                this.send("stopDriver:"+getNumber());
             }
 
-            System.out.println("driver has "+ryders.size()+" ryders left");
+            //System.out.println("driver has "+ryders.size()+" ryders left");
 
-            this.send(toString());
+            this.send("moveDriver:"+getNumber()+","+currentLocation.getX()+","+currentLocation.getY());
 
             try {
-                Thread.sleep(12);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -363,8 +375,7 @@ public class Driver extends Client {
             MapPanel mapPanel = gui.getMapPanel();
             String info = "Driver " + getNumber() + ": You have " + ryders.size() + " ryders.";
             for (User ryder : ryders) {
-                info += "\nUser " + ryder.getNumber() + ":\nStart Location: " + ryder.getStart().toString()
-                        + "\nEnd Location: " + ryder.getEnd().toString();
+                info += "\nUser " + ryder.getNumber() + ":\nStart Location: " + ryder.getStart().toString() + "\nEnd Location: " + ryder.getEnd().toString();
             }
             if (hasCurrLocation()) {
                 infoPanel.setLocationText(currentLocation.toString());
@@ -411,7 +422,6 @@ public class Driver extends Client {
                 if(isDrive()){
                     AffineTransform transform = new AffineTransform();
                     transform.translate(x, y);
-                    System.out.println("direction angle:"+getDirectionAngle());
                     transform.rotate(getDirectionAngle(), driverImage.getWidth(null) / 2.0, driverImage.getHeight(null) / 2.0);
                     g2.drawImage(driverImage, transform, null);
                 }
@@ -423,7 +433,7 @@ public class Driver extends Client {
     }
 
     public String getInfo() {
-        return "Driver:" + getNumber() + "," + getCurrentLocation() + "," + getCapacity() + "," + isDrive()+","+ getCurrentLocation().getX()+","+getCurrentLocation().getY();
+        return "Driver:" + getNumber() + "," + getCurrentLocation() + "," + getCapacity() + "," + isDrive();
     }
 
     public String getRydeInfo() {
@@ -441,7 +451,7 @@ public class Driver extends Client {
 
     @Override
     public String toString() {
-        return getInfo() + "," + getDirectionAngle() + "_" + getRydeInfo();
+        return getInfo() + "_" + getRydeInfo();
     }
 
 }

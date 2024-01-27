@@ -110,7 +110,7 @@ public class InfoPanel extends JPanel {
                     if (displayRideInfo()) {
                         ((User) client).setStart(map.getLocation(uStartTextField.getText()));
                         ((User) client).setEnd(map.getLocation(uEndTextField.getText()));
-                        ((User) client).send(client.toString());
+                        ((User) client).send("request:"+((User) client).requestInfo());
                         ((User) client).updateGUI();
                         db.saveDatabase();
                     }
@@ -159,7 +159,7 @@ public class InfoPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof Driver) {
                     ((Driver) client).setCurrentLocation(map.getLocation(dChooseTextField.getText()));
-                    ((Driver) client).send(client.toString());
+                    // ((Driver) client).send(((Driver)client).);
                     ((Driver) client).updateGUI();
                     db.saveDatabase();
                 }
@@ -179,9 +179,10 @@ public class InfoPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof Driver) {
-                    ((Driver) client).setDrive(true);
-                    ((Driver) client).send(client.toString());
-                    ((Driver) client).updateGUI();
+                    ((Driver)client).setDrive(true);
+                    ((Driver)client).send("moveDriver:"+((Driver)client).getNumber()+","+((Driver)client).getCurrentLocation().getX()+","+((Driver)client).getCurrentLocation().getY());
+                    //  ((Driver) client).send(client.toString());
+                    ((Driver)client).updateGUI();
                     db.saveDatabase();
                 }
             }
@@ -241,7 +242,7 @@ public class InfoPanel extends JPanel {
                             public void actionPerformed(ActionEvent e) {
                                 if (client instanceof Driver) {
                                     ((Driver) client).assignRyder(user);
-                                    ((Driver) client).send(client.toString());
+                                    ((Driver) client).send("accept:"+user.getNumber()+","+((Driver)client).getNumber());
                                     ((Driver) client).updateGUI();
                                     db.saveDatabase();
                                 }

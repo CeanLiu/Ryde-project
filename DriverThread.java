@@ -23,32 +23,32 @@ public class DriverThread implements Runnable {
             String msg = driver.receive();
             if (msg != null) {
                 // Ensure proper synchronization for database updates
-                synchronized (db) {
+            
                     db.update(msg);
                     db.saveDatabase();
-                }
+                    SwingUtilities.invokeLater(() -> {
+                        driver.updateGUI();
+                    });
             }
-            System.out.println("driver has ryders:"+driver.getRydeInfo());
-            System.out.println("driver.isDrive:"+driver.isDrive());
+            // System.out.println("driver has ryders:"+driver.getRydeInfo());
+            // System.out.println("driver.isDrive:"+driver.isDrive());
             if(driver.isDrive()){
                 System.out.println("moved");
                 driver.move();
-                db.saveDatabase();
+                // db.saveDatabase();
             }
-            //runs the gui 
-            SwingUtilities.invokeLater(() -> {
-                driver.updateGUI();
-            });
-            System.out.println("driver is driving? "+driver.isDrive());
-            db.saveDatabase();
+            // System.out.println(driver.isDrive());
+            // //runs the gui 
+            // System.out.println("driver is driving? "+driver.isDrive());
+            //db.saveDatabase();
             
 
             // pause thread execution for the duration of one video frame
-            // try {
-            //     Thread.sleep(12);
-            // } catch (Exception e) {
-            //     e.printStackTrace();
-            // }
+            try {
+                Thread.sleep(12);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

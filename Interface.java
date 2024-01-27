@@ -227,27 +227,31 @@ public class Interface extends JFrame {
 
     public void goUserPage(Long phoneNum) {
         initialize();
-        db.addUser(this, phoneNum);
+        db.loadDatabase();
+        db.addUser(phoneNum);
         Thread userThread = new Thread(new UserThread(db, phoneNum));
         userThread.start();
         infoPanel.initUserPanel();
         infoPanel.setClient(db.getUser(phoneNum));
         mapPanel.setClient(db.getUser(phoneNum));
-        splitPane.setVisible(true);
         db.getUser(phoneNum).updateGUI();
+        db.saveDatabase();
+        splitPane.setVisible(true);
         repaint();
     }
 
     public void goDriverPage(long phoneNum, int capacity) {
         initialize();
-        db.addDriver(this, phoneNum, capacity);
+        db.loadDatabase();
+        db.addDriver(phoneNum, capacity);
         Thread driverThread = new Thread(new DriverThread(db, phoneNum));
         driverThread.start();
         infoPanel.initDriverPanel();
         infoPanel.setClient(db.getDriver(phoneNum));
         mapPanel.setClient(db.getDriver(phoneNum));
-        splitPane.setVisible(true);
         db.getDriver(phoneNum).updateGUI();
+        db.saveDatabase();
+        splitPane.setVisible(true);
         repaint();
     }
 }

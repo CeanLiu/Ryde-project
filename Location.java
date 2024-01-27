@@ -118,6 +118,7 @@ public class Location {
                     path.add(current);
                     current = previous.get(current);
                 }
+                System.out.println(current);
                 Collections.reverse(path);
                 return path;
             }

@@ -29,16 +29,16 @@ public class UserThread implements Runnable {
                     db.saveDatabase();
                 }
             }
-            if(user.hasDriver()){
+            if(user.isInRide()){
                 user.move();
             }
             user.updateGUI();
             // pause thread execution for the duration of one video frame
-        //     try {
-        //         Thread.sleep(15);
-        //     } catch (Exception e) {
-        //         e.printStackTrace();
-        //     }
+            try {
+                Thread.sleep(15);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
