@@ -22,19 +22,24 @@ abstract public class Client {
         output = new PrintWriter(clientSocket.getOutputStream(), true);
         input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         System.out.println("Connection to server established!");
-        output.println(outputMsg);
+        output.println(getNumber()+"%"+outputMsg);
         output.flush(); // ensure the message was sent but not kept in the buffer
     }
 
     public void send(String msg) {
-        output.println(msg);
+        output.println(getNumber()+"%"+msg);
     }
 
     public String receive() {
         try {
             String msg = input.readLine();
             System.out.println("msg from server: "+msg);
-            return msg;
+            Long clientNum = Long.parseLong(msg.split("%")[0]);
+            if(clientNum == getNumber()){
+                System.out.println(clientNum + "  " + getNumber());
+                return null;
+            }
+            return msg.split("%")[1];
         } catch (IOException ex) {
             ex.printStackTrace();
             return null;

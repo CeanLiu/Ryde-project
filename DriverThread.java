@@ -21,15 +21,6 @@ public class DriverThread implements Runnable {
             e.printStackTrace();
         }
 
-        // Create a timer to update the GUI at regular intervals
-        Timer timer = new Timer(5000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateDriver();
-            }
-        });
-        timer.start();
-
         while (true) {
             System.out.println("driver thread started");
             String msg = driver.receive();
@@ -40,11 +31,13 @@ public class DriverThread implements Runnable {
                     db.saveDatabase();
                 }
             }
-
             if (driver.isDrive()) {
                 System.out.println("moved");
                 driver.move();
             }
+            SwingUtilities.invokeLater(() -> {
+                driver.updateGUI();
+            });
 
             // pause thread execution for the duration of one video frame
             try {
@@ -53,12 +46,5 @@ public class DriverThread implements Runnable {
                 e.printStackTrace();
             }
         }
-    }
-
-    // Method to update the GUI on the Event Dispatch Thread
-    private void updateDriver() {
-        //SwingUtilities.invokeLater(() -> {
-            driver.updateGUI();
-        //});
     }
 }
