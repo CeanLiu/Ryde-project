@@ -218,11 +218,13 @@ public class Database {
         Location current = map.getLocation(moveText.split(",")[1]);
         double x = Double.parseDouble(moveText.split(",")[2]);
         double y = Double.parseDouble(moveText.split(",")[3]);
+        double directionAngle = Double.parseDouble(moveText.split(",")[4]);
         Driver driver = drivers.get(driverPhone);
         driver.setDrive(true);
         driver.setCurrentLocation(current);
         driver.getCurrent().setX(x);
         driver.getCurrent().setY(y);
+        driver.setDirectionAngle(directionAngle);
     }
     
     public void aboardRide(String aboardText){

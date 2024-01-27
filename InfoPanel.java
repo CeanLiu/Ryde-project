@@ -180,7 +180,9 @@ public class InfoPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof Driver) {
                     ((Driver) client).setDrive(true);
-                    ((Driver) client).send("moveDriver:" + ((Driver) client).getNumber() + ","+ ((Driver) client).getCurrent()+","+((Driver) client).getCurrent().getX() + ","+ ((Driver) client).getCurrent().getY());
+                    ((Driver) client).send("moveDriver:" + ((Driver) client).getNumber() + ","
+                            + ((Driver) client).getCurrent() + "," + ((Driver) client).getCurrent().getX() + ","
+                            + ((Driver) client).getCurrent().getY() + "," + ((Driver) client).getDirectionAngle());
                     // ((Driver) client).send(client.toString());
                     ((Driver) client).updateGUI();
                     db.saveDatabase();
@@ -232,10 +234,10 @@ public class InfoPanel extends JPanel {
         HashMap<Long, User> requestList = db.getUsers();
         if (!carpool.equals("none")) {
             for (User user : requestList.values()) {
-          //      System.out.println("user: " + user + " hasDriver: " + user.hasDriver());
+                // System.out.println("user: " + user + " hasDriver: " + user.hasDriver());
                 if (!user.hasDriver() && user.isDoneChoose()) {
                     JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                    JLabel request = new JLabel(user.toString());
+                    JLabel request = new JLabel(user.acceptInfo());
                     JButton accept = new JButton("Accept User");
                     accept.addActionListener(new ActionListener() {
                         @Override
@@ -313,11 +315,13 @@ public class InfoPanel extends JPanel {
             dChooseButton.setVisible(true);
             confirmButton.setVisible(true);
         }
+        locationMenu.setVisible(false);
         displayPanel.removeAll();
     }
     // private boolean displayDoneInfo(){
-    //     JOptionPane.showConfirmDialog(this, "You've arived at your destination",  "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
-    //     return true;
+    // JOptionPane.showConfirmDialog(this, "You've arived at your destination",
+    // "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
+    // return true;
     // }
 
     private boolean displayRideInfo() {
@@ -408,7 +412,7 @@ public class InfoPanel extends JPanel {
                 nowTextField = dChooseTextField;
             }
             String input = nowTextField.getText().toLowerCase();
-        //    System.out.println(input);
+            // System.out.println(input);
             for (String location : locations) {
                 boolean isStart = true;
                 for (int i = 0; i < input.length(); i++) {

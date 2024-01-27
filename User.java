@@ -142,9 +142,9 @@ public class User extends Client {
         this.end = end;
     }
 
-    public void setCurrent(Location input) {
-        if (input != null) {
-            Location location = graph.getLocation(input.getName());
+    public void setCurrent(Location location) {
+        if (location != null) {
+           // Location location = graph.getLocation(input.getName());
             current = new Location(location.getName(), location.getX(), location.getY());
             for (Location connector : location.getConnections()) {
                 current.addConnection(connector);
@@ -184,8 +184,7 @@ public class User extends Client {
             // finished = true;
             reset();
         } else {
-            Location driverLocat = graph.getLocation(driver.getCurrent().getName());
-            setCurrent(driverLocat);
+            setCurrent(driver.getCurrent());
             this.current.setX(x);
             this.current.setY(y);
             // current = new Location(driverLocat.getName(), driverLocat.getX(), driverLocat.getY());
@@ -258,6 +257,10 @@ public class User extends Client {
 
     public String requestInfo() {
         return getNumber() + "," + getStart() + "," + getEnd() + "," + isAlone();
+    }
+
+    public String acceptInfo(){
+       return "User " + getNumber() + ": Start: " + getStart().toString() + ", End : " + getEnd().toString() + ", Carpool: " + !isAlone();
     }
 
     @Override

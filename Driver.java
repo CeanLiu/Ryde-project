@@ -373,7 +373,7 @@ public class Driver extends Client {
                 updateGUI();
             }
             //System.out.println("driver has "+ryders.size()+" ryders left");
-            this.send("moveDriver:"+getNumber()+","+currentLocation.getName()+","+currentLocation.getX()+","+currentLocation.getY());
+            this.send("moveDriver:"+getNumber()+","+currentLocation.getName()+","+currentLocation.getX()+","+currentLocation.getY()+","+getDirectionAngle());
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
@@ -464,7 +464,6 @@ public class Driver extends Client {
                 }
             } else {
                 infoPanel.resetDisplay();
-                //mapPanel.setPathToDraw(null);
                 infoPanel.confirmButton.setVisible(true);
                 infoPanel.displayInfo(Color.red, "Please Choose Your Current Location to Start Picking Customers");
             }
