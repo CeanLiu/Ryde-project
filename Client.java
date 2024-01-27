@@ -22,7 +22,7 @@ abstract public class Client {
         output = new PrintWriter(clientSocket.getOutputStream(), true);
         input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         System.out.println("Connection to server established!");
-        
+        output.println(outputMsg);
         output.flush(); // ensure the message was sent but not kept in the buffer
     }
 
@@ -47,7 +47,7 @@ abstract public class Client {
         clientSocket.close();
     }
 
-
+    abstract public long getNumber();
     abstract public void updateGUI();
     abstract public void draw(Graphics2D g2);
 }
