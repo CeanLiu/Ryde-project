@@ -1,2 +1,0 @@
-User:623462,ADF,E,false,false
-Driver:234623462346,E,31512356,false

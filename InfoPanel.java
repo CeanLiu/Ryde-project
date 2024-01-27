@@ -105,9 +105,11 @@ public class InfoPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof User) {
-                    if (displayRideInfo()) {
-                        ((User) client).setStart(map.getLocation(uStartTextField.getText()));
-                        ((User) client).setEnd(map.getLocation(uEndTextField.getText()));
+                    Location start = map.getLocation(uStartTextField.getText());
+                    Location end = map.getLocation(uEndTextField.getText());
+                    if (displayRideInfo(start, end)) {
+                        ((User) client).setStart(start);
+                        ((User) client).setEnd(end);
                         ((User) client).send("request:" + ((User) client).requestInfo());
                         ((User) client).updateGUI();
                         db.saveDatabase();
@@ -188,10 +190,6 @@ public class InfoPanel extends JPanel {
         dButtonPanel.add(driveButton);
         dButtonPanel.setVisible(false);
         add(dButtonPanel);
-    }
-
-    public Client getClient() {
-        return client;
     }
 
     public void setClient(Client client) {
@@ -314,7 +312,7 @@ public class InfoPanel extends JPanel {
         displayPanel.removeAll();
     }
 
-    private boolean displayRideInfo() {
+    private boolean displayRideInfo(Location start, Location end) {
         Location startLocation = map.getLocation(uStartTextField.getText());
         Location endLocation = map.getLocation(uEndTextField.getText());
 
@@ -360,11 +358,11 @@ public class InfoPanel extends JPanel {
                 }
                 if (client instanceof User) {
                     if (carpoolButton.isSelected()) {
-                        info = info + "Going Carpool\n" + "Price: $30";
                         ((User) client).setChoice(false);
+                        info = info + "Going Carpool\n" + "Price: $" +((User) client).getPrice(start,end,map);
                     } else if (singleButton.isSelected()) {
-                        info = info + "Going Alone\n" + "Price: $45";
                         ((User) client).setChoice(true);
+                        info = info + "Going Alone\n" + "Price: $" + ((User) client).getPrice(start,end,map);
                     }
                 }
 

@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
 import javax.swing.SwingUtilities;
 
 public class User extends Client {
@@ -67,6 +69,15 @@ public class User extends Client {
     public void setStart(Location start) {
         this.start = start;
         setCurrent(start);
+    }
+
+    public double getPrice(Location start, Location end, SimpleGraph graph){
+        ArrayList<Location> path = start.shortestPath(end ,graph);
+        if(isAlone()){
+            return Math.round(start.pathLength(path)*0.05);
+        }else{
+            return Math.round(start.pathLength(path)*0.03);
+        }
     }
 
     public void setEnd(Location end) {
