@@ -21,7 +21,6 @@ import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.InputMismatchException;
 public class Interface extends JFrame {
     final int MAX_X = (int) getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int) getToolkit().getScreenSize().getHeight();
