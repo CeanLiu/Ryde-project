@@ -60,7 +60,7 @@ class SimpleGraph {
                 }
             }
             input.close();
-            System.out.println(this.toString());
+      //      System.out.println(this.toString());
         } catch (IOException ex) {
             System.out.println(ex);
             ex.printStackTrace();

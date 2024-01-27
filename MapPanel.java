@@ -62,8 +62,8 @@ public class MapPanel extends JPanel {
         at.scale(scaleFactor, scaleFactor);
         g2.transform(at);
         g2.drawImage(image, 0, 0, this);
-        if(pathToDraw!=null){
-            drawPath(g2,pathToDraw);
+        if(client.getIsHeading() != null){
+            drawPath(g2);
         }
         map.draw(g2);
         if(client!=null){
@@ -114,15 +114,13 @@ public class MapPanel extends JPanel {
             yOffset = 0;
         }
     }
-
-    public void setPathToDraw(ArrayList<Location> path){
-        this.pathToDraw = path;
-    }
     
-    public void drawPath(Graphics2D g2, ArrayList<Location> path){
-        for (int i = 0; i < path.size()-1; i++) {
-            Location current = path.get(i);
-            Location next = path.get(i+1);
+    public void drawPath(Graphics2D g2){
+        ArrayList<Location> pathToDraw = client.getCurrent().shortestPath(client.getIsHeading(),map);
+        System.out.println(client.getCurrent() + " a "+pathToDraw);
+        for (int i = 0; i < pathToDraw.size()-1; i++) {
+            Location current = pathToDraw.get(i);
+            Location next = pathToDraw.get(i+1);
             current.drawPath(g2, next);
         }
         repaint();
@@ -164,7 +162,7 @@ public class MapPanel extends JPanel {
         }
         public void mousePressed(MouseEvent e) {
             startPoint = e.getPoint();
-            System.out.println("\nX: " + e.getX() + " y: " + e.getY()+"\n");
+   //         System.out.println("\nX: " + e.getX() + " y: " + e.getY()+"\n");
         }
 
         public void mouseReleased(MouseEvent e) {

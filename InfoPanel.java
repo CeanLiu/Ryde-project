@@ -180,9 +180,7 @@ public class InfoPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof Driver) {
                     ((Driver) client).setDrive(true);
-                    ((Driver) client).send("moveDriver:" + ((Driver) client).getNumber() + ","
-                            + ((Driver) client).getCurrentLocation().getX() + ","
-                            + ((Driver) client).getCurrentLocation().getY());
+                    ((Driver) client).send("moveDriver:" + ((Driver) client).getNumber() + ","+ ((Driver) client).getCurrent()+","+((Driver) client).getCurrent().getX() + ","+ ((Driver) client).getCurrent().getY());
                     // ((Driver) client).send(client.toString());
                     ((Driver) client).updateGUI();
                     db.saveDatabase();
@@ -234,7 +232,7 @@ public class InfoPanel extends JPanel {
         HashMap<Long, User> requestList = db.getUsers();
         if (!carpool.equals("none")) {
             for (User user : requestList.values()) {
-                System.out.println("user: " + user + " hasDriver: " + user.hasDriver());
+          //      System.out.println("user: " + user + " hasDriver: " + user.hasDriver());
                 if (!user.hasDriver() && user.isDoneChoose()) {
                     JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                     JLabel request = new JLabel(user.toString());
@@ -246,7 +244,7 @@ public class InfoPanel extends JPanel {
                                 ((Driver) client).assignRyder(user);
                                 user.setDriver((Driver) client);
                                 ((Driver) client).send("accept:" + user.getNumber() + ","
-                                        + ((Driver) client).getNumber() + "," + ((Driver) client).getCurrentLocation());
+                                        + ((Driver) client).getNumber() + "," + ((Driver) client).getCurrent());
                                 db.saveDatabase();
                             }
                         }
@@ -301,7 +299,7 @@ public class InfoPanel extends JPanel {
         locationMenu.setVisible(false);
     }
 
-    public void resetTextField() {
+    public void resetDisplay() {
         if (client instanceof User) {
             uStartTextField.setText("");
             uEndTextField.setText("");
@@ -315,7 +313,12 @@ public class InfoPanel extends JPanel {
             dChooseButton.setVisible(true);
             confirmButton.setVisible(true);
         }
+        displayPanel.removeAll();
     }
+    // private boolean displayDoneInfo(){
+    //     JOptionPane.showConfirmDialog(this, "You've arived at your destination",  "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
+    //     return true;
+    // }
 
     private boolean displayRideInfo() {
         Location startLocation = map.getLocation(uStartTextField.getText());
@@ -405,7 +408,7 @@ public class InfoPanel extends JPanel {
                 nowTextField = dChooseTextField;
             }
             String input = nowTextField.getText().toLowerCase();
-            System.out.println(input);
+        //    System.out.println(input);
             for (String location : locations) {
                 boolean isStart = true;
                 for (int i = 0; i < input.length(); i++) {

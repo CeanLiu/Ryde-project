@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.io.*;
 import java.net.*;
 
-import javax.swing.SwingUtilities;
 
 abstract public class Client {
 
@@ -33,10 +32,8 @@ abstract public class Client {
     public String receive() {
         try {
             String msg = input.readLine();
-            System.out.println("msg from server: "+msg);
             Long clientNum = Long.parseLong(msg.split("%")[0]);
             if(clientNum == getNumber()){
-                System.out.println(clientNum + "  " + getNumber());
                 return null;
             }
             return msg.split("%")[1];
@@ -53,6 +50,8 @@ abstract public class Client {
     }
 
     abstract public long getNumber();
+    abstract public Location getIsHeading();
+    abstract public Location getCurrent();
     abstract public void updateGUI();
     abstract public void draw(Graphics2D g2);
 }

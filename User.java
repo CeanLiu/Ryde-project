@@ -30,7 +30,8 @@ public class User extends Client {
         this.finished = false;
     }
 
-    public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum, Location start, Location end, boolean isAlone, boolean inRide) {
+    public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum, Location start, Location end,
+            boolean isAlone, boolean inRide) {
         this.userImage = userImage;
         this.gui = gui;
         this.graph = graph;
@@ -55,6 +56,11 @@ public class User extends Client {
         return end;
     }
 
+    @Override
+    public Location getIsHeading() {
+        return getEnd();
+    }
+
     public Location getStart() {
         return start;
     }
@@ -72,15 +78,14 @@ public class User extends Client {
     }
 
     public void reset() {
+        // if(isFinished()){
         this.current = null;
         this.start = null;
         this.end = null;
         this.driver = null;
         this.inRide = false;
         this.checkedInRide = false;
-        SwingUtilities.invokeLater(()->{
-            JOptionPane.showMessageDialog(gui.getInfoPanel(), "You've arived at your destination", "Ryde Information", JOptionPane.INFORMATION_MESSAGE);
-        });
+        // }
     }
 
     public boolean hasDriver() {
@@ -100,32 +105,35 @@ public class User extends Client {
     }
 
     // public boolean isInRide() {
-    //     if(hasDriver()){
-    //         if(!checkedInRide){
-    //             if(getCurrent().compare(getCurrent(), driver.getCurrentLocation())){
-    //                 checkedInRide = true;
-    //                 send("aboard:"+getNumber()+","+getDriver());
-    //                 return inRide = true;
-    //             }else{
-    //                 return inRide = false;
-    //             }
-    //         }else{
-    //             return inRide;
-    //         }
-    //     }else{
-    //         return inRide = false;
-    //     }
+    // if(hasDriver()){
+    // if(!checkedInRide){
+    // if(getCurrent().compare(getCurrent(), driver.getCurrentLocation())){
+    // checkedInRide = true;
+    // send("aboard:"+getNumber()+","+getDriver());
+    // return inRide = true;
+    // }else{
+    // return inRide = false;
+    // }
+    // }else{
+    // return inRide;
+    // }
+    // }else{
+    // return inRide = false;
+    // }
     // }
 
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
 
     public void setStart(Location start) {
         this.start = start;
-        if(start != null){
-        this.current = new Location(start.getName(), start.getX(), start.getY());
+        if (start != null) {
+            this.current = new Location(start.getName(), start.getX(), start.getY());
             for (Location connector : start.getConnections()) {
                 current.addConnection(connector);
             }
-        }else{
+        } else {
             return;
         }
     }
@@ -134,13 +142,14 @@ public class User extends Client {
         this.end = end;
     }
 
-    public void setCurrent (Location location){
-        if(location !=null){
+    public void setCurrent(Location input) {
+        if (input != null) {
+            Location location = graph.getLocation(input.getName());
             current = new Location(location.getName(), location.getX(), location.getY());
             for (Location connector : location.getConnections()) {
                 current.addConnection(connector);
             }
-        }else{
+        } else {
             System.out.println(getNumber() + "START IS NULL");
             return;
         }
@@ -168,28 +177,28 @@ public class User extends Client {
 
     // move the user
     public void move() {
-        double x = driver.getCurrentLocation().getX();
-        double y = driver.getCurrentLocation().getY();
-            if (getCurrent().compare(getCurrent(), getEnd())) {
-                System.out.println("I've arrived at my destination: " + end.getName());
-                // finished = true;
-                reset();
-            } else {
-                this.current.setX(x);
-                this.current.setY(y);
-                setRideStatus(true);
-                Location driverLocat = driver.getCurrentLocation();
-                current = new Location(driverLocat.getName(), driverLocat.getX(), driverLocat.getY());
-                for (Location connector : driverLocat.getConnections()) {
-                    current.addConnection(connector);
-                }
-            }
+        double x = driver.getCurrent().getX();
+        double y = driver.getCurrent().getY();
+        if (getCurrent().compare(getCurrent(), getEnd())) {
+            System.out.println("I've arrived at my destination: " + end.getName());
+            // finished = true;
+            reset();
+        } else {
+            Location driverLocat = graph.getLocation(driver.getCurrent().getName());
+            setCurrent(driverLocat);
+            this.current.setX(x);
+            this.current.setY(y);
+            // current = new Location(driverLocat.getName(), driverLocat.getX(), driverLocat.getY());
+            // for (Location connector : driverLocat.getConnections()) {
+            //     current.addConnection(connector);
+            // }
+            setRideStatus(true);
+        }
     }
-
 
     // Connection to server
     public void start() throws Exception {
-        super.start("newUser:"+getNumber());
+        super.start("newUser:" + getNumber());
     }
 
     @Override
@@ -217,7 +226,7 @@ public class User extends Client {
                         info += "\nPlease wait for the driver to pick up";
                     }
                 } else {
-                    System.out.println(getDriver());
+                    // System.out.println(getDriver());
                     info += "\nPlease wait patiently for a driver to pick up the order";
                 }
                 infoPanel.bottomPanel.setVisible(false);
@@ -227,10 +236,10 @@ public class User extends Client {
                 // System.out.println(graph.toString());
                 // System.out.println(getCurrent());
                 // System.out.println(getEnd());
-                mapPanel.setPathToDraw(getCurrent().shortestPath(getEnd(), graph));
+                // mapPanel.setPathToDraw(getStart().shortestPath(getEnd(), graph));
             } else {
                 infoPanel.bottomPanel.setVisible(true);
-                infoPanel.resetTextField();
+                infoPanel.resetDisplay();
             }
         });
     }
@@ -247,10 +256,9 @@ public class User extends Client {
         }
     }
 
-    public String requestInfo(){
-        return  getNumber() + "," + getStart() + "," + getEnd() + "," + isAlone();
+    public String requestInfo() {
+        return getNumber() + "," + getStart() + "," + getEnd() + "," + isAlone();
     }
-
 
     @Override
     public String toString() {

@@ -123,12 +123,12 @@ public class Location {
 
             // System.out.println("im equal?"+current.equals(other));
             if (current.compare(current,other)){
-                System.out.println("im equal!");
+        //        System.out.println("im equal!");
                 while(current != null){
                     path.add(current);
                     current = previous.get(current);
                 }
-                System.out.println(current);
+          //      System.out.println(current);
                 Collections.reverse(path);
                 return path;
             }
