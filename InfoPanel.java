@@ -242,7 +242,7 @@ public class InfoPanel extends JPanel {
                             public void actionPerformed(ActionEvent e) {
                                 if (client instanceof Driver) {
                                     ((Driver) client).assignRyder(user);
-                                    ((Driver) client).send("accept:"+user.getNumber()+","+((Driver)client).getNumber());
+                                    ((Driver) client).send("accept:"+user.getNumber()+","+((Driver)client).getNumber()+","+((Driver)client).getCurrentLocation());
                                     ((Driver) client).updateGUI();
                                     db.saveDatabase();
                                 }

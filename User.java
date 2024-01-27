@@ -120,9 +120,13 @@ public class User extends Client {
 
     public void setStart(Location start) {
         this.start = start;
+        if(start != null){
         this.current = new Location(start.getName(), start.getX(), start.getY());
-        for (Location connector : start.getConnections()) {
-            current.addConnection(connector);
+            for (Location connector : start.getConnections()) {
+                current.addConnection(connector);
+            }
+        }else{
+            return;
         }
     }
 

@@ -1,4 +1,8 @@
-User:345,C,H,false,false,932.0,1062.0
-User:234,E,L,false,false,372.0,1064.0
-User:123,Central Park,L,true,false,940.0,282.0
-Driver:111,ELGIN-YORK,1,true,610.0,658.0
+User:5123563426,null,null,false,false
+User:55555,D,M,false,false
+User:12351235,null,null,false,false
+User:12351235342634,null,null,true,false
+Driver:34262346,Central Park SW,51235,true
+Driver:56845684568,ELGIN-YORK,534634,true
+Driver:5555,O,555,true
+Driver:436234745,null,23525,false

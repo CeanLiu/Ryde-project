@@ -139,22 +139,22 @@ public class Driver extends Client {
     }
 
     public void move() {
-        System.out.println("\nDriver's current location: " + currentLocation.getName());
-
+      //  System.out.println("\nDriver's current location: " + currentLocation.getName());
+//
         // pickup ryders
         ArrayList<User> pickupPending = new ArrayList<>(ryders);
-        System.out.println(pickupPending + " " + ryders);
+    //    System.out.println(pickupPending + " " + ryders);
         while (!pickupPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestRyder = new ArrayList<>();
             // find the shortest path to a user, move, keep repeating until collected all users
             for (User ryder : pickupPending) {
                 if (!ryder.isInRide()) {
-                    System.out.println(currentLocation + "  " + currentLocation.shortestPath(ryder.getStart(),graph)+ " " + ryder.getStart());
+            //        System.out.println(currentLocation + "  " + currentLocation.shortestPath(ryder.getStart(),graph)+ " " + ryder.getStart());
                     closestRyder.add(currentLocation.shortestPath(ryder.getStart(), graph));
                 }
             }
             // find the shortest path out of all the users
-            System.out.println(closestRyder.get(0));
+         //   System.out.println(closestRyder.get(0));
             ArrayList<Location> closest = closestRyder.get(0);
             for (ArrayList<Location> path : closestRyder) {
                 if (currentLocation.pathLength(path) < currentLocation.pathLength(closest)) {
@@ -173,16 +173,16 @@ public class Driver extends Client {
                 }
             }
             // print and move 
-            System.out.println("Path to the ryders: ");
+         //   System.out.println("Path to the ryders: ");
             for (int i = 0; i < closest.size() - 1; i++) {
-                System.out.print(closest.get(i).getName() + ", ");
+           //     System.out.print(closest.get(i).getName() + ", ");
                 if (i == closest.size() - 2) {
-                    System.out.println(closest.get(closest.size() - 1).getName());
+                  //  System.out.println(closest.get(closest.size() - 1).getName());
                 }
                 moveSteps(closest.get(i), closest.get(i + 1));
             }
 
-            System.out.println("Driver's new location after picking up: " + currentLocation.getName());
+            //System.out.println("Driver's new location after picking up: " + currentLocation.getName());
 
             // remove the user from the list to be picked up
             ArrayList<User> temp = new ArrayList<>(pickupPending);
@@ -194,7 +194,7 @@ public class Driver extends Client {
         }
         // drop off ryders
         combinedPath.clear();
-        System.out.println(getRydeInfo());
+       // System.out.println(getRydeInfo());
         ArrayList<User> dropoffPending = new ArrayList<>(ryders);
         while (!dropoffPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestStop = new ArrayList<>();
@@ -223,22 +223,22 @@ public class Driver extends Client {
                     }
                 }
             }
-            System.out.println("combined path");
+           // System.out.println("combined path");
             for(Location path: combinedPath){
-                System.out.println(path.toString());
+                //System.out.println(path.toString());
             }
             // print and move 
-            System.out.println("Path to drop off: ");
+            //System.out.println("Path to drop off: ");
             for (int i = 0; i < closest.size() - 1; i++) {
-                System.out.print(closest.get(i).getName() + ", ");
+                //System.out.print(closest.get(i).getName() + ", ");
                 if (i == closest.size() - 2) {
-                    System.out.println(closest.get(closest.size() - 1).getName());
+                   // System.out.println(closest.get(closest.size() - 1).getName());
                 }
                 moveSteps(closest.get(i), closest.get(i + 1));
             }
-            System.out.println("combined path");
+           // System.out.println("combined path");
             for(Location path: combinedPath){
-                System.out.println(path.toString());
+               // System.out.println(path.toString());
             }
             // remove the user from the list to be dropped off
             ArrayList<User> temp = new ArrayList<>(dropoffPending);
@@ -261,36 +261,50 @@ public class Driver extends Client {
         int y2 = (int) next.getY();
         directionAngle = Math.atan2(y2-y1,x2-x1);
 
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int sx = (x1 < x2) ? 1 : -1;
-        int sy = (y1 < y2) ? 1 : -1;
-        int err = dx - dy;
+        // int dx = Math.abs(x2 - x1);
+        // int dy = Math.abs(y2 - y1);
+        // int sx = (x1 < x2) ? 1 : -1;
+        // int sy = (y1 < y2) ? 1 : -1;
+        // int err = dx - dy;
 
-        while (true) {
-            if (x1 == x2 && y1 == y2) {
-                break;
-            }
+        while (!currentLocation.compare(currentLocation,next)) {
+            x1 += 200 * Math.cos( directionAngle);
+            y1 += 200 * Math.sin( directionAngle);
+            currentLocation.setX(x1);
+            currentLocation.setY(y1);
 
-            int e2 = 2 * err;
+            // int e2 = 2 * err;
 
-            if (e2 > -dy) {
-                err -= dy;
-                x1 += sx;
-                currentLocation.setX(x1);
-            }
+            // if (e2 > -dy) {
+            //     err -= dy;
+            //     x1 += sx;
+            //     currentLocation.setX(x1);
+            // }
 
-            if (e2 < dx) {
-                err += dx;
-                y1 += sy;
-                currentLocation.setY(y1);
-            }
-            for (Location location : graph.getLocations().values()) {
-                if (currentLocation.getX() == location.getX() && currentLocation.getY() == location.getY()) {
-                    currentLocation = new Location(location.getName(), location.getX(), location.getY());
-                    for (Location connector : location.getConnections()) {
-                        currentLocation.addConnection(connector);
-                    }
+            // if (e2 < dx) {
+            //     err += dx;
+            //     y1 += sy;
+            //     currentLocation.setY(y1);
+            // }
+            // for (Location location : graph.getLocations().values()) {
+            //     if (Math.abs(currentLocation.getX()-location.getX())<=100 && Math.abs(currentLocation.getY() - location.getY())<=100) {
+            //         currentLocation = new Location(location.getName(), location.getX(), location.getY());
+            //         for (Location connector : location.getConnections()) {
+            //             currentLocation.addConnection(connector);
+            //         }
+            //     }
+            // }
+            // if (this.ryders != null) {
+            //     for (User ryder : ryders) {
+            //         if (ryder.isInRide()) {
+            //             ryder.move(currentLocation.getX(), currentLocation.getY());
+            //         }
+            //     }
+            // }
+            if (Math.abs(currentLocation.getX()-next.getX())<=200 && Math.abs(currentLocation.getY() - next.getY())<=200){
+                currentLocation = new Location(next.getName(), next.getX(), next.getY());
+                for (Location connector : next.getConnections()) {
+                    currentLocation.addConnection(connector);
                 }
             }
             for (User ryder : ryders) {
@@ -299,13 +313,6 @@ public class Driver extends Client {
                     ryder.setRideStatus(true);
                 }
             }
-            // if (this.ryders != null) {
-            //     for (User ryder : ryders) {
-            //         if (ryder.isInRide()) {
-            //             ryder.move(currentLocation.getX(), currentLocation.getY());
-            //         }
-            //     }
-            // }
             if (!this.ryders.isEmpty()) {
                 ArrayList<User> temp = new ArrayList<>(ryders);
                 for (User ryder : temp) {
@@ -320,13 +327,10 @@ public class Driver extends Client {
                 setDrive(false);
                 this.send("stopDriver:"+getNumber());
             }
-
             //System.out.println("driver has "+ryders.size()+" ryders left");
-
             this.send("moveDriver:"+getNumber()+","+currentLocation.getX()+","+currentLocation.getY());
-
             try {
-                Thread.sleep(1500);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -391,7 +395,7 @@ public class Driver extends Client {
                             infoPanel.createRequest(Color.black, info, "carpool mf");
                         }
                     }
-                    System.out.println("hasRyders: " + hasRyders());
+                    //System.out.println("hasRyders: " + hasRyders());
                     if(hasRyders()){
                         infoPanel.dButtonPanel.setVisible(true); // 
                         mapPanel.setPathToDraw(combinedPath);
@@ -399,11 +403,11 @@ public class Driver extends Client {
                         infoPanel.dButtonPanel.setVisible(false);
                     }
                 } else {
-                    System.out.println("location:"+currentLocation.toString());
-                    System.out.println("isDrive:" + isDrive());
+           //         System.out.println("location:"+currentLocation.toString());
+              //      System.out.println("isDrive:" + isDrive());
                     // System.out.println(ryders.size() <= getCapacity());
                     mapPanel.setPathToDraw(combinedPath);
-                    System.out.println("combinedPath:"+combinedPath.size());
+                //    System.out.println("combinedPath:"+combinedPath.size());
                     infoPanel.dButtonPanel.setVisible(false);
                     infoPanel.displayInfo(Color.black, "Please go pick up your Ryder\n" + info);
                 }

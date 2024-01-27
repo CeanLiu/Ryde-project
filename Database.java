@@ -208,8 +208,10 @@ public class Database {
     public void acceptRequest(String acceptText){
         long userPhone = Long.parseLong(acceptText.split(",")[PHONE]);
         long driverPhone = Long.parseLong(acceptText.split(",")[1]);
+        Location current = map.getLocation(acceptText.split(",")[2]);
         User user = users.get(userPhone);
         Driver driver = drivers.get(driverPhone);
+        driver.setCurrentLocation(current);
         driver.assignRyder(user);
         user.setDriver(driver);
     }
