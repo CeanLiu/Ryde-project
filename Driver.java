@@ -3,37 +3,32 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.swing.SwingUtilities;
 
 public class Driver extends Client {
     private ArrayList<User> ryders = new ArrayList<>();
-    private Long phoneNum;
     private int capacity;
-    private Location currentLocation;
-    private Interface gui;
     private SimpleGraph graph;
     private volatile boolean isDrive;
-    private BufferedImage driverImage;
     private double directionAngle;
     private Location isHeading;
 
-    public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph, long phoneNum, int capacity) {
-        this.driverImage = driverImage;
-        this.gui = gui;
+    public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph,long phoneNum, int capacity) {
+        super(driverImage, gui, phoneNum);
         this.graph = graph;
-        this.phoneNum = phoneNum;
         this.capacity = capacity;
         this.isDrive = false;
         this.isDrive = false;
     }
 
     public Driver(BufferedImage driverImage, Interface gui, SimpleGraph graph, long phoneNum, Location current, int capacity, boolean isDrive) {
-        this.driverImage = driverImage;
-        this.gui = gui;
-        this.graph = graph;
-        this.phoneNum = phoneNum;
-        setCurrentLocation(current);
+        super(driverImage, gui, phoneNum);
+        setCurrent(current);
         this.capacity = capacity;
         this.isDrive = isDrive;
     }
@@ -47,10 +42,6 @@ public class Driver extends Client {
         super.stop();
     }
 
-    public long getNumber() {
-        return this.phoneNum;
-    }
-
     public int getCapacity() {
         return capacity;
     }
@@ -58,14 +49,6 @@ public class Driver extends Client {
     @Override
     public Location getIsHeading() {
         return isHeading;
-    }
-
-    public void setCapacity(int cap) {
-        this.capacity = cap;
-    }
-
-    public Location getCurrent() {
-        return currentLocation;
     }
 
     public double getDirectionAngle() {
@@ -77,39 +60,27 @@ public class Driver extends Client {
     }
 
     public boolean hasCurrLocation() {
-        return this.currentLocation != null;
+        return getCurrent()!= null;
     }
 
     public synchronized boolean isDrive() {
         return this.isDrive;
     }
-
-    public void setCurrentLocation(Location location) {
-        if (location != null) {
-            this.currentLocation = new Location(location.getName(), location.getX(), location.getY());
-            for (Location connector : location.getConnections()) {
-                currentLocation.addConnection(connector);
-            }
-        } else {
-            this.currentLocation = null;
-            return;
-        }
+    
+    public void setCapacity(int cap) {
+        this.capacity = cap;
     }
 
     public synchronized void setDrive(boolean isDrive) {
         this.isDrive = isDrive;
     }
 
-    public void setGUI(Interface gui) {
-        this.gui = gui;
-    }
-
     public void setDirectionAngle(double directionAngle) {
-        this.directionAngle = directionAngle;
+            this.directionAngle = directionAngle;
     }
 
     public void assignRyder(User ryder) {
-        if (!ryders.contains(ryder)) {
+        if(!ryders.contains(ryder)){
             this.ryders.add(ryder);
         }
     }
@@ -133,13 +104,13 @@ public class Driver extends Client {
             // find the shortest path to a user, add it to a list to be compared, and keep repeating until collected all users
             for (User ryder : pickupPending) {
                 if (!ryder.isInRide()) {
-                    closestRyder.add(currentLocation.shortestPath(ryder.getStart(), graph));
+                    closestRyder.add(getCurrent().shortestPath(ryder.getStart(), graph));
                 }
             }
             // find the shortest path out of all the users
             ArrayList<Location> closest = closestRyder.get(0);
             for (ArrayList<Location> path : closestRyder) {
-                if (currentLocation.pathLength(path) < currentLocation.pathLength(closest)) {
+                if (getCurrent().pathLength(path) < getCurrent().pathLength(closest)) {
                     closest = new ArrayList<>(path);
                 }
             }
@@ -148,7 +119,7 @@ public class Driver extends Client {
             // move
             if (closest.size() == 1) {
                 for (User ryder : ryders) {
-                    if (currentLocation.compare(currentLocation, ryder.getStart())) {
+                    if (getCurrent().compare(getCurrent(), ryder.getStart())) {
                         send("aboard:" + ryder.getNumber() + "," + getNumber());
                         ryder.setRideStatus(true);
                     }
@@ -161,8 +132,8 @@ public class Driver extends Client {
             // remove the user from the list to be picked up
             ArrayList<User> temp = new ArrayList<>(pickupPending);
             for (User ryder : temp) {
-                if (ryder.getStart().getX() == currentLocation.getX()
-                        && ryder.getStart().getY() == currentLocation.getY()) {
+                if (ryder.getStart().getX() == getCurrent().getX()
+                        && ryder.getStart().getY() == getCurrent().getY()) {
                     pickupPending.remove(ryder);
                 }
             }
@@ -179,13 +150,13 @@ public class Driver extends Client {
             // find the shortest path to a user's destination, add it to a list to be compared, keep repeating until done for all
             for (User ryder : dropoffPending) {
                 if (ryder.isInRide()) {
-                    closestStop.add(currentLocation.shortestPath(ryder.getEnd(), graph));
+                    closestStop.add(getCurrent().shortestPath(ryder.getEnd(), graph));
                 }
             }
             // find the shortest path out of all the users
             ArrayList<Location> closest = closestStop.get(0);
             for (ArrayList<Location> path : closestStop) {
-                if (currentLocation.pathLength(path) < currentLocation.pathLength(closest)) {
+                if (getCurrent().pathLength(path) < getCurrent().pathLength(closest)) {
                     closest = new ArrayList<>(path);
                 }
             }
@@ -198,8 +169,8 @@ public class Driver extends Client {
             // remove the user from the list to be dropped off
             ArrayList<User> temp = new ArrayList<>(dropoffPending);
             for (User ryder : temp) {
-                if (ryder.getEnd().getX() == currentLocation.getX()
-                        && ryder.getEnd().getY() == currentLocation.getY()) {
+                if (ryder.getEnd().getX() == getCurrent().getX()
+                        && ryder.getEnd().getY() == getCurrent().getY()) {
                     dropoffPending.remove(ryder);
                     ryder.reset();
                 }
@@ -209,7 +180,7 @@ public class Driver extends Client {
 
         if (ryders.isEmpty()) {
             setDrive(false);
-            setCurrentLocation(null);
+            setCurrent(null);
             this.send("stopDriver:" + getNumber());
         }
         updateGUI();
@@ -222,21 +193,19 @@ public class Driver extends Client {
         int y2 = (int) next.getY();
         directionAngle = Math.atan2(y2 - y1, x2 - x1);
 
-        while (!currentLocation.compare(currentLocation, next)) {
+        while (!getCurrent().compare(getCurrent(), next)) {
             x1 += 200 * Math.cos(directionAngle);
             y1 += 200 * Math.sin(directionAngle);
-            currentLocation.setX(x1);
-            currentLocation.setY(y1);
+            getCurrent().setX(x1);
+            getCurrent().setY(y1);
 
-            if (Math.abs(currentLocation.getX() - next.getX()) <= 200
-                    && Math.abs(currentLocation.getY() - next.getY()) <= 200) {
-                currentLocation = new Location(next.getName(), next.getX(), next.getY());
-                for (Location connector : next.getConnections()) {
-                    currentLocation.addConnection(connector);
-                }
+            if (Math.abs(getCurrent().getX() - next.getX()) <= 200&& Math.abs(getCurrent().getY() - next.getY()) <= 200) {
+                setCurrent(next);
+           //     Location last = combinedPath.get(combinedPath.size()-1);
+              //  combinedPath = new ArrayList<Location>(getCurrent().shortestPath(last, graph));
             }
             for (User ryder : ryders) {
-                if (currentLocation.compare(currentLocation, ryder.getStart())) {
+                if (getCurrent().compare(getCurrent(), ryder.getStart())) {
                     send("aboard:" + ryder.getNumber() + "," + getNumber());
                     ryder.setRideStatus(true);
                 }
@@ -244,15 +213,14 @@ public class Driver extends Client {
             if (!this.ryders.isEmpty()) {
                 ArrayList<User> temp = new ArrayList<>(ryders);
                 for (User ryder : temp) {
-                    if (ryder.isInRide() && currentLocation.compare(currentLocation, ryder.getEnd())) {
-                        send("arrive:" + ryder.getNumber() + "," + getNumber());
+                    if (ryder.isInRide() && getCurrent().compare(getCurrent(), ryder.getEnd())) {
+                        send("arrive:"+ryder.getNumber()+","+getNumber());
                         removeRyder(ryder);
                     }
                 }
                 temp = new ArrayList<>(ryders);
-            }
-            this.send("moveDriver:" + getNumber() + "," + currentLocation.getName() + "," + currentLocation.getX() + ","
-                    + currentLocation.getY() + "," + getDirectionAngle());
+            } 
+            this.send("moveDriver:"+getNumber()+","+getCurrent().getName()+","+getCurrent().getX()+","+getCurrent().getY()+","+getDirectionAngle());
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
@@ -261,32 +229,62 @@ public class Driver extends Client {
         }
     }
 
+    public ArrayList<Location> createPath(Location start, Location end) { // shortest node connections
+        ArrayList<Location> path = new ArrayList<>();
+        Queue<Location> queue = new LinkedList<>();
+        HashSet<Location> visited = new HashSet<>();
+        HashMap<Location, Location> connections = new HashMap<>();
+        queue.add(start);
+        visited.add(start);
+
+        while (!queue.isEmpty()) {
+            Location current = queue.remove();
+            if (current.equals(end)) {
+                while (!current.equals(start)) {
+                    path.add(current);
+                    current = connections.get(current);
+                }
+                path.add(current);
+                return path;
+            }
+            for (Location connector : current.getConnections()) {
+                if (!visited.contains(connector)) {
+                    queue.add(connector);
+                    visited.add(connector);
+                    connections.put(connector, current);
+                }
+            }
+        }
+        System.out.println("Return path is null in method create path");
+        return null;
+    }
+
     // -------------------------------------------------------------------------
     @Override
     public void updateGUI() {
         SwingUtilities.invokeLater(() -> {
-            InfoPanel infoPanel = gui.getInfoPanel();
+            InfoPanel infoPanel = getGui().getInfoPanel();
             String info = "Driver " + getNumber() + ": You have " + ryders.size() + " ryders.";
             for (User ryder : ryders) {
-                info += "\nUser " + ryder.getNumber() + ":\nStart Location: " + ryder.getStart().toString()
-                        + "\nEnd Location: " + ryder.getEnd().toString();
+                info += "\nUser " + ryder.getNumber() + ":\nStart Location: " + ryder.getStart().toString() + "\nEnd Location: " + ryder.getEnd().toString();
             }
             if (hasCurrLocation()) {
-                infoPanel.setLocationText(currentLocation.toString());
+                infoPanel.setLocationText(getCurrent().toString());
                 infoPanel.confirmButton.setVisible(false);
                 if (!isDrive()) {
-                    if (ryders.size() <= getCapacity()) {
-                        if ((ryders.size() == 1 && ryders.get(0).isAlone() == true) || ryders.size() == getCapacity()) { // selected a user that wants to ride alone
+                    if(ryders.size() <= getCapacity()){
+                        if ((ryders.size() == 1 && ryders.get(0).isAlone() == true) || ryders.size() == getCapacity()){ // selected a user that rides alone
                             infoPanel.createRequest(Color.black, info, "none");
-                        } else if (ryders.size() == 0) { // did not select a user yet
-                            infoPanel.createRequest(Color.black, info, "all");
-                        } else { // selected a user that wants to carpool
+                        }
+                        else if (ryders.size() == 0){ // did not select a user yet
+                            infoPanel.createRequest(Color.black, info,"all");
+                        } else {    // selected a user that wants to carpool
                             infoPanel.createRequest(Color.black, info, "carpool");
                         }
                     }
-                    if (hasRyders()) {
-                        infoPanel.dButtonPanel.setVisible(true);
-                    } else {
+                    if(hasRyders()){
+                        infoPanel.dButtonPanel.setVisible(true); // 
+                    }else{
                         infoPanel.dButtonPanel.setVisible(false);
                     }
                 } else {
@@ -304,16 +302,16 @@ public class Driver extends Client {
     @Override
     public void draw(Graphics2D g2) {
         if (hasCurrLocation()) {
-            int x = (int) (currentLocation.getX() - driverImage.getWidth(null) / 2.0);
-            int y = (int) (currentLocation.getY() - driverImage.getHeight(null) / 2.0);
+            int x = (int) (getCurrent().getX() - getIcon().getWidth(null) / 2.0);
+            int y = (int) (getCurrent().getY() - getIcon().getHeight(null) / 2.0);
             if (isDrive()) {
                 AffineTransform transform = new AffineTransform();
                 transform.translate(x, y);
-                transform.rotate(getDirectionAngle(), driverImage.getWidth(null) / 2.0,
-                        driverImage.getHeight(null) / 2.0);
-                g2.drawImage(driverImage, transform, null);
+                transform.rotate(getDirectionAngle(), getIcon().getWidth(null) / 2.0,
+                getIcon().getHeight(null) / 2.0);
+                g2.drawImage(getIcon(), transform, null);
             } else {
-                g2.drawImage(driverImage, x, y, null);
+                g2.drawImage(getIcon(), x, y, null);
             }
         }
     }

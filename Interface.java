@@ -2,6 +2,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -20,6 +21,7 @@ import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.InputMismatchException;
 public class Interface extends JFrame {
     final int MAX_X = (int) getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int) getToolkit().getScreenSize().getHeight();
@@ -139,8 +141,8 @@ public class Interface extends JFrame {
                     }else{
                         goUserPage(phoneNum);
                     }
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+                } catch (NumberFormatException | NullPointerException e) {
+                    JOptionPane.showMessageDialog(loginPanel, "Please enter a valid input (number only)", "Ryde Information", JOptionPane.ERROR_MESSAGE);
                     System.out.println("Please fill in your phone number");
 
                 }

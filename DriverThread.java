@@ -27,13 +27,11 @@ public class DriverThread implements Runnable {
                     db.saveDatabase();
                 }
             }
-            System.out.println("driver isdrive"+driver.isDrive());
             if (driver.isDrive()) {
                 System.out.println("moved");
                 driver.move();
                 db.saveDatabase();
             }
-            System.out.println("has currLocation" +driver.hasCurrLocation());
             SwingUtilities.invokeLater(() -> {
                 driver.updateGUI();
             });

@@ -156,7 +156,7 @@ public class InfoPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof Driver) {
-                    ((Driver) client).setCurrentLocation(map.getLocation(dChooseTextField.getText()));
+                    ((Driver) client).setCurrent(map.getLocation(dChooseTextField.getText()));
                     ((Driver) client).updateGUI();
                     db.saveDatabase();
                 }

@@ -1,4 +1,5 @@
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 
@@ -10,6 +11,17 @@ abstract public class Client {
     Socket clientSocket;
     PrintWriter output;
     BufferedReader input;
+    
+    private Long phoneNum;
+    private BufferedImage icon;
+    private Interface gui;
+    private Location current;
+
+    public Client (BufferedImage icon, Interface gui, long phoneNum){
+        this.icon = icon;
+        this.gui = gui;
+        this.phoneNum = phoneNum;
+    }
 
     public void start(String outputMsg) throws Exception {
         System.out.println("Attempting to establish a connection ...");
@@ -19,6 +31,34 @@ abstract public class Client {
         System.out.println("Connection to server established!");
         output.println(getNumber()+"%"+outputMsg);
         output.flush();
+    }
+
+    public long getNumber(){
+        return this.phoneNum;
+    }
+
+    public Location getCurrent(){
+        return this.current;
+    }
+
+    public Interface getGui() {
+        return gui;
+    }
+
+    public BufferedImage getIcon() {
+        return icon;
+    }
+
+    public void setCurrent(Location location){
+        if(location != null){
+            this.current = new Location(location.getName(), location.getX(), location.getY());
+            for (Location connector : location.getConnections()) {
+                current.addConnection(connector);
+            }
+        }else{
+            this.current= null;
+            return;
+        }
     }
 
     public void send(String msg) {
@@ -46,9 +86,7 @@ abstract public class Client {
         clientSocket.close();
     }
 
-    abstract public long getNumber();
     abstract public Location getIsHeading();
-    abstract public Location getCurrent();
     abstract public void updateGUI();
     abstract public void draw(Graphics2D g2);
 }

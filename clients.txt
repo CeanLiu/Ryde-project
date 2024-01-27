@@ -1,7 +1,2 @@
-User:567,null,null,false,false
-User:456,null,null,false,false
-User:345,null,null,false,false
-User:234,null,null,false,false
-User:123,null,null,false,false
-Driver:222,A,3,false
-Driver:111,null,5,false
+User:623462,ADF,E,false,false
+Driver:234623462346,E,31512356,false

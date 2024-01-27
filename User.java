@@ -4,44 +4,35 @@ import java.awt.image.BufferedImage;
 import javax.swing.SwingUtilities;
 
 public class User extends Client {
-    private long phoneNum; // acts as the user id
-    private Interface gui;
-    private Location current, start, end;
+    private Location start, end;
     private boolean inRide, isAlone;
-    private boolean finished;
     private Driver driver;
-    private SimpleGraph graph;
-    private BufferedImage userImage;
 
-    public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum) {
-        this.userImage = userImage;
-        this.gui = gui;
-        this.graph = graph;
-        this.phoneNum = phoneNum;
+    public User(BufferedImage userImage, Interface gui, long phoneNum) {
+        super(userImage, gui, phoneNum);
         this.inRide = false;
-        this.finished = false;
     }
 
-    public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum, Location start, Location end,
-            boolean isAlone, boolean inRide) {
-        this.userImage = userImage;
-        this.gui = gui;
-        this.graph = graph;
-        this.phoneNum = phoneNum;
+    public User(BufferedImage userImage, Interface gui, long phoneNum, Location start, Location end,boolean isAlone, boolean inRide) {
+        super(userImage, gui, phoneNum);
         this.start = start;
         this.end = end;
         this.isAlone = isAlone;
         this.inRide = inRide;
-        this.finished = false;
         setCurrent(start);
     }
-
-    public long getNumber() {
-        return phoneNum;
+    // Connection to server
+    public void start() throws Exception {
+        super.start("newUser:" + getNumber());
     }
 
-    public Location getCurrent() {
-        return current;
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+    }
+
+    public Location getStart() {
+        return start;
     }
 
     public Location getEnd() {
@@ -53,28 +44,12 @@ public class User extends Client {
         return getEnd();
     }
 
-    public Location getStart() {
-        return start;
-    }
-
     public boolean isInRide() {
         return inRide;
     }
 
     public boolean isAlone() {
         return isAlone;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public void reset() {
-        this.current = null;
-        this.start = null;
-        this.end = null;
-        this.driver = null;
-        this.inRide = false;
     }
 
     public boolean hasDriver() {
@@ -85,44 +60,17 @@ public class User extends Client {
         return driver;
     }
 
-    public SimpleGraph getGraph() {
-        return graph;
-    }
-
     public boolean isDoneChoose() {
         return getEnd() != null && getStart() != null;
     }
 
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
     public void setStart(Location start) {
         this.start = start;
-        if (start != null) {
-            this.current = new Location(start.getName(), start.getX(), start.getY());
-            for (Location connector : start.getConnections()) {
-                current.addConnection(connector);
-            }
-        } else {
-            return;
-        }
+        setCurrent(start);
     }
 
     public void setEnd(Location end) {
         this.end = end;
-    }
-
-    public void setCurrent(Location location) {
-        if (location != null) {
-            current = new Location(location.getName(), location.getX(), location.getY());
-            for (Location connector : location.getConnections()) {
-                current.addConnection(connector);
-            }
-        } else {
-            current = null;
-            return;
-        }
     }
 
     public void setChoice(Boolean isAlone) {
@@ -137,12 +85,12 @@ public class User extends Client {
         this.driver = driver;
     }
 
-    public void setGui(Interface gui) {
-        this.gui = gui;
-    }
-
-    public void setGraph(SimpleGraph graph) {
-        this.graph = graph;
+    public void reset() {
+        setCurrent(null);
+        this.start = null;
+        this.end = null;
+        this.driver = null;
+        this.inRide = false;
     }
 
     // move the user
@@ -150,28 +98,19 @@ public class User extends Client {
         double x = driver.getCurrent().getX();
         double y = driver.getCurrent().getY();
         if (getCurrent().compare(getCurrent(), getEnd())) {
+            System.out.println("I've arrived at my destination: " + end.getName());
             reset();
         } else {
             setCurrent(driver.getCurrent());
-            this.current.setX(x);
-            this.current.setY(y);
+            getCurrent().setX(x);
+            getCurrent().setY(y);
             setRideStatus(true);
         }
     }
 
-    // Connection to server
-    public void start() throws Exception {
-        super.start("newUser:" + getNumber());
-    }
-
-    @Override
-    public void stop() throws Exception {
-        super.stop();
-    }
-
     public void updateGUI() {
         SwingUtilities.invokeLater(() -> {
-            InfoPanel infoPanel = gui.getInfoPanel();
+            InfoPanel infoPanel = getGui().getInfoPanel();
             if (isDoneChoose()) {
                 String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: "
                         + getEnd().toString();
@@ -203,7 +142,7 @@ public class User extends Client {
     @Override
     public void draw(Graphics2D g2) {
         if (isDoneChoose()) {
-            g2.drawImage(userImage, ((int) current.getX() - 50), ((int) current.getY() - 153), null);
+            g2.drawImage(getIcon(), ((int) getCurrent().getX() - 50), ((int) getCurrent().getY() - 153), null);
             if (hasDriver()) {
                 driver.draw(g2);
             }

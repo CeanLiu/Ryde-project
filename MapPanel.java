@@ -108,7 +108,6 @@ public class MapPanel extends JPanel {
     
     public void drawPath(Graphics2D g2){
         ArrayList<Location> pathToDraw = client.getCurrent().shortestPath(client.getIsHeading(),map);
-        System.out.println(client.getCurrent() + " a "+pathToDraw);
         for (int i = 0; i < pathToDraw.size()-1; i++) {
             Location current = pathToDraw.get(i);
             Location next = pathToDraw.get(i+1);
