@@ -14,6 +14,7 @@ public class Database {
     final int END_LOCAT = 2;
     final int IS_ALONE = 3;
     final int IN_RIDE = 4;
+
     final int CURR_LOCAT = 1;
     final int CAPCITY = 2;
     final int IS_DRIVE = 3;
@@ -53,8 +54,9 @@ public class Database {
         loadDatabase();
     }
 
-    private void loadDatabase() {
-        // add final indexes for box attributes
+    public void loadDatabase() {
+        users.clear();
+        drivers.clear();
         try {
             Scanner input = new Scanner(new FileReader(CLIENT_FILE));
             boolean readUser = true;
@@ -94,7 +96,6 @@ public class Database {
                     User user = users.get(Long.parseLong(ryder));
                     driver.assignRyder(user);
                     user.setDriver(driver);
-                    
                 }
             }
             input.close();
@@ -108,12 +109,10 @@ public class Database {
         try {
             PrintWriter writer = new PrintWriter(new FileOutputStream(clientFile,false));
             for(User user : users.values()){
-                if(user.isDoneChoose())
-                    writer.println(user.toString());
+                writer.println(user.toString());
             }
             for(Driver driver : drivers.values()){
-                if(driver.hasCurrLocation())
-                    writer.println(driver.getInfo());
+                writer.println(driver.getInfo());
             }
             writer.close();
             PrintWriter rydeWriter = new PrintWriter(new FileOutputStream(rydeInfoFile, false));
@@ -143,7 +142,7 @@ public class Database {
         return this.drivers;
     }
 
-    public void addUser(Interface gui, long phoneNum) {
+    public void addUser(long phoneNum) {
         if(users.containsKey(phoneNum)){
             users.get(phoneNum).setGui(gui);
         }else{
@@ -151,7 +150,7 @@ public class Database {
         }
     }
 
-    public void addDriver(Interface gui,long phoneNum, int capacity) {
+    public void addDriver(long phoneNum, int capacity) {
         if(drivers.containsKey(phoneNum)){
             if(capacity > drivers.get(phoneNum).getCapacity()){
                 drivers.get(phoneNum).setCapacity(capacity);
@@ -165,64 +164,146 @@ public class Database {
 
     public void update(String dataReceived){
         String type = dataReceived.split(":")[0];
-        if(type.equals("Driver")){
-            updateDriver(dataReceived.split(":")[1]);
-        }else{
-            updateUser(dataReceived.split(":")[1]);
+        String textDetail = dataReceived.split(":")[1];
+        if(type.equals("request")){
+            requestUser(textDetail);
+        }
+        if(type.equals("accept")){
+            acceptRequest(textDetail);
+        }
+        if(type.equals("moveDriver")){
+            moveDriver(textDetail);
+        }
+        if(type.equals("aboard")){
+            System.out.println("ni shi zhen ta ma de sha bi a wo cao si ni de ma ni ge gou dong xi tian tian jiu hui quan");
+            aboardRide(textDetail);
+        }
+        if(type.equals("arrive")){
+            arriveRide(textDetail);
+        }
+        if(type.equals("stopDriver")){
+            stopDriver(textDetail);
+        }
+        if(type.equals("newUser")){
+            addUser(Long.parseLong(textDetail));
+        }
+        if(type.equals("newDriver")){
+            addDriver(Long.parseLong(textDetail.split(",")[0]), Integer.parseInt(textDetail.split(",")[1]));
         }
     }
 
-    public void updateUser(String userText) {
-        System.out.println("ok");
-        String[] userDetail = userText.split(",");
+    public void requestUser(String requestText){
+        String[] userDetail = requestText.split(",");
         long phoneNum = Long.parseLong(userDetail[PHONE]);
         Location endLocation = map.getLocation(userDetail[END_LOCAT]);
         Location startLocation = map.getLocation(userDetail[START_LOCAT]);
         boolean isAlone = userDetail[IS_ALONE].equals("true");
-        boolean inRide = userDetail[IN_RIDE].equals("true");
-        if (users.containsKey(phoneNum)) {
-            User user = users.get(phoneNum);
-            user.setStart(startLocation);
-            user.setEnd(endLocation);
-            user.setChoice(isAlone);
-            user.setRideStatus(inRide);
-        } else {
-            users.put(phoneNum, new User(userImage, gui,map,phoneNum, startLocation, endLocation, isAlone, inRide));
-        }
+        User user = users.get(phoneNum);
+        System.out.println(user);
+        user.setStart(startLocation);
+        user.setEnd(endLocation);
+        user.setChoice(isAlone);
     }
 
-    public void updateDriver(String driverText){
-        String [] driverLine = driverText.split("_");
-        String driverDetails = driverLine[0];
-        String[] driverDetail = driverDetails.split(",");
-        long phoneNum = Long.parseLong(driverDetail[PHONE]);
-        Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
-        int capacity = Integer.parseInt(driverDetail[CAPCITY]);
-        boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
-        double x = Double.parseDouble(driverDetail[X]);
-        double y = Double.parseDouble(driverDetail[Y]);
-        double dirAngle = Double.parseDouble(driverDetail[ANGLE]);
-        if (drivers.containsKey(phoneNum)) {
-            Driver driver = drivers.get(phoneNum);
-            driver.setCurrentLocation(currLocat);
-            driver.setCapacity(capacity);
-            driver.setDrive(isDrive);
-            driver.getCurrentLocation().setX(x);
-            driver.getCurrentLocation().setY(y);
-        } else {
-            drivers.put(phoneNum, new Driver(driverImage, gui,map, phoneNum, currLocat, capacity, isDrive));
-        }
-        drivers.get(phoneNum).setDirectionAngle(dirAngle);
-        if(driverLine.length > 1){
-            Driver driver = drivers.get(phoneNum);
-            String [] ryders = driverLine[1].split(",");
-            for(String ryder : ryders){
-                long ryderNum = Long.parseLong(ryder);
-                users.get(ryderNum).setDriver(driver);
-            }
-        }
-        
+    public void acceptRequest(String acceptText){
+        long userPhone = Long.parseLong(acceptText.split(",")[PHONE]);
+        long driverPhone = Long.parseLong(acceptText.split(",")[1]);
+        User user = users.get(userPhone);
+        Driver driver = drivers.get(driverPhone);
+        driver.assignRyder(user);
+        user.setDriver(driver);
     }
+
+    public void moveDriver(String moveText){
+        long driverPhone = Long.parseLong(moveText.split(",")[PHONE]);
+        double x = Double.parseDouble(moveText.split(",")[1]);
+        double y = Double.parseDouble(moveText.split(",")[2]);
+        Driver driver = drivers.get(driverPhone);
+        driver.setDrive(true);
+        driver.getCurrentLocation().setX(x);
+        driver.getCurrentLocation().setY(y);
+    }
+    
+    public void aboardRide(String aboardText){
+        long userPhone = Long.parseLong(aboardText.split(",")[PHONE]);
+        long driverPhone = Long.parseLong(aboardText.split(",")[1]);
+        User user = users.get(userPhone);
+        Driver driver = drivers.get(driverPhone);
+        user.setCurrent(driver.getCurrentLocation());
+        user.setRideStatus(true);
+    }
+
+    public void arriveRide(String arriveText){
+        long userPhone = Long.parseLong(arriveText.split(",")[PHONE]);
+        long driverPhone = Long.parseLong(arriveText.split(",")[1]);
+        User user = users.get(userPhone);
+        Driver driver = drivers.get(driverPhone);
+        user.setDriver(null);
+        user.setEnd(null);
+        user.setStart(null);
+        user.setRideStatus(false);
+        driver.removeRyder(user);
+    }
+
+    public void stopDriver(String stopText){
+        long phoneNum = Long.parseLong(stopText);
+        Driver driver = drivers.get(phoneNum);
+        driver.setCurrentLocation(null);
+        driver.setDrive(false);
+    }
+
+
+    // public void updateUser(String userText) {
+    //     System.out.println("ok");
+    //     String[] userDetail = userText.split(",");
+    //     long phoneNum = Long.parseLong(userDetail[PHONE]);
+    //     Location endLocation = map.getLocation(userDetail[END_LOCAT]);
+    //     Location startLocation = map.getLocation(userDetail[START_LOCAT]);
+    //     boolean isAlone = userDetail[IS_ALONE].equals("true");
+    //     boolean inRide = userDetail[IN_RIDE].equals("true");
+    //     if (users.containsKey(phoneNum)) {
+    //         User user = users.get(phoneNum);
+    //         user.setStart(startLocation);
+    //         user.setEnd(endLocation);
+    //         user.setChoice(isAlone);
+    //         user.setRideStatus(inRide);
+    //     } else {
+    //         users.put(phoneNum, new User(userImage, gui,map,phoneNum, startLocation, endLocation, isAlone, inRide));
+    //     }
+    // }
+
+    // public void updateDriver(String driverText){
+    //     String [] driverLine = driverText.split("_");
+    //     String driverDetails = driverLine[0];
+    //     String[] driverDetail = driverDetails.split(",");
+    //     long phoneNum = Long.parseLong(driverDetail[PHONE]);
+    //     Location currLocat = map.getLocation(driverDetail[CURR_LOCAT]);
+    //     int capacity = Integer.parseInt(driverDetail[CAPCITY]);
+    //     boolean isDrive = ("true").equals(driverDetail[IS_DRIVE]);
+    //     double x = Double.parseDouble(driverDetail[X]);
+    //     double y = Double.parseDouble(driverDetail[Y]);
+    //     double dirAngle = Double.parseDouble(driverDetail[ANGLE]);
+    //     if (drivers.containsKey(phoneNum)) {
+    //         Driver driver = drivers.get(phoneNum);
+    //         driver.setCurrentLocation(currLocat);
+    //         driver.setCapacity(capacity);
+    //         driver.setDrive(isDrive);
+    //         driver.getCurrentLocation().setX(x);
+    //         driver.getCurrentLocation().setY(y);
+    //     } else {
+    //         drivers.put(phoneNum, new Driver(driverImage, gui,map, phoneNum, currLocat, capacity, isDrive));
+    //     }
+    //     drivers.get(phoneNum).setDirectionAngle(dirAngle);
+    //     if(driverLine.length > 1){
+    //         Driver driver = drivers.get(phoneNum);
+    //         String [] ryders = driverLine[1].split(",");
+    //         for(String ryder : ryders){
+    //             long ryderNum = Long.parseLong(ryder);
+    //             users.get(ryderNum).setDriver(driver);
+    //         }
+    //     }
+        
+    // }
 
     public void removeUser(long phoneNum) {
         users.remove(phoneNum);
