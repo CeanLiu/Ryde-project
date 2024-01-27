@@ -110,7 +110,7 @@ public class InfoPanel extends JPanel {
                     if (displayRideInfo()) {
                         ((User) client).setStart(map.getLocation(uStartTextField.getText()));
                         ((User) client).setEnd(map.getLocation(uEndTextField.getText()));
-                        ((User) client).send("request:"+((User) client).requestInfo());
+                        ((User) client).send("request:" + ((User) client).requestInfo());
                         ((User) client).updateGUI();
                         db.saveDatabase();
                     }
@@ -179,10 +179,12 @@ public class InfoPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (client instanceof Driver) {
-                    ((Driver)client).setDrive(true);
-                    ((Driver)client).send("moveDriver:"+((Driver)client).getNumber()+","+((Driver)client).getCurrentLocation().getX()+","+((Driver)client).getCurrentLocation().getY());
-                    //  ((Driver) client).send(client.toString());
-                    ((Driver)client).updateGUI();
+                    ((Driver) client).setDrive(true);
+                    ((Driver) client).send("moveDriver:" + ((Driver) client).getNumber() + ","
+                            + ((Driver) client).getCurrentLocation().getX() + ","
+                            + ((Driver) client).getCurrentLocation().getY());
+                    // ((Driver) client).send(client.toString());
+                    ((Driver) client).updateGUI();
                     db.saveDatabase();
                 }
             }
@@ -191,11 +193,11 @@ public class InfoPanel extends JPanel {
         dButtonPanel.setVisible(false);
         add(dButtonPanel);
     }
-    
+
     public Client getClient() {
         return client;
     }
-    
+
     public void setClient(Client client) {
         this.client = client;
     }
@@ -230,56 +232,41 @@ public class InfoPanel extends JPanel {
     public void createRequest(Color color, String txt, String carpool) {
         displayInfo(color, txt);
         HashMap<Long, User> requestList = db.getUsers();
-        if (!carpool.equals("none")){
+        if (!carpool.equals("none")) {
             for (User user : requestList.values()) {
-                System.out.println("user: "+user+" hasDriver: "+user.hasDriver());
-                if (!user.hasDriver() && user.isDoneChoose()){
-                    if (carpool.equals("carpool")){ // show only those that want to carpool
-                        if (!user.isAlone()){
-                            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                            JLabel request = new JLabel(user.toString());
-                            JButton accept = new JButton("Accept User");
-                            accept.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    if (client instanceof Driver) {
-                                        ((Driver) client).assignRyder(user);
-                                        ((Driver) client).send("accept:"+user.getNumber()+","+((Driver)client).getNumber()+","+((Driver)client).getCurrentLocation());
-                                        // ((Driver) client).updateGUI();
-                                        user.setDriver((Driver)client);
-                                        panel.setVisible(false);
-                                        repaint();
-                                        db.saveDatabase();
-                                    }
-                                }
-                            });
+                System.out.println("user: " + user + " hasDriver: " + user.hasDriver());
+                if (!user.hasDriver() && user.isDoneChoose()) {
+                    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                    JLabel request = new JLabel(user.toString());
+                    JButton accept = new JButton("Accept User");
+                    accept.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (client instanceof Driver) {
+                                ((Driver) client).assignRyder(user);
+                                user.setDriver((Driver) client);
+                                ((Driver) client).send("accept:" + user.getNumber() + ","
+                                        + ((Driver) client).getNumber() + "," + ((Driver) client).getCurrentLocation());
+                                db.saveDatabase();
+                            }
+                        }
+                    });
+                    if (carpool.equals("carpool")) {
+                        if (!user.isAlone()) {
                             panel.add(request);
                             panel.add(accept);
                             displayPanel.add(panel);
                         }
-                    } else { //show all
-                        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                        JLabel request = new JLabel(user.toString());
-                        JButton accept = new JButton("Accept User");
-                        accept.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (client instanceof Driver) {
-                                    ((Driver) client).assignRyder(user);
-                                    ((Driver) client).send("accept:"+user.getNumber()+","+((Driver)client).getNumber()+","+((Driver)client).getCurrentLocation());
-                                    ((Driver) client).updateGUI();
-                                    db.saveDatabase();
-                                }
-                            }
-                        });
+                    } else {
                         panel.add(request);
                         panel.add(accept);
                         displayPanel.add(panel);
                     }
-                } 
+
+                }
             }
-        revalidate();
-        repaint();
+            revalidate();
+            repaint();
         }
     }
 
