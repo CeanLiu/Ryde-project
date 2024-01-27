@@ -102,6 +102,7 @@ public class Driver extends Client {
                 currentLocation.addConnection(connector);
             }
         }else{
+            this.currentLocation = null;
             System.out.println("DRIVER CURR IS NULL");
             return;
         }
@@ -285,10 +286,15 @@ public class Driver extends Client {
                 }
             }
         }
+        combinedPath.clear();
+        isHeading = null;
         System.out.println("asdfasdfadsfsdf");
-        setDrive(false);
-        setCurrentLocation(null);
-        this.send("stopDriver:"+getNumber());
+
+        if (ryders.isEmpty()){
+            setDrive(false);
+            setCurrentLocation(null);
+            this.send("stopDriver:"+getNumber());
+        }
         updateGUI();
     }
     
@@ -365,13 +371,13 @@ public class Driver extends Client {
                 }
                 temp = new ArrayList<>(ryders);
             } 
-            if(this.ryders.isEmpty()){
-                System.out.println("asdfasdfadsfsdf");
-                setDrive(false);
-                setCurrentLocation(null);
-                this.send("stopDriver:"+getNumber());
-                updateGUI();
-            }
+            // if(this.ryders.isEmpty()){
+            //     System.out.println("asdfasdfadsfsdf");
+            //     setDrive(false);
+            //     setCurrentLocation(null);
+            //     this.send("stopDriver:"+getNumber());
+            //     updateGUI();
+            // }
             //System.out.println("driver has "+ryders.size()+" ryders left");
             this.send("moveDriver:"+getNumber()+","+currentLocation.getName()+","+currentLocation.getX()+","+currentLocation.getY()+","+getDirectionAngle());
             try {
@@ -431,8 +437,8 @@ public class Driver extends Client {
                 infoPanel.confirmButton.setVisible(false);
                 if (!isDrive()) {
                   //  System.out.println("ryders.size: "+ryders.size());
-                    if(ryders.size() < getCapacity()){
-                        if (ryders.size() == 1 && ryders.get(0).isAlone() == true){ // selected a user that rides alone
+                    if(ryders.size() <= getCapacity()){
+                        if ((ryders.size() == 1 && ryders.get(0).isAlone() == true) || ryders.size() == getCapacity()){ // selected a user that rides alone
                          //   System.out.println("none. was used");
                             infoPanel.createRequest(Color.black, info, "none");
                         } 
