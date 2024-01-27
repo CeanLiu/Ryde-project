@@ -142,8 +142,14 @@ public class Driver extends Client {
       //  System.out.println("\nDriver's current location: " + currentLocation.getName());
 //
         // pickup ryders
-        ArrayList<User> pickupPending = new ArrayList<>(ryders);
-    //    System.out.println(pickupPending + " " + ryders);
+
+        ArrayList<User> pickupPending = new ArrayList<>();
+        for (User ryder: ryders){
+            if (!ryder.isInRide()){
+                pickupPending.add(ryder);
+            }
+        }
+        System.out.println(pickupPending + " " + ryders);
         while (!pickupPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestRyder = new ArrayList<>();
             // find the shortest path to a user, move, keep repeating until collected all users
@@ -172,17 +178,28 @@ public class Driver extends Client {
                     }
                 }
             }
+            System.out.println("closest: "+closest);
             // print and move 
-         //   System.out.println("Path to the ryders: ");
-            for (int i = 0; i < closest.size() - 1; i++) {
-           //     System.out.print(closest.get(i).getName() + ", ");
-                if (i == closest.size() - 2) {
-                  //  System.out.println(closest.get(closest.size() - 1).getName());
+            System.out.println("Path to the ryders: ");
+            if(closest.size()==1){
+                System.out.print(closest.get(0));
+                for (User ryder : ryders) {
+                    if (currentLocation.compare(currentLocation, ryder.getStart())) {
+                        send("aboard:"+ryder.getNumber()+","+getNumber());
+                        ryder.setRideStatus(true);
+                    }
                 }
-                moveSteps(closest.get(i), closest.get(i + 1));
+            } else {
+                for (int i = 0; i < closest.size() - 1; i++) {
+                    System.out.print(closest.get(i).getName() + ", ");
+                    if (i == closest.size() - 2) {
+                        System.out.println(closest.get(closest.size() - 1).getName());
+                    }
+                    moveSteps(closest.get(i), closest.get(i + 1));
+                }
             }
 
-            //System.out.println("Driver's new location after picking up: " + currentLocation.getName());
+            System.out.println("Driver's new location after picking up: " + currentLocation.getName());
 
             // remove the user from the list to be picked up
             ArrayList<User> temp = new ArrayList<>(pickupPending);
@@ -194,13 +211,19 @@ public class Driver extends Client {
         }
         // drop off ryders
         combinedPath.clear();
-       // System.out.println(getRydeInfo());
-        ArrayList<User> dropoffPending = new ArrayList<>(ryders);
+        System.out.println(getRydeInfo());
+        ArrayList<User> dropoffPending = new ArrayList<>();
+        for (User ryder: ryders){
+            if (ryder.isInRide()){
+                dropoffPending.add(ryder);
+            }
+        }
         while (!dropoffPending.isEmpty()) {
             ArrayList<ArrayList<Location>> closestStop = new ArrayList<>();
             // find the shortest path to a user, move, keep repeating until collected all
             // users
             for (User ryder : dropoffPending) {
+                System.out.println("ryder in dropoff pending: "+ryder.toString());
                 if (ryder.isInRide()) {
                     closestStop.add(currentLocation.shortestPath(ryder.getEnd(), graph));
                 }
@@ -330,7 +353,7 @@ public class Driver extends Client {
             //System.out.println("driver has "+ryders.size()+" ryders left");
             this.send("moveDriver:"+getNumber()+","+currentLocation.getX()+","+currentLocation.getY());
             try {
-                Thread.sleep(5000);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

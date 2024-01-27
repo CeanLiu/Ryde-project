@@ -99,6 +99,14 @@ public class Location {
         HashMap<Location,Location> previous = new HashMap<>();
         ArrayList<Location> path = new ArrayList<>();
 
+        //
+        // if(this.compare(this,other)){
+        //     System.out.println("tey are equal you mf");
+        //     path.add(this);
+        //     return path;
+        // }
+        //
+
         PriorityQueue<Location> queue = new PriorityQueue<>(Comparator.comparingDouble(distance::get));
 
         for (Location location: graph.getLocations().values()){
@@ -113,7 +121,9 @@ public class Location {
             Location current = queue.poll();
             unvisited.remove(current);
 
-            if (current.equals(other)){
+            // System.out.println("im equal?"+current.equals(other));
+            if (current.compare(current,other)){
+                System.out.println("im equal!");
                 while(current != null){
                     path.add(current);
                     current = previous.get(current);
