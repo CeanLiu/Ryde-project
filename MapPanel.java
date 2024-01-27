@@ -1,16 +1,12 @@
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.MouseInfo;
 import java.awt.Point;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.AffineTransform;
@@ -18,8 +14,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-
 
 public class MapPanel extends JPanel {
     private InfoPanel infoPanel;
@@ -32,7 +26,6 @@ public class MapPanel extends JPanel {
     private Point startPoint;
     private Point currentPoint;
     private Location hoveredLocation = null; 
-    private ArrayList<Location> pathToDraw;
     private Client client;
 
     public MapPanel(BufferedImage image, SimpleGraph map, InfoPanel infoPanel) {
@@ -40,7 +33,6 @@ public class MapPanel extends JPanel {
         this.map = map;
         this.infoPanel = infoPanel;
         initComponent();
-
     }
 
     private void initComponent() {
@@ -85,7 +77,6 @@ public class MapPanel extends JPanel {
         double imageScaleHeight = IMAGE_HEIGHT * scaleFactor;
         double panelWidth = getSize().width;
         double panelHeight = getSize().height;
-        //System.out.println("\nx: " + xOnPanel + " y: " + yOnPanel + " \nwidth: " + imageScaleWidth + " height: " + imageScaleHeight + " \npanel width: " + panelWidth + " panel height: " + panelHeight);
         if (imageScaleWidth >= panelWidth) {
             if (xOnPanel + imageScaleWidth <= panelWidth) {
                 xOffset = panelWidth - imageScaleWidth;
@@ -145,8 +136,7 @@ public class MapPanel extends JPanel {
                 }
             }
 
-            // offset the x and y values so that the map stays in place when zooming in and
-            // out
+            // offset the x and y values so that the map stays in place when zooming in and out
             double scaleChange = scaleFactor / prevScale;
             xOffset = e.getX()- scaleChange * (e.getX() - xOffset);
             yOffset = e.getY() - scaleChange * (e.getY() - yOffset);
@@ -162,7 +152,6 @@ public class MapPanel extends JPanel {
         }
         public void mousePressed(MouseEvent e) {
             startPoint = e.getPoint();
-   //         System.out.println("\nX: " + e.getX() + " y: " + e.getY()+"\n");
         }
 
         public void mouseReleased(MouseEvent e) {
@@ -197,14 +186,10 @@ public class MapPanel extends JPanel {
                 inverse.transform(cursorLocation, cursorLocation);
                 hoveredLocation = map.contains(cursorLocation);
 
-                //this is where I change the textfield for userPanel
             } catch (NoninvertibleTransformException ex) {
-                System.out.println("non invertible transofrm");
+                System.out.println("non invertible transform");
             }
             repaint();
         }
     }
-
-   
-
 }

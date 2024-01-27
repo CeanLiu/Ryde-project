@@ -1,14 +1,7 @@
-User:2315235,null,null,false,false
-User:3214234132,BBB,E,true,true
-User:647882559,null,null,false,false
-User:6479361366,null,null,true,false
-User:6543573457,null,null,true,false
-User:757437547,null,null,true,false
-User:34573457,null,null,false,false
-User:12351235,FJG,O,true,true
-Driver:666666,City Hall,6666,true
-Driver:124213413,A,263462,false
-Driver:623462346,ELGIN-YORK,51235,true
-Driver:12352352352,O,235212535,false
-Driver:6475223361,BBB,5,false
-Driver:86868,O,34573,false
+User:567,null,null,false,false
+User:456,null,null,false,false
+User:345,null,null,false,false
+User:234,null,null,false,false
+User:123,null,null,false,false
+Driver:222,A,3,false
+Driver:111,null,5,false

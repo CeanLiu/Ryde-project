@@ -1,7 +1,3 @@
-import java.util.ArrayList;
-
-import javax.swing.SwingUtilities;
-
 public class UserThread implements Runnable {
     Database db;
     User user;
@@ -15,7 +11,6 @@ public class UserThread implements Runnable {
 
     @Override
     public void run() {
-        // move the user along the roads
         try {
             user.start();
         } catch (Exception e) {

@@ -1,9 +1,6 @@
-
-//imports for network communication
 import java.awt.Graphics2D;
 import java.io.*;
 import java.net.*;
-
 
 abstract public class Client {
 
@@ -15,20 +12,20 @@ abstract public class Client {
     BufferedReader input;
 
     public void start(String outputMsg) throws Exception {
-        // create a socket with the local IP address and attempt a connection
         System.out.println("Attempting to establish a connection ...");
-        clientSocket = new Socket(LOCAL_HOST, PORT); // create and bind a socket, and request connection
+        clientSocket = new Socket(LOCAL_HOST, PORT);
         output = new PrintWriter(clientSocket.getOutputStream(), true);
         input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         System.out.println("Connection to server established!");
         output.println(getNumber()+"%"+outputMsg);
-        output.flush(); // ensure the message was sent but not kept in the buffer
+        output.flush();
     }
 
     public void send(String msg) {
         output.println(getNumber()+"%"+msg);
     }
 
+    // receive messages from the server
     public String receive() {
         try {
             String msg = input.readLine();

@@ -1,15 +1,11 @@
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class DriverThread implements Runnable {
     private Database db;
     private Driver driver;
-    private long phoneNum;
 
     public DriverThread(Database db, long phoneNum) {
         this.db = db;
-        this.phoneNum = phoneNum;
         this.driver = db.getDriver(phoneNum);
     }
 
@@ -36,10 +32,6 @@ public class DriverThread implements Runnable {
                 System.out.println("moved");
                 driver.move();
                 db.saveDatabase();
-            // } else {
-            //     driver.setCurrentLocation(null);
-            //     driver.send("stopDriver:"+driver.getNumber());
-            //     db.saveDatabase();
             }
             System.out.println("has currLocation" +driver.hasCurrLocation());
             SwingUtilities.invokeLater(() -> {

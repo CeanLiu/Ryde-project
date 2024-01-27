@@ -1,13 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class User extends Client {
@@ -19,7 +12,6 @@ public class User extends Client {
     private Driver driver;
     private SimpleGraph graph;
     private BufferedImage userImage;
-    private boolean checkedInRide = false;
 
     public User(BufferedImage userImage, Interface gui, SimpleGraph graph, long phoneNum) {
         this.userImage = userImage;
@@ -78,14 +70,11 @@ public class User extends Client {
     }
 
     public void reset() {
-        // if(isFinished()){
         this.current = null;
         this.start = null;
         this.end = null;
         this.driver = null;
         this.inRide = false;
-        this.checkedInRide = false;
-        // }
     }
 
     public boolean hasDriver() {
@@ -103,24 +92,6 @@ public class User extends Client {
     public boolean isDoneChoose() {
         return getEnd() != null && getStart() != null;
     }
-
-    // public boolean isInRide() {
-    // if(hasDriver()){
-    // if(!checkedInRide){
-    // if(getCurrent().compare(getCurrent(), driver.getCurrentLocation())){
-    // checkedInRide = true;
-    // send("aboard:"+getNumber()+","+getDriver());
-    // return inRide = true;
-    // }else{
-    // return inRide = false;
-    // }
-    // }else{
-    // return inRide;
-    // }
-    // }else{
-    // return inRide = false;
-    // }
-    // }
 
     public void setFinished(boolean finished) {
         this.finished = finished;
@@ -144,13 +115,12 @@ public class User extends Client {
 
     public void setCurrent(Location location) {
         if (location != null) {
-           // Location location = graph.getLocation(input.getName());
             current = new Location(location.getName(), location.getX(), location.getY());
             for (Location connector : location.getConnections()) {
                 current.addConnection(connector);
             }
         } else {
-            System.out.println(getNumber() + "START IS NULL");
+            current = null;
             return;
         }
     }
@@ -180,17 +150,11 @@ public class User extends Client {
         double x = driver.getCurrent().getX();
         double y = driver.getCurrent().getY();
         if (getCurrent().compare(getCurrent(), getEnd())) {
-            System.out.println("I've arrived at my destination: " + end.getName());
-            // finished = true;
             reset();
         } else {
             setCurrent(driver.getCurrent());
             this.current.setX(x);
             this.current.setY(y);
-            // current = new Location(driverLocat.getName(), driverLocat.getX(), driverLocat.getY());
-            // for (Location connector : driverLocat.getConnections()) {
-            //     current.addConnection(connector);
-            // }
             setRideStatus(true);
         }
     }
@@ -208,7 +172,6 @@ public class User extends Client {
     public void updateGUI() {
         SwingUtilities.invokeLater(() -> {
             InfoPanel infoPanel = gui.getInfoPanel();
-            MapPanel mapPanel = gui.getMapPanel();
             if (isDoneChoose()) {
                 String info = "User " + getNumber() + ":\nStart Location: " + getStart().toString() + "\nEnd Location: "
                         + getEnd().toString();
@@ -225,17 +188,11 @@ public class User extends Client {
                         info += "\nPlease wait for the driver to pick up";
                     }
                 } else {
-                    // System.out.println(getDriver());
                     info += "\nPlease wait patiently for a driver to pick up the order";
                 }
                 infoPanel.bottomPanel.setVisible(false);
                 infoPanel.setLocationText(start.toString(), end.toString());
                 infoPanel.displayInfo(Color.black, info);
-                // System.out.println(mapPanel.toString());
-                // System.out.println(graph.toString());
-                // System.out.println(getCurrent());
-                // System.out.println(getEnd());
-                // mapPanel.setPathToDraw(getStart().shortestPath(getEnd(), graph));
             } else {
                 infoPanel.bottomPanel.setVisible(true);
                 infoPanel.resetDisplay();

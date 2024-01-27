@@ -17,9 +17,8 @@ public class Server {
     }
 
     public void go() throws Exception {
-        // create a socket with the local IP address and wait for connection request
         System.out.println("Waiting for a connection request from a client ...");
-        serverSocket = new ServerSocket(PORT); // create and bind a socket
+        serverSocket = new ServerSocket(PORT);
         Thread accept = new Thread() {
             public void run(){
                 while(true){

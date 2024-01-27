@@ -17,12 +17,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 public class Interface extends JFrame {
     final int MAX_X = (int) getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int) getToolkit().getScreenSize().getHeight();
@@ -30,7 +27,7 @@ public class Interface extends JFrame {
     private BufferedImage mapImage;
     private Database db;
     private JFrame frame;
-    private JPanel welcomePanel, loginPanel, driverLoginPanel;
+    private JPanel welcomePanel, loginPanel;
     private JTextField dCapacityTextField;
     private JLabel dCapacityLabel;
     private JSplitPane splitPane;
@@ -56,7 +53,6 @@ public class Interface extends JFrame {
     }
 
     public void runGUI() {
-        // Set the size to 3/4 of the screen
         frame = new JFrame("RYDE");
         frame.setSize(MAX_X *3/4, MAX_Y *3/4);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,22 +64,20 @@ public class Interface extends JFrame {
         welcomePanel = new JPanel(new GridBagLayout());
         GridBagConstraints startGBC = new GridBagConstraints();
 
-        // Create the title label with a larger font
         JLabel titleLabel = new JLabel("Welcome To RYDE");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24)); // Larger font
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         startGBC.gridx = 0;
         startGBC.gridy = 0;
-        startGBC.gridwidth = 2; // Span across two columns
-        startGBC.insets = new Insets(0, 20, 20, 20); // Increased top margin
+        startGBC.gridwidth = 2;
+        startGBC.insets = new Insets(0, 20, 20, 20);
         welcomePanel.add(titleLabel, startGBC);
 
-        // Create the left button with a larger size
         driveButton = new JButton("I am a Driver");
-        driveButton.setFont(new Font("Arial", Font.PLAIN, 18)); // Larger font
+        driveButton.setFont(new Font("Arial", Font.PLAIN, 18));
         startGBC.gridx = 0;
         startGBC.gridy = 1;
-        startGBC.gridwidth = 1; // Reset grid width
-        startGBC.insets = new Insets(100, 20, 30, 10); // Increased bottom margin, decreased right margin
+        startGBC.gridwidth = 1;
+        startGBC.insets = new Insets(100, 20, 30, 10);
         driveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 isDriver = true;
@@ -92,12 +86,11 @@ public class Interface extends JFrame {
         });
         welcomePanel.add(driveButton, startGBC);
 
-        // Create the right button with a larger size
         rideButton = new JButton("I am a Ryder");
-        rideButton.setFont(new Font("Arial", Font.PLAIN, 18)); // Larger font
+        rideButton.setFont(new Font("Arial", Font.PLAIN, 18));
         startGBC.gridx = 1;
         startGBC.gridy = 1;
-        startGBC.insets = new Insets(100, 100, 30, 20); // Increased bottom margin, decreased left margin
+        startGBC.insets = new Insets(100, 100, 30, 20);
         rideButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 isDriver = false;
@@ -130,7 +123,7 @@ public class Interface extends JFrame {
         loginPanel.add(phoneLabel);
 
         JTextField phoneNumberTextField = new JTextField();
-        setPlaceholder(phoneNumberTextField, "Enter your phone number"); // Set placeholder text
+        setPlaceholder(phoneNumberTextField, "Enter your phone number");
         phoneNumberTextField.setFont(new Font(phoneNumberTextField.getFont().getName(), Font.PLAIN, 24));
         loginPanel.add(phoneNumberTextField);
 

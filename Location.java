@@ -1,5 +1,4 @@
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -11,11 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.PriorityQueue;
-
-import javax.swing.SwingUtilities;
-
 
 public class Location {
     final int DIAMETER = 60;
@@ -68,7 +63,6 @@ public class Location {
     }
 
     public boolean compare(Location location1, Location location2) {
-        // return location1.getName().equals(location2.getName()) && location1.getX() == location2.getX()&& location1.getY() == location2.getY();
         return location1.getName().equals(location2.getName());
     }
 
@@ -77,7 +71,6 @@ public class Location {
             double xDifference = this.getX() - other.getX();
             double yDifference = this.getY() - other.getY();
             Double length = Math.sqrt(xDifference * xDifference + yDifference * yDifference);
-            // System.out.println(other.toString() + length);
             return length;
         } else {
             return -1;
@@ -99,14 +92,6 @@ public class Location {
         HashMap<Location,Location> previous = new HashMap<>();
         ArrayList<Location> path = new ArrayList<>();
 
-        //
-        // if(this.compare(this,other)){
-        //     System.out.println("tey are equal you mf");
-        //     path.add(this);
-        //     return path;
-        // }
-        //
-
         PriorityQueue<Location> queue = new PriorityQueue<>(Comparator.comparingDouble(distance::get));
 
         for (Location location: graph.getLocations().values()){
@@ -121,14 +106,11 @@ public class Location {
             Location current = queue.poll();
             unvisited.remove(current);
 
-            // System.out.println("im equal?"+current.equals(other));
             if (current.compare(current,other)){
-        //        System.out.println("im equal!");
                 while(current != null){
                     path.add(current);
                     current = previous.get(current);
                 }
-          //      System.out.println(current);
                 Collections.reverse(path);
                 return path;
             }
@@ -196,15 +178,4 @@ public class Location {
     public String toString() {
         return getName();
     }
-
-    public String hi(){
-        String str = "";
-        if (connections != null) {
-            for (Location location : connections) {
-                str = str + " " + location.getName();
-            }
-        }
-        return name + ": " + str;
-    }
-
 }

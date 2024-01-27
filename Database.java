@@ -1,11 +1,7 @@
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-
-import javax.imageio.ImageIO;
-
 import javax.imageio.ImageIO;
 
 public class Database {
@@ -253,13 +249,5 @@ public class Database {
         Driver driver = drivers.get(phoneNum);
         driver.setCurrentLocation(null);
         driver.setDrive(false);
-    }
-
-    public void removeUser(long phoneNum) {
-        users.remove(phoneNum);
-    }
-
-    public void removeDriver(long phoneNum) {
-        drivers.remove(phoneNum);
     }
 }

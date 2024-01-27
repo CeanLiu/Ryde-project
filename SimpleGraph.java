@@ -1,29 +1,15 @@
-
 import java.util.Scanner;
-
-import javax.imageio.ImageIO;
 import java.util.HashMap;
 import java.awt.Graphics2D;
-import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-/**
- * Custom Graph implementation
- * 
- * @author ICS4UE
- * @version Oct 2023
- */
 class SimpleGraph {
     private HashMap<String, Location> locations;
 
-    // Constructor
     public SimpleGraph() {
         this.locations = new HashMap<String, Location>();
-        // this.coordinates = new HashMap<>();
         loadMap("map.txt");
     }
 
@@ -31,7 +17,6 @@ class SimpleGraph {
         final int LOCATION_NAME_INDEX = 0;
         final int LOCATION_X_INDEX = 1;
         final int LOCATION_Y_INDEX = 2;
-        // add final indexes for box attributes
         try {
             Scanner input = new Scanner(new FileReader(file));
             boolean readLocation = true;
@@ -60,7 +45,6 @@ class SimpleGraph {
                 }
             }
             input.close();
-      //      System.out.println(this.toString());
         } catch (IOException ex) {
             System.out.println(ex);
             ex.printStackTrace();
@@ -76,9 +60,6 @@ class SimpleGraph {
     }
 
     public void draw(Graphics2D g2) {
-        // for (Location location : locations.values()) {
-        //     location.drawAllEdge(g2);
-        // }
         for (Location location : locations.values()) {
             location.drawVertex(g2);
         }
