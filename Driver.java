@@ -408,14 +408,18 @@ public class Driver extends Client {
                 infoPanel.setLocationText(currentLocation.toString());
                 infoPanel.confirmButton.setVisible(false);
                 if (!isDrive()) {
+                    System.out.println("ryders.size: "+ryders.size());
                     if(ryders.size() < getCapacity()){
                         if (ryders.size() == 1 && ryders.get(0).isAlone() == true){ // selected a user that rides alone
+                            System.out.println("none. was used");
                             infoPanel.createRequest(Color.black, info, "none");
-                        }
+                        } 
                         else if (ryders.size() == 0){ // did not select a user yet
+                            System.out.println("all. was used");
                             infoPanel.createRequest(Color.black, info,"all");
                         } else {    // selected a user that wants to carpool
-                            infoPanel.createRequest(Color.black, info, "carpool mf");
+                            System.out.println("carpool. was used");
+                            infoPanel.createRequest(Color.black, info, "carpool");
                         }
                     }
                     //System.out.println("hasRyders: " + hasRyders());

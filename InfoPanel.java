@@ -232,8 +232,32 @@ public class InfoPanel extends JPanel {
         HashMap<Long, User> requestList = db.getUsers();
         if (!carpool.equals("none")){
             for (User user : requestList.values()) {
-                if (!user.hasDriver()){
-                    // if (carpool.equals("all")){
+                System.out.println("user: "+user+" hasDriver: "+user.hasDriver());
+                if (!user.hasDriver() && user.isDoneChoose()){
+                    if (carpool.equals("carpool")){ // show only those that want to carpool
+                        if (!user.isAlone()){
+                            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                            JLabel request = new JLabel(user.toString());
+                            JButton accept = new JButton("Accept User");
+                            accept.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    if (client instanceof Driver) {
+                                        ((Driver) client).assignRyder(user);
+                                        ((Driver) client).send("accept:"+user.getNumber()+","+((Driver)client).getNumber()+","+((Driver)client).getCurrentLocation());
+                                        // ((Driver) client).updateGUI();
+                                        user.setDriver((Driver)client);
+                                        panel.setVisible(false);
+                                        repaint();
+                                        db.saveDatabase();
+                                    }
+                                }
+                            });
+                            panel.add(request);
+                            panel.add(accept);
+                            displayPanel.add(panel);
+                        }
+                    } else { //show all
                         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
                         JLabel request = new JLabel(user.toString());
                         JButton accept = new JButton("Accept User");
@@ -251,51 +275,12 @@ public class InfoPanel extends JPanel {
                         panel.add(request);
                         panel.add(accept);
                         displayPanel.add(panel);
-                        // if(carpool.equals("carpool mf")){
-                        //     if (!user.isAlone()){
-                        //         panel.add(request);
-                        //         panel.add(accept);
-                        //         displayPanel.add(panel);
-                        //     }
-                        // } else {
-                        //     panel.add(request);
-                        //     panel.add(accept);
-                        //     displayPanel.add(panel);
-                        // }
-                        // revalidate();
-        // repaint();
-                    } 
-        //             else {//else if (carpool.equals("carpool only")){
-        //                 if (!user.isAlone()){
-        //                     JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        //                     JLabel request = new JLabel(user.toString());
-        //                     JButton accept = new JButton("Accept User");
-        //                     accept.addActionListener(new ActionListener() {
-        //                         @Override
-        //                         public void actionPerformed(ActionEvent e) {
-        //                             if (client instanceof Driver) {
-        //                                 ((Driver) client).assignRyder(user);
-        //                                 ((Driver) client).send(client.toString());
-        //                                 ((Driver) client).updateGUI();
-        //                                 db.saveDatabase();
-        //                             }
-        //                         }
-        //                     });
-        //                     panel.add(request);
-        //                     panel.add(accept);
-        //                     displayPanel.add(panel);
-        //                     revalidate();
-        // repaint();
-                        // }
-                        
-                    // }
-                    
-                // }
+                    }
+                } 
             }
-            revalidate();
+        revalidate();
         repaint();
         }
-        
     }
 
     public void displayInfo(Color color, String txt) {
