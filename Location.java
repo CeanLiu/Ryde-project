@@ -106,6 +106,7 @@ public class Location {
             Location current = queue.poll();
             unvisited.remove(current);
 
+            // if the current location matches the location to move to, backtrack and add all the locations to a list
             if (current.compare(current,other)){
                 while(current != null){
                     path.add(current);
@@ -116,6 +117,9 @@ public class Location {
             }
             // add all the distances of the connectors
             for(Location connector: current.getConnections()){
+                // add the distance from origin to current point and the distance to the next connecting location
+                // if this distance is smaller than what was already stored in the hashmap (originally infinite), add this 
+                // connecting location to the queue
                 double newDistance = distance.get(current) + current.getEdge(connector);
                 if (newDistance < distance.get(connector)){
                     distance.put(connector,newDistance);
@@ -123,7 +127,6 @@ public class Location {
                     queue.add(connector);
                 }
             }
-
         }
         return null;
 

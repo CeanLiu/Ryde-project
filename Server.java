@@ -81,13 +81,13 @@ public class Server {
         }
         public void send(String msg){
             try{
-                
                 output.println(msg);
                 output.flush();
             }catch(Exception e){ e.printStackTrace(); }
         }
     }
     
+    // sends information back to all the clients
     public void sendToAll(String msg){
         int i = 0;
         for(ConnectionHandler client : clients){

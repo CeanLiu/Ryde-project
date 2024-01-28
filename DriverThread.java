@@ -18,7 +18,6 @@ public class DriverThread implements Runnable {
         }
 
         while (true) {
-            System.out.println("driver thread repeated");
             String msg = driver.receive();
             if (msg != null) {
                 // Ensure proper synchronization for database updates
@@ -28,7 +27,6 @@ public class DriverThread implements Runnable {
                 }
             }
             if (driver.isDrive()) {
-                System.out.println("moved");
                 driver.move();
                 db.saveDatabase();
             }

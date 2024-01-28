@@ -205,8 +205,7 @@ public class Database {
         long userPhone = Long.parseLong(acceptText.split(",")[PHONE]);
         long driverPhone = Long.parseLong(acceptText.split(",")[1]);
         Location current = map.getLocation(acceptText.split(",")[2]);
-        // updates the database so that the user can know a driver accepted their ride
-        // request
+        // updates the database so that the user can know a driver accepted their ride request
         User user = users.get(userPhone);
         Driver driver = drivers.get(driverPhone);
         driver.setCurrent(current);
