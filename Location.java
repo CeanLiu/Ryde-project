@@ -91,7 +91,7 @@ public class Location {
         HashSet<Location> unvisited = new HashSet<>();
         HashMap<Location,Location> previous = new HashMap<>();
         ArrayList<Location> path = new ArrayList<>();
-
+        
         PriorityQueue<Location> queue = new PriorityQueue<>(Comparator.comparingDouble(distance::get));
 
         for (Location location: graph.getLocations().values()){

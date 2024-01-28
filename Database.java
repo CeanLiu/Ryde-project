@@ -53,7 +53,9 @@ public class Database {
     public void loadDatabase() {
         users.clear();
         drivers.clear();
+        // reads and loads database from two textfiles
         try {
+            //clients.txt stores all the info about the users/drivers,
             Scanner input = new Scanner(new FileReader(CLIENT_FILE));
             boolean readUser = true;
             while (input.hasNext()) {
@@ -81,6 +83,7 @@ public class Database {
                     drivers.put(phoneNum, new Driver(driverImage, gui, map, phoneNum, currLocat, capacity, isDrive));
                 }
             }
+            //rydeInfo.txt stores all the info about if a driver has a user
             input = new Scanner(new FileReader(RYDE_INFO_FILE));
             while (input.hasNext()) {
                 String rydeInfo = input.nextLine().trim();
@@ -101,6 +104,7 @@ public class Database {
     }
 
     public void saveDatabase() {
+        // writes the updated data received/inputed onto a text file
         try {
             PrintWriter writer = new PrintWriter(new FileOutputStream(clientFile, false));
             for (User user : users.values()) {
@@ -139,7 +143,7 @@ public class Database {
     }
 
     public void addUser(long phoneNum) {
-        users.put(phoneNum, new User(userImage, gui,phoneNum));
+        users.put(phoneNum, new User(userImage, gui, phoneNum));
     }
 
     public void addDriver(long phoneNum, int capacity) {
@@ -154,6 +158,8 @@ public class Database {
     }
 
     public void update(String dataReceived) {
+        // whenever the client receives a msg from the server, the database will be
+        // updated here, depending on the type of interaction it receives
         String type = dataReceived.split(":")[0];
         String textDetail = dataReceived.split(":")[1];
         if (type.equals("request")) {
@@ -188,6 +194,7 @@ public class Database {
         Location endLocation = map.getLocation(userDetail[END_LOCAT]);
         Location startLocation = map.getLocation(userDetail[START_LOCAT]);
         boolean isAlone = userDetail[IS_ALONE].equals("true");
+        // updates the database so that drivers can see a new user request
         User user = users.get(phoneNum);
         user.setStart(startLocation);
         user.setEnd(endLocation);
@@ -198,6 +205,8 @@ public class Database {
         long userPhone = Long.parseLong(acceptText.split(",")[PHONE]);
         long driverPhone = Long.parseLong(acceptText.split(",")[1]);
         Location current = map.getLocation(acceptText.split(",")[2]);
+        // updates the database so that the user can know a driver accepted their ride
+        // request
         User user = users.get(userPhone);
         Driver driver = drivers.get(driverPhone);
         driver.setCurrent(current);
@@ -212,6 +221,8 @@ public class Database {
         double y = Double.parseDouble(moveText.split(",")[3]);
         double directionAngle = Double.parseDouble(moveText.split(",")[4]);
         Driver driver = drivers.get(driverPhone);
+        // updates the database everytime the driver moves, also updates the direction
+        // it is moving towards
         driver.setDrive(true);
         driver.setCurrent(current);
         driver.getCurrent().setX(x);
@@ -224,6 +235,8 @@ public class Database {
         long driverPhone = Long.parseLong(aboardText.split(",")[1]);
         User user = users.get(userPhone);
         Driver driver = drivers.get(driverPhone);
+        // updates the database so the user is in the ride instead of waiting for driver
+        // pick
         user.setCurrent(driver.getCurrent());
         user.setRideStatus(true);
     }
@@ -233,6 +246,8 @@ public class Database {
         long driverPhone = Long.parseLong(arriveText.split(",")[1]);
         User user = users.get(userPhone);
         Driver driver = drivers.get(driverPhone);
+        // updates the database so the user is now arrived on its location, will then
+        // reset everything about the user
         user.setDriver(null);
         user.setEnd(null);
         user.setStart(null);
@@ -243,6 +258,8 @@ public class Database {
     public void stopDriver(String stopText) {
         long phoneNum = Long.parseLong(stopText);
         Driver driver = drivers.get(phoneNum);
+        // updates the database so the driver is now done dilvering users, will then
+        // reset everything about the driver
         driver.setCurrent(null);
         driver.setDrive(false);
     }

@@ -49,10 +49,12 @@ public class MapPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        //controls dragging and zooming in/out
         at = new AffineTransform();
         at.translate(xOffset, yOffset);
         at.scale(scaleFactor, scaleFactor);
         g2.transform(at);
+
         g2.drawImage(image, 0, 0, this);
         if(client.getIsHeading() != null){
             drawPath(g2);
@@ -67,7 +69,7 @@ public class MapPanel extends JPanel {
     public Location getHoveredLocation(){
         return hoveredLocation;
     }
-
+    //resets the location of the map back to default if the users drag the map outside of the panel
     public void resetLocation() {
         final int IMAGE_WIDTH = 2026;
         final int IMAGE_HEIGHT = 1872;
@@ -105,8 +107,8 @@ public class MapPanel extends JPanel {
             yOffset = 0;
         }
     }
-    
     public void drawPath(Graphics2D g2){
+        //draws the path based on the client's current location and its destination 
         ArrayList<Location> pathToDraw = client.getCurrent().shortestPath(client.getIsHeading(),map);
         for (int i = 0; i < pathToDraw.size()-1; i++) {
             Location current = pathToDraw.get(i);
@@ -152,7 +154,7 @@ public class MapPanel extends JPanel {
         public void mousePressed(MouseEvent e) {
             startPoint = e.getPoint();
         }
-
+        //sets the user locations when picking on the map
         public void mouseReleased(MouseEvent e) {
             if(hoveredLocation != null){
                 userPanel.finishChoose(hoveredLocation);
@@ -184,7 +186,6 @@ public class MapPanel extends JPanel {
                 AffineTransform inverse = at.createInverse();
                 inverse.transform(cursorLocation, cursorLocation);
                 hoveredLocation = map.contains(cursorLocation);
-
             } catch (NoninvertibleTransformException ex) {
                 System.out.println("non invertible transform");
             }

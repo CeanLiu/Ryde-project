@@ -27,12 +27,14 @@ class SimpleGraph {
                     readLocation = false;
                 }
                 if (readLocation) {
+                    //reads the coordinates of the locations
                     String[] locationDetails = location.split(",");
                     String name = locationDetails[LOCATION_NAME_INDEX];
                     double x = Double.parseDouble(locationDetails[LOCATION_X_INDEX]);
                     double y = Double.parseDouble(locationDetails[LOCATION_Y_INDEX]);
                     locations.put(name, new Location(name, x, y));
                 }else if (readConnection){
+                    //reads the connections of the locations
                     String[] connectDetail = location.split(":");
                     String src = connectDetail[0];
                     String[] connections = connectDetail[1].split(",");

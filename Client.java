@@ -5,7 +5,7 @@ import java.net.*;
 
 abstract public class Client {
 
-    final String LOCAL_HOST = "127.0.0.1"; // "192.168.0.100";
+    final String LOCAL_HOST = "192.168.0.14"; //"127.0.0.1"; // "192.168.0.100";
     final int PORT = 7777;
 
     Socket clientSocket;
@@ -65,7 +65,7 @@ abstract public class Client {
         output.println(getNumber()+"%"+msg);
     }
 
-    // receive messages from the server
+    // receive messages from the server only if the client is not the one that sent the messages
     public String receive() {
         try {
             String msg = input.readLine();

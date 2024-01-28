@@ -223,6 +223,7 @@ public class InfoPanel extends JPanel {
         repaint();
     }
 
+    //for drivers, display the user request based on their choice(carpool/alone)
     public void createRequest(Color color, String txt, String carpool) {
         displayInfo(color, txt);
         HashMap<Long, User> requestList = db.getUsers();
@@ -262,7 +263,7 @@ public class InfoPanel extends JPanel {
             repaint();
         }
     }
-
+    //displays the information about the driver/ryder and their drier/ryders
     public void displayInfo(Color color, String txt) {
         displayPanel.removeAll();
         JPanel textPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));

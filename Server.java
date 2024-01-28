@@ -36,6 +36,7 @@ public class Server {
         };
         accept.start();
 
+        //a thread that keeps track of a queue of items, and sends the msgs out if the queue is not empty 
         Thread messageHandling = new Thread() {
             public void run(){
                 while(true){

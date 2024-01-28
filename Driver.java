@@ -3,11 +3,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-
 import javax.swing.SwingUtilities;
 
 public class Driver extends Client {
@@ -198,18 +193,18 @@ public class Driver extends Client {
             y1 += 200 * Math.sin(directionAngle);
             getCurrent().setX(x1);
             getCurrent().setY(y1);
-
+            //checks if the driver arrives at a new location
             if (Math.abs(getCurrent().getX() - next.getX()) <= 200&& Math.abs(getCurrent().getY() - next.getY()) <= 200) {
-                setCurrent(next);
-           //     Location last = combinedPath.get(combinedPath.size()-1);
-              //  combinedPath = new ArrayList<Location>(getCurrent().shortestPath(last, graph));
+                setCurrent(next);   
             }
+            //check if there are any new ryders at the current location
             for (User ryder : ryders) {
                 if (getCurrent().compare(getCurrent(), ryder.getStart())) {
                     send("aboard:" + ryder.getNumber() + "," + getNumber());
                     ryder.setRideStatus(true);
                 }
             }
+            //check if there are any ryders to be dropped off at the current location
             if (!this.ryders.isEmpty()) {
                 ArrayList<User> temp = new ArrayList<>(ryders);
                 for (User ryder : temp) {
@@ -221,42 +216,13 @@ public class Driver extends Client {
                 temp = new ArrayList<>(ryders);
             } 
             this.send("moveDriver:"+getNumber()+","+getCurrent().getName()+","+getCurrent().getX()+","+getCurrent().getY()+","+getDirectionAngle());
+            //make sure the GUI can update (does not overload EDT)
             try {
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public ArrayList<Location> createPath(Location start, Location end) { // shortest node connections
-        ArrayList<Location> path = new ArrayList<>();
-        Queue<Location> queue = new LinkedList<>();
-        HashSet<Location> visited = new HashSet<>();
-        HashMap<Location, Location> connections = new HashMap<>();
-        queue.add(start);
-        visited.add(start);
-
-        while (!queue.isEmpty()) {
-            Location current = queue.remove();
-            if (current.equals(end)) {
-                while (!current.equals(start)) {
-                    path.add(current);
-                    current = connections.get(current);
-                }
-                path.add(current);
-                return path;
-            }
-            for (Location connector : current.getConnections()) {
-                if (!visited.contains(connector)) {
-                    queue.add(connector);
-                    visited.add(connector);
-                    connections.put(connector, current);
-                }
-            }
-        }
-        System.out.println("Return path is null in method create path");
-        return null;
     }
 
     // -------------------------------------------------------------------------
@@ -307,8 +273,8 @@ public class Driver extends Client {
             if (isDrive()) {
                 AffineTransform transform = new AffineTransform();
                 transform.translate(x, y);
-                transform.rotate(getDirectionAngle(), getIcon().getWidth(null) / 2.0,
-                getIcon().getHeight(null) / 2.0);
+                //rotate the driver image based on the direction it is heading
+                transform.rotate(getDirectionAngle(), getIcon().getWidth(null) / 2.0,getIcon().getHeight(null) / 2.0);
                 g2.drawImage(getIcon(), transform, null);
             } else {
                 g2.drawImage(getIcon(), x, y, null);
@@ -321,6 +287,7 @@ public class Driver extends Client {
     }
 
     public String getRydeInfo() {
+        //gets all the ryders it has
         String info = "";
         for (int i = 0; i < ryders.size(); i++) {
             if (i != ryders.size() - 1) {
